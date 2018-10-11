@@ -1,0 +1,25 @@
+reset
+!new Station('s')
+!new Person('Manolo')
+!new Train('t')
+!new Observation('m1')
+!new Observation('m2')
+!new Observation('t1')
+!new Observation('t2')
+!s.position:=100
+!insert(Manolo,t)into TargetTrain
+!insert(Manolo,s) into HeadsTo
+!insert(t,s) into HeadsTo
+!m1.position:=50
+!m1.time:=0
+!m2.position:=60
+!m2.time:=10
+!t1.position:=0
+!t1.time:=0
+!t2.position:=10
+!t2.time:=5
+!insert(Manolo,m1) into PreviousPosition
+!insert(Manolo,m2) into CurrentPosition
+!insert(t,t1) into PreviousPosition
+!insert(t,t2) into CurrentPosition
+

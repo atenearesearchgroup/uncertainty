@@ -1,0 +1,11 @@
+!new Tunnel('t')
+!t.length := 500
+!t.maxSpeed := 80
+!new Camera('c1')
+!c1.on := true
+!insert (t,c1) into EntryCamera
+!new Camera('c2')
+!c2.on := true
+!insert (t,c2) into ExitCamera
+
+!t.start()

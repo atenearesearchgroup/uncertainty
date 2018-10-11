@@ -1,0 +1,103 @@
+!new Clock('c')
+!new Drone('d1')
+!new Drone('d2')
+!new UnidentifiedObject('o1')
+!new UnidentifiedObject('o2')
+!new UnidentifiedObject('o3')
+!new Coordinate('c1')
+!new Coordinate('c2')
+!new Coordinate('c3')
+!new Coordinate('c4')
+!new Coordinate('c5')
+!insert (d1,c1) into ObjectPosition
+!insert (d2,c2) into ObjectPosition
+!insert (o1,c3) into ObjectPosition
+!insert (o2,c4) into ObjectPosition
+!insert (o3,c5) into ObjectPosition
+!c.now := UInteger(1524199495,1.0)
+!c1.x := UReal(0.0,0.1)
+!c1.y := UReal(0.0,0.1)
+!c2.x := UReal(500.0,0.1)
+!c2.y := UReal(700.0,0.1)
+!c3.x := UReal(700.0,0.1)
+!c3.y := UReal(700.0,0.1)
+!c4.x := UReal(1000.0,0.1)
+!c4.y := UReal(900.0,0.1)
+!c5.x := UReal(2000.0,0.1)
+!c5.y := UReal(100.0,0.1)
+!d1.width := UReal(5.0,0.1)
+!d1.speed := UReal(20.0,0.1)
+!d1.angle := UReal(0.78,0.02)
+!d2.width := UReal(9.0,0.1)
+!d2.speed := UReal(20.0,0.1)
+!d2.angle := UReal(1.5,0.02)
+!o1.confidence := 0.98
+!o1.width := UReal(75.0,0.1)
+!o1.angle := UReal(3.92,0.07)
+!o1.speed := UReal(50.0,0.2)
+!o2.confidence := 0.9
+!o2.width := UReal(90.0,0.1)
+!o2.angle := UReal(3.14,0.07)
+!o2.speed := UReal(60.0,0.2)
+!o3.confidence := 0.85
+!o3.width := UReal(70.0,0.1)
+!o3.angle := UReal(0.0,0.07)
+!o3.speed := UReal(15.0,0.2)
+
+-- Next step!
+
+-- a) create possible threats and gunshots
+
+-- !new Threat('th1')
+-- !th1.confidence := (o1.confidence*0.99)
+-- !insert (d1,th1) into Threat2Drone
+-- !insert (th1,o1) into Threat2UO
+!new Gunshot('gs1')
+!gs1.confidence := (o1.confidence*0.99)*1.0*(o1.confidence>0.65 and o1.speed>30 and o1.shot->select(ss | ss.confidence>0.95)->isEmpty() and d1.position.distance(o1.position)<1000).confidence()
+!new Coordinate('cgs1')
+!insert (gs1,cgs1) into GunShotPosition
+!cgs1.x := c1.x
+!cgs1.y := c1.y
+
+-- !new Threat('th2')
+-- !th2.confidence := (o2.confidence*0.99)
+-- !insert (d1,th2) into Threat2Drone
+-- !insert (th2,o2) into Threat2UO
+!new Gunshot('gs2')
+!gs2.confidence := (o2.confidence*0.99)*1.0*(o2.confidence>0.65 and o2.speed>30 and o2.shot->select(ss | ss.confidence>0.95)->isEmpty() and d2.position.distance(o2.position)<1000).confidence()
+!new Coordinate('cgs2')
+!insert (gs2,cgs2) into GunShotPosition
+!cgs2.x := c2.x
+!cgs2.y := c2.y
+
+-- !new Threat('th3')
+-- !insert (d2,th3) into Threat2Drone
+-- !insert (th3,o2) into Threat2UO
+-- !th3.confidence := (o2.confidence*0.99)
+!new Gunshot('gs3')
+!gs3.confidence := (o1.confidence*0.99)*1.0*(o1.confidence>0.65 and o1.speed>30 and o1.shot->select(ss | ss.confidence>0.95)->isEmpty() and d2.position.distance(o1.position)<1000).confidence()
+!new Coordinate('cgs3')
+!insert (gs3,cgs3) into GunShotPosition
+!cgs3.x := c2.x
+!cgs3.y := c2.y
+
+-- create links gunshot links
+!insert (d1,gs1) into Shot
+!insert (gs1,o1) into Hit
+!insert (d2,gs2) into Shot
+!insert (gs2,o1) into Hit
+!insert (d2,gs3) into Shot
+!insert (gs3,o2) into Hit
+
+-- b) move() moving objects
+
+!d1.move(1)
+!d2.move(1)
+!o1.move(1)
+!o2.move(1)
+!o3.move(1)
+
+-- c) update time
+!a := c.now
+!c.now := a + UInteger(1,0.0)
+

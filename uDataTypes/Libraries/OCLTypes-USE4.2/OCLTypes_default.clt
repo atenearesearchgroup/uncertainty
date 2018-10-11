@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram_Layout version="13">
+  <diagramOptions>
+    <autolayout>false</autolayout>
+    <antialiasing>false</antialiasing>
+    <showassocnames>false</showassocnames>
+    <showattributes>true</showattributes>
+    <showmultiplicities>false</showmultiplicities>
+    <showoperations>true</showoperations>
+    <showrolenames>true</showrolenames>
+    <showgrid>false</showgrid>
+  </diagramOptions>
+  <node id="UBoolean_A" sizeCalculated="true" type="Class">
+    <name>UBoolean_A</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>1238.0</x>
+      <y>13.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="UUnlimitedNatural" sizeCalculated="true" type="Class">
+    <name>UUnlimitedNatural</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>710.0</x>
+      <y>12.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="UBoolean" sizeCalculated="true" type="Class">
+    <name>UBoolean</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>974.0</x>
+      <y>13.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="UReal" sizeCalculated="true" type="Class">
+    <name>UReal</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>266.0</x>
+      <y>11.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="UEnum" sizeCalculated="true" type="Class">
+    <name>UEnum</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>11.0</x>
+      <y>10.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="UInteger" sizeCalculated="true" type="Class">
+    <name>UInteger</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>531.0</x>
+      <y>11.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="UString" sizeCalculated="true" type="Class">
+    <name>UString</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>39.0</x>
+      <y>224.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="UColor" sizeCalculated="true" type="Class">
+    <name>UColor</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>1126.0</x>
+      <y>349.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+  <node id="Color" sizeCalculated="true" type="Enumeration">
+    <name>Color</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>1008.0</x>
+      <y>348.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
+</diagram_Layout>

@@ -1,0 +1,126 @@
+model Traffic
+
+class UString
+end
+
+class Tunnel
+attributes
+length:Real
+maxSpeed:Real
+operations
+	start() begin
+		declare r1:Report, r2:Report, c1:Camera, c2:Camera, pic1:Picture, pic2:Picture, f:Fine;
+		c1:=self.entryCamera;
+		c2:=self.exitCamera;
+		pic1:=c1.takePicture();
+		r1:=self.createReport(pic1);
+		pic2 := c2.takePicture();
+		r2:=self.findMatch(pic2);
+		if (not r2.oclIsUndefined and (r2.speed > self.maxSpeed).confidence()>0.8) then
+			f:= new Fine();
+			f.numberPlate:= ''; --r2.entryPicture.numberPlate.toString();
+			f.penalty:= 500;
+			-- if ((r2.speed-self.maxSpeed).toBoolean(0.5) < 30) then
+			--	f.penalty:= 500;
+			--else
+			--	f.penalty:= 800;
+			--end;
+		end
+	end
+	createReport(p:Picture):Report begin
+		declare r:Report;
+		r:=new Report();
+		insert (self,r) into TunnelReports;
+		insert (p,r) into EntryPicture;
+		result := r;
+	end
+	findMatch(pic:Picture):Report begin
+		declare r:Report;
+		r := self.reports->any(r| r.entryPicture.numberPlate = pic.numberPlate);
+		if (not r.oclIsUndefined) then
+			insert (pic, r) into ExitPicture;
+		end;
+		result := r;
+	end
+end
+
+class Camera
+attributes
+on:Boolean
+operations
+takePicture():Picture begin
+	declare pic:Picture;
+	pic := new Picture();
+	insert (self, pic) into Pictures;
+	-- pic.numberPlate := '1243ABC'; -- new UString();
+	pic.timestamp := UReal(153.0, 4.0);
+	result := pic;
+end
+end
+
+class Picture
+attributes
+timestamp:UReal
+numberPlate:UString
+end
+
+class Fine
+attributes
+ -- fined:Boolean derive: self.report->exists(r | r.fined.confidence()>0.8)
+ numberPlate:String derive: ''; --let n:UString = self.vehicleReport->any(true).numberPlateBefore in n.toString() 
+					-- derive: self.vehicleReport->any(true).numberPlateBefore
+ penalty:Real
+end
+
+class Report
+attributes
+--numberPlateBefore:UString derive: self.entryPicture.numberPlate
+--numberPlateAfter:UString derive: self.exitPicture.numberPlate
+samePlates:UBoolean derive: self.entryPicture.numberPlate = self.exitPicture.numberPlate
+speed:UReal derive: self.tunnel.length/(self.exitPicture.timestamp-self.entryPicture.timestamp)
+fined:UBoolean derive: self.speed > self.tunnel.maxSpeed
+end
+
+
+composition EntryCamera between
+Tunnel [1] role entry
+Camera [1] role entryCamera
+end
+
+composition ExitCamera between
+Tunnel [1] role exit
+Camera [1] role exitCamera
+end
+
+association EntryPicture between
+Picture [1] role entryPicture
+Report [1] role entryReport
+end
+
+association ExitPicture between
+Picture [0..1] role exitPicture
+Report [0..1] role exitReport
+end
+
+association TunnelReports between
+Tunnel [1] role tunnel
+Report [*] role reports
+end
+
+association Reports between
+Fine [0..1]
+Report [1]
+end
+
+association Pictures between
+Camera [1]
+Picture [*]
+end
+
+constraints
+
+  
+context Report inv sameTunnel:
+ self.entryPicture.camera.entry = self.tunnel and
+ self.exitPicture.camera.exit = self.tunnel
+

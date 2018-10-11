@@ -1,0 +1,101 @@
+model SmartHome
+
+abstract class ProbableElement
+attributes
+confidence:Real
+end
+
+abstract class TimedElement
+attributes
+ts:UReal
+end
+
+abstract class TimedProbableElement < TimedElement, ProbableElement
+end
+
+class Home < TimedProbableElement
+attributes
+id:Integer
+temp:UReal
+co:UReal
+dopen:UBoolean
+sqre:Real
+end
+
+class Person < TimedProbableElement
+attributes
+id:Integer
+end
+
+class Location
+attributes
+x:UReal
+y:UReal
+end
+
+association HomeLocation between
+Home [1] role home
+Location [1] role location
+end
+
+association PersonLocation between
+Person [1] role person
+Location [1] role location
+end
+
+class TempIncr < TimedProbableElement
+attributes
+temp:UReal
+incr:UReal
+end
+
+association TempIncrHome between
+Home [1] role home
+TempIncr [0..*] role tempIncr
+end
+
+class COHigh < TimedProbableElement
+attributes
+end
+
+association COHighHome between
+Home [1] role home
+COHigh [0..*] role coHigh
+end
+
+class NobodyHome < TimedProbableElement
+attributes
+end
+
+association NobobyHomeHome between
+Home [1] role home
+NobodyHome [0..*] role nobodyH
+end
+
+class TempWarning < TimedProbableElement
+attributes
+temp:UReal
+end
+
+association TempWarningHome between
+Home [1] role home
+TempWarning [0..*] role tempWarning
+end
+
+class FireWarning < TimedProbableElement
+attributes
+end
+
+association FireWarningTempWarning between
+TempWarning [1] role tw
+FireWarning [0..*] role fw
+end
+
+class Call < TimedProbableElement
+attributes
+end
+
+association FireWarningCall between
+FireWarning [1] role fw
+Call [0..*] role call
+end

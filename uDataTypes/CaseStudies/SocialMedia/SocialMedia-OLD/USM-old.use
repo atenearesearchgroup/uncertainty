@@ -1,0 +1,59 @@
+model USM
+
+abstract class ProbableElement
+attributes
+confidence:Real
+end
+
+abstract class Item
+end
+
+class Photo < Item
+end
+
+class Tweet < Item
+end
+
+class Product < Item
+end
+
+class User
+end
+
+
+association Follow between
+User [*] role followers 
+User [*] role followed
+end
+
+association Likes between
+User [*] role liker
+Item [*] role likes
+end
+
+class WouldLike < ProbableElement
+end
+
+association UserWouldLike between
+User [1] role user
+WouldLike [*] role wouldLikes
+end
+
+association WouldLikeItem between
+WouldLike [*] role wouldLiker
+Item [1] role item
+end
+
+class WouldFollow < ProbableElement
+end
+
+association UserWouldFollow between
+User [1] role wouldFollower
+WouldFollow [*] role wouldFollowers
+end
+
+association WouldFollowUser between
+WouldFollow [*] role wouldFollowedBy
+User [1] role user
+end
+

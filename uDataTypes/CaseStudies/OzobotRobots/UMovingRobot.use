@@ -1,0 +1,79 @@
+model UMovingRobot
+
+class Coordinate
+attributes
+  x : UReal
+  y : UReal
+operations
+  coincide(c:Coordinate):Boolean -- self.x.equals(c.x) and self.y.equals(c.y);
+  begin
+    result :=  (self.x = c.x) and (self.y = c.y);
+  end
+--  uCoincide(c:Coordinate):UBoolean -- self.x.uEquals(c.x) * self.y.uEquals(c.y);
+--  begin
+--    declare fx:Real, fy:Real;
+--    fx:=self.x.uEquals(c.x);
+--    fy:=self.y.uEquals(c.y);
+--    result :=  fx * fy;
+--  end
+end
+  
+class Robot
+attributes
+  position : Coordinate 
+  headsTo : UReal
+operations
+   performAllMoves()
+   begin
+      for m in self.moves do
+          m.performMove()
+      end
+   end
+end
+
+class Target
+attributes
+  position : Coordinate
+end
+
+association Mission between 
+  Robot [*] role robot
+  Target [1] role target
+end
+
+class Movement
+attributes
+   move:UReal
+   rotate:UReal
+operations
+   performMove()
+   begin
+     declare aux:Coordinate, sa:UReal, ca:UReal, dx:UReal, dy:UReal;
+     -- we change the angle first (if we have to), to move in that direction
+     if not self.rotate.oclIsUndefined() then 
+         self.robot.headsTo:=self.rotate
+     end;
+     -- and then we move (if we have to)
+     if not self.move.oclIsUndefined() then
+         sa:=self.robot.headsTo.sin();
+         ca:=self.robot.headsTo.cos();
+         dx:=self.move * ca;
+         dy:=self.move * sa;
+         aux := new Coordinate;
+         aux.x := self.robot.position.x + dx;
+         aux.y := self.robot.position.y + dy;
+         self.robot.position:=aux;
+     end;
+   end
+end
+
+association Plan between 
+  Robot [1] role robot
+  Movement [*] role moves ordered
+end
+
+constraints
+
+-- context Robot inv PrecisionUnderControl:
+--   self.position.x.value.u < 0.01 and self.position.y.value.u < 0.01
+

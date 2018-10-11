@@ -1,0 +1,110 @@
+model UDrones
+
+abstract class ProbableElement
+attributes
+confidence:Real
+end
+
+class Clock
+attributes
+now:UInteger
+end
+
+class Drone < MovingObject
+end
+
+class UnidentifiedObject < ProbableElement, MovingObject
+attributes
+end
+
+class Gunshot < ProbableElement
+attributes
+angle:UReal derive: 
+  let x:UReal = (target.position.x - drone.position.x) in
+  let y:UReal = (target.position.y - drone.position.y) in
+  if (x = 0.0) then 
+	  if ((y >= UReal(0.0, 0.0)).value()) then
+		let u1:UReal = UReal(1.570796326791001,0.0) in
+			u1.setUncertainty(y.uncertainty())
+	  else
+		let u2:UReal = UReal(4.712388980373001246,0.0) in 
+			u2.setUncertainty(y.uncertainty())
+	  endif
+  else
+	(y/x).atan() 
+  endif
+
+hitsTarget:UBoolean derive:
+   let distance : UReal =  drone.position.distance(target.position) in
+   ((drone.position.x-target.position.x)+distance*self.angle.cos()).abs() <= target.width and
+   ((drone.position.y-target.position.y)+distance*self.angle.sin()).abs() <= target.width 
+end
+
+class Coordinate
+attributes
+x:UReal
+y:UReal
+operations
+distance(other:Coordinate):UReal = ((self.x - other.x)*(self.x - other.x) + (self.y - other.y)*(self.y - other.y)).sqrt()
+end
+
+abstract class MovingObject
+attributes
+width:UReal
+angle:UReal
+speed:UReal
+operations
+move(seconds:UInteger)
+begin
+  declare c:Coordinate, d:UReal;
+  c:=new Coordinate;
+  d:=self.speed * seconds;
+  c.x:=self.position.x+d*self.angle.cos();
+  c.y:=self.position.y+d*self.angle.sin();
+  delete (self,self.position) from ObjectPosition;
+  insert (self,c) into ObjectPosition;
+end
+end
+
+association GunShotPosition between
+Gunshot [0..1] role shot 
+Coordinate [1] role position
+end
+
+association ObjectPosition between
+MovingObject [0..1] role object 
+Coordinate [1] role position
+end
+
+-- class Threat < ProbableElement
+-- end
+
+-- association Threat2Drone between
+-- Drone [1] role drone
+-- Threat [*] role threats
+-- end
+
+-- association Threat2UO between
+-- Threat [*] role threats
+-- UnidentifiedObject [1] role object
+-- end
+
+
+association Shot between
+Drone [1] role drone
+Gunshot [*] role shot
+end
+
+association Hit between
+Gunshot [*] role shot
+UnidentifiedObject [1] role target
+end
+
+constraints
+
+context ProbableElement inv confidenceAsProbability:
+   self.confidence >= 0.0 and self.confidence <= 1.0
+
+context Clock inv UniqueClock: 
+   Clock.allInstances->size = 1
+

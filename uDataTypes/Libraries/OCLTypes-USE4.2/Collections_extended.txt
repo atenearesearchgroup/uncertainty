@@ -1,0 +1,73 @@
+-- ForAll
+source->uForAll(e | P(e)) : UBoolean
+source->iterate(e, acc:UBoolean=UBoolean(true, 1.0) | acc.uAnd(P(e)))
+	
+-- Exists
+source->uExists(e | P(e)) : UBoolean
+source->iterate(e, acc:UBoolean=UBoolean(true, 0.0) | acc.uOr(P(e)))
+	
+-- includes
+source->uIncludes(e) : UBoolean
+source->exists(v | v.uEquals(e))
+
+-- includesAll
+C1->uIncludesAll(C2) : UBoolean
+C2->forAll(e | C1->uIncludes(e))
+
+-- excludes
+source->uExcludes(e) : UBoolean
+source->forAll(v | v.uEquals(e).uNot())
+
+-- excludesAll
+source->uExcludesAll(collection) : UBoolean
+collection->forAll(e | source->uExcludes(e))
+
+-- count
+source->count(e) : Integer
+source->iterate(v, acc:Integer=0 |
+	if v.uEquals(e).toBoolean() then acc + 1 else acc)
+
+source->uCount(e) : UInteger
+source->iterate(v, acc:UInteger=UInteger(0,0) | acc.add(UInteger(1,v.uEquals(e).c))
+
+-- O tambien podemos especificar un umbral de confianza
+source->countC(e,c) : Integer
+source->iterate(v, acc:Integer=0 |
+	if v.uEquals(e).toBooleanC(c) then acc + 1 else acc)
+
+source->one(P()) : UBoolean
+source->select(e | P(e))->size() = 1
+
+-- AV: Otra cosa es que decidamos definir un operador uSize():UInteger para Collection{UBoolean}. Si C:Collection{UBoolean} entonces
+source->uSize():UInteger
+source->iterate(v, acc:UInteger(0,0) | acc.add(UInteger(1,v.c)) ) 
+
+-- isUnique
+source->isUnique(e) : Boolean
+source->forAll(e | source->one(e))
+
+source->uIsUnique(e) : UBoolean
+(source->uCount(e)).uEquals(UInteger(1,0))
+
+
+-- select
+source->select(P()) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBoolean() then acc->including(v) else acc endif)
+
+-- AV: podemos incluir tambien un umbral de confianza, que se usa en el toBoolean():
+source->select(P(),c) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBooleanC(c) then acc->including(v) else acc endif) 
+	
+-- reject
+source->reject(P()) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBoolean() then acc->excluding(v) else acc endif)
+
+source->reject(P(),c) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBooleanC(c) then acc->excluding(v) else acc endif)
+	
+-- sum
+source->iterate(v, acc:UReal=UReal(0,0) | acc.add(v)) 

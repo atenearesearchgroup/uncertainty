@@ -1,0 +1,1570 @@
+model UDrones
+
+abstract class ProbableElement
+attributes
+prob:Real
+end
+
+class Drone
+end
+
+class Threat < ProbableElement
+attributes
+width:UReal
+end
+
+class Gunshot < ProbableElement
+attributes
+angle:UReal
+hitsTarget:UBoolean
+end
+
+class Coordinate
+attributes
+x:UReal
+y:UReal
+end
+
+association DronePosition between
+Drone [0..1] role drone 
+Coordinate [1] role position
+end
+
+association ThreatPosition between
+Threat [0..1] role threat 
+Coordinate [1] role position
+end
+
+association Menace between
+Drone [*] role drone
+Threat [*] role threats
+end
+
+association Shot between
+Drone [1] role drone
+Gunshot [*] role shot
+end
+
+association Hit between
+Gunshot [*] role shot
+Threat [1] role target
+end
+
+
+
+--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-- Extended OCL Types
+--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+class UBoolean
+   -- canonical form:
+   -- pairs (true,c), with c the confidence that self is true
+attributes
+   b : Boolean 
+   c : Real
+
+operations
+
+uNot() : UBoolean
+    begin
+        declare aux : UBoolean;
+        aux := new UBoolean;
+        aux.b:=not self.b;
+        aux.c:=self.c;
+        -- return the UBoolean number in normal form:
+        if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+        result:=aux;
+    end
+post: (result.b) and (result.c = if self.b then 1-self.c else self.c endif)
+
+uAnd(b : UBoolean) : UBoolean
+    begin
+        declare aux : UBoolean;
+        aux := new UBoolean;
+        aux.b:=self.b and b.b;
+        aux.c:= self.c * b.c;
+        -- return the UBoolean number in normal form:
+        if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+        result:=aux;
+    end
+post: let C : Real = (self.c * b.c) in
+      (result.b) and (result.c = if (self.b and b.b) then C else (1 - C) endif)
+
+uOr(b : UBoolean) : UBoolean
+    begin
+        declare aux : UBoolean;
+        aux := new UBoolean;
+        aux.b:=self.b or b.b;
+        aux.c:= self.c + b.c - (self.c * b.c); 
+        -- return the UBoolean number in normal form:
+        if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+        result:=aux;
+    end
+post: let C : Real = (self.c + b.c - (self.c * b.c)) in
+      (result.b) and 
+      (result.c = if (self.b or b.b) then C else (1 - C) endif)
+
+uImplies(b : UBoolean) : UBoolean
+    begin
+        declare aux : UBoolean;
+        aux := new UBoolean;
+        aux.b:=self.b implies b.b;
+        aux.c:= self.c + b.c - (self.c * b.c); 
+        -- return the UBoolean number in normal form:
+        if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+        result:=aux;
+    end
+post: let C : Real = (self.c + b.c - (self.c * b.c)) in
+      (result.b) and 
+      (result.c = if (self.b implies b.b) then C else (1 - C) endif)
+
+
+uEquivalent(b : UBoolean) : UBoolean
+    begin
+        declare aux1 :UBoolean, aux2 : UBoolean;
+        aux1:=self.uImplies(b);
+        aux2:=b.uImplies(self);
+        result:= aux2.uAnd(aux1);
+    end
+-- post: result = self.uImplies(b).uAnd(b.uImplies(self))
+      
+
+uXor(b : UBoolean) : UBoolean
+    begin
+        declare aux : UBoolean;
+        aux:=self.uEquivalent(b);
+        result:= aux.uNot();
+    end
+-- post: result = self.uEquivalent(b).uNot()
+
+equals(b : UBoolean) : Boolean = (self.b=b.b) and (self.c=b.c)
+
+closeTo(b : UBoolean, c: Real) : Boolean = (self.b=b.b) and ((self.c-b.c).abs()<=c)
+
+distinct(b : UBoolean) : Boolean = not (self.equals(b))
+
+uEquals(b : UBoolean) : UBoolean
+    begin
+        result:= self.uEquivalent(b);
+    end
+-- post: result = self.uEquivalent(b)
+
+toBoolean() : Boolean = if (self.c>=0.5) then (self.b) else (not self.b) endif
+
+-- toBoolean, but specifying the confidence threshold to decide when it is true.
+toBooleanC(c:Real):Boolean = if (self.c>=c) then (self.b) else (not self.b) endif
+
+-- Lifting operations -- Ask Martin
+-- context Boolean::toUBoolean():UBoolean
+--     begin
+--         declare aux:UBoolean;
+--         aux:=new UBoolean;
+--         aux.b:=self
+--         aux.c:=1.0
+--         if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+--         result:=aux;
+-- end
+
+toString() : String = 'UBoolean{b='+self.b.toString()+'; c='+self.c.toString()+'}'
+
+
+end
+
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+--
+-- UBoolean, using Type_A uncertainty.
+-- We assume all samples have the same size
+
+constraints
+
+context UBoolean_A inv SameSampleSize:
+UBoolean_A.allInstances->forAll(u1,u2|u1.sample->size = u2.sample->size)
+
+-- 
+class UBoolean_A
+   -- canonical form:
+   -- triplets (sample,true,c), with:
+   --     sample: the set of measured values obtained for self
+   --     c: the confidence that self is true
+   --    
+attributes
+   sample : Sequence(Boolean)
+   b : Boolean derive: true
+   c : Real derive: self.sample->count(true)/self.sample->size()
+
+operations
+
+-- uTrue(): UBoolean_A
+--     begin
+--         declare aux:UBoolean_A;
+--         aux:=new UBoolean_A;
+--         aux.sample:=Sequence{true,true,true,true,true,true,true,true,true,true};
+--         result:=aux;
+--     end
+-- 
+-- uFalse(): UBoolean_A
+--     begin
+--         declare aux:UBoolean_A;
+--         aux:=new UBoolean_A;
+--         aux.sample:=Sequence{false,false,false,false,false,false,false,false,false,false};
+--         result:=aux;
+--    end
+
+uNot() : UBoolean_A
+    begin
+        declare aux : UBoolean_A;
+        aux := new UBoolean_A;
+        -- for i in Sequence{1..self.sample->size} do -- It doesn't work! -- we need to do a workaround:
+        --    aux.sample->at(i):=self.sample->at(i); 
+        -- end
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{not self.sample->at(1)}->union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=(aux.sample->subSequence(1,i-1)->append(not self.sample->at(i)))->union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->append(not self.sample->at(self.sample->size));
+        result:=aux;
+    end
+post: (result.b) and (result.c = if self.b then 1-self.c else self.c endif) and
+      (Sequence{1..self.sample->size}->forAll(i|result.sample->at(i)=not self.sample->at(i)))
+
+uAnd(b : UBoolean_A) : UBoolean_A
+    begin
+        declare aux : UBoolean_A;
+        aux := new UBoolean_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)) and (b.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(self.sample->at(i) and b.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append(self.sample->at(self.sample->size) and b.sample->at(self.sample->size));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i) and b.sample->at(i))))
+
+uOr(b : UBoolean_A) : UBoolean_A
+    begin
+        declare aux : UBoolean_A;
+        aux := new UBoolean_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)) or (b.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(self.sample->at(i) or b.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)) or (b.sample->at(self.sample->size)));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i) or b.sample->at(i))))
+
+uImplies(b : UBoolean_A) : UBoolean_A
+    begin
+        declare aux : UBoolean_A;
+        aux := new UBoolean_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)) implies (b.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(self.sample->at(i) implies b.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)) implies (b.sample->at(self.sample->size)));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=self.sample->at(i) implies b.sample->at(i)))
+
+uXor(b : UBoolean_A) : UBoolean_A
+    begin
+        declare aux : UBoolean_A;
+        aux := new UBoolean_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)) xor (b.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(self.sample->at(i) xor b.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)) xor (b.sample->at(self.sample->size)));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=self.sample->at(i) xor b.sample->at(i)))
+
+uEquivalent(b : UBoolean_A) : UBoolean_A
+    begin
+        declare aux : UBoolean_A;
+        aux := new UBoolean_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{not((self.sample->at(1)) xor (b.sample->at(1)))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(not(self.sample->at(i) xor b.sample->at(i)))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append(not((self.sample->at(self.sample->size)) xor (b.sample->at(self.sample->size))));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i) xor b.sample->at(i))))
+-- post: result = self.uImplies(b).uAnd(b.uImplies(self))
+ 
+equals(b : UBoolean_A) : Boolean = (self.b=b.b) and (self.c=b.c)
+
+closeTo(b : UBoolean_A, c: Real) : Boolean = (self.b=b.b) and ((self.c-b.c).abs()<=c)
+
+distinct(b : UBoolean_A) : Boolean = not (self.equals(b))
+
+uEquals(b : UBoolean_A) : UBoolean_A
+    begin
+        result:= self.uEquivalent(b);
+    end
+-- post: result = self.uEquivalent(b)
+
+toBoolean() : Boolean = if (self.c>=0.5) then (self.b) else (not self.b) endif
+
+-- toBoolean, but specifying the confidence threshold to decide when it is true.
+toBooleanC(c:Real):Boolean = if (self.c>=c) then (self.b) else (not self.b) endif
+
+toString() : String = 'UBoolean_A{b='.concat(self.b.toString()).concat('; c=').concat(self.b.toString()).concat('}')
+
+
+end
+-- -- Lifting operations
+-- context Boolean::toUBoolean_A( b :Boolean ): UBoolean_A
+--     begin
+--         declare aux:UBoolean_A;
+--         aux:= if b then aux.uTrue() else aux.uTrue() endif;
+--     end
+-- post: result.sample->forAll(b | b=self)
+ 
+
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-- 
+class UReal
+
+attributes
+    x : Real
+    u : Real
+
+operations
+
+-- Operations
+
+add(r : UReal) : UReal
+    begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x + r.x;
+        aux.u := (self.u*self.u + r.u*r.u).sqrt();
+        result := aux;
+    end   
+
+minus(r : UReal) : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x - r.x;
+        aux.u := (self.u*self.u + r.u*r.u).sqrt();
+        result := aux;
+    end   
+   
+mult(r : UReal) : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x*r.x;
+        aux.u := (r.u*r.u*self.x*self.x + self.u*self.u*r.x*r.x).sqrt();
+        result := aux;
+     end   
+    
+divideBy(r : UReal) : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := (self.x/r.x + (self.x*r.u*r.u)/(r.x*r.x*r.x));
+        aux.u := ((self.u*self.u/r.x)+((r.u*r.u*self.x*self.x)/(r.x*r.x*r.x*r.x))).sqrt();
+        result := aux;
+    end   
+
+sin() :UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.sin();
+        aux.u := (self.x.cos() * self.u).abs() ;
+        result := aux;
+    end   
+
+cos() :UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.cos();
+        aux.u := (self.x.sin() * self.u).abs() ;
+        result := aux;
+    end   
+    
+tan():UReal
+    begin
+        declare aux1 : UReal, aux2 : UReal;
+        aux1 := self.sin();
+        aux2 := self.cos();
+        result:=aux1.divideBy(aux2);
+    end
+
+atan() :UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.atan();
+        aux.u := self.u / (1 + self.x*self.x) ;
+        result := aux;
+    end   
+
+asin() :UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.asin();
+        aux.u := self.u / ((1 - self.x*self.x).abs().sqrt()) ;
+        result := aux;
+    end   
+
+acos() :UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.acos();
+        aux.u := self.u / ((1 - self.x*self.x).abs().sqrt()) ;
+        result := aux;
+    end   
+
+   
+abs() : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := (self.x).abs();
+        aux.u := self.u;
+        result := aux;
+    end   
+    
+neg() : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := -self.x;
+        aux.u := self.u;
+        result := aux;
+    end   
+
+floor() : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.floor();
+        aux.u := self.u;
+        result := aux;
+    end   
+    
+round() : UReal
+    begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.round();
+        aux.u := self.u;
+        result := aux;
+    end   
+    
+    
+inverse() : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := 1.0;
+        aux.u := 0.0;
+        result := aux.divideBy(self);
+    end   
+    
+power (s : Real) : UReal
+     begin
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.power(s) + ((s*(s-1))/2)*self.x.power(s-2)*(self.u*self.u);
+        aux.u := s*self.u*self.x.power(s-1);
+        result := aux;
+    end   
+    
+sqrt() : UReal 
+    begin
+        declare aux : UReal;
+        aux := self.power(0.5);
+        result := aux;
+    end
+   
+-- comparison operations
+
+equals(r : UReal) : Boolean 
+   = (self.x - self.u).max(r.x - r.u) <= 
+         (self.x + self.u).min(r.x + r.u)
+   
+distinct(r : UReal) : Boolean
+    = not self.equals(r) 
+
+compareTo(r : UReal) : Integer
+    = if self.equals(r) then 0
+      else if self.lt(r) then -1 
+           else 1 
+           endif 
+      endif
+
+lt(r : UReal) : Boolean
+   = (self.x<r.x) and ((self.x + self.u)<(r.x - r.u)) 
+
+le(r : UReal) : Boolean 
+   = self.lt(r) or self.equals(r)
+    
+gt(r : UReal) : Boolean
+   = not self.le(r) 
+
+ge(r : UReal) : Boolean 
+   = not self.lt(r)
+
+max(r : UReal) : UReal
+    = if r.lt(self) then self else r endif
+   
+min(r : UReal) : UReal
+    = if r.lt(self) then r else self endif
+
+
+-- Comparisons with Zero=UReal(0,0)
+equalsZero() : Boolean 
+   = (self.x - self.u).max(0.0) <= (self.x + self.u).min(0.0)
+
+ltZero() : Boolean
+   = ((self.x + self.u)<0.0) 
+
+leZero() : Boolean 
+   = self.ltZero() or self.equalsZero()
+    
+gtZero() : Boolean
+   = not self.leZero() 
+
+geZero() : Boolean 
+   = not self.ltZero()
+
+   
+-- Fuzzy comparison operations
+
+-- aux operation
+calculate(r : UReal) :Tuple(lt:Real,eq:Real,gt:Real)
+begin
+            declare m1 : Real, m2 : Real, s1 : Real, s2 : Real, crossing1 : Real, crossing2 : Real, 
+                    r1 : Real, r2 : Real, c1 : Real, c2 : Real,
+                    aux : Tuple(lt:Real,eq:Real,gt:Real), swap : Boolean;
+            if (self.x <= r.x) then
+                m1:=self.x; m2:=r.x; s1:=self.u; s2:=r.u; swap:=false;
+            else
+                m2:=self.x; m1:=r.x; s2:=self.u; s1:=r.u; swap:=true;
+            end;
+            if (s1=0.0) and (s2=0.0) then  -- Real numbers
+                if (m1=m2) then 
+                    aux:=Tuple{lt:0.0,eq:1.0,gt:0.0};
+                else
+                    if (m1<m2) then
+                        aux:=Tuple{lt:1.0,eq:0.0,gt:0.0};
+                    else
+                        aux:=Tuple{lt:0.0,eq:0.0,gt:1.0};
+                    end
+                end
+            else 
+           		if ((s1=0.0)) then --- s1 is degenerated, s2 is not
+                   aux:=Tuple{lt:1.0-m1.cdf(m2,s2),eq:0.0,gt:m1.cdf(m2,s2)};
+                else
+                    if ((s2=0.0))  then  --- s2 is degenerated, s1 is not
+                        aux:=Tuple{lt:m2.cdf(m1,s1),eq:0.0,gt:1.0-m2.cdf(m1,s1)};
+                    else --- none of the two numbers are degenerated. This is where the fun starts...
+                        if (s1=s2) then
+                            crossing1 := (m1+m2)/2;
+                            aux:=Tuple{
+                        		 lt:crossing1.cdf(m1,s1)-crossing1.cdf(m2,s2),
+			                     eq:crossing1.cdf(m2,s2)+1.0-crossing1.cdf(m1,s1),
+			                     gt:1.0-crossing1.cdf(m2,s2)-(1.0-crossing1.cdf(m1,s1))
+                            };
+                        else
+                            r1:=(s2/s1).log();
+                            r2:=((m1-m2)*(m1-m2)-2.0*(s1*s1-s2*s2)*r1).sqrt();
+                            crossing1:= -(-m2*s1*s1 + m1*s2*s2 + s1*s2*r2 )/(s1*s1 - s2*s2);	
+                            crossing2:=  ( m2*s1*s1 - m1*s2*s2 + s1*s2*r2 )/(s1*s1 - s2*s2);
+                            c1:=crossing1.min(crossing2);
+                            c2:=crossing1.max(crossing2);
+                            if (s1<s2) then
+                                aux:=Tuple{
+                                    lt:1.0-c2.cdf(m2,s2)-(1.0-c2.cdf(m1,s1)),
+                                    eq:c1.cdf(m1,s1) + (1.0-c2.cdf(m1,s1)) + c2.cdf(m2,s2) - c1.cdf(m2,s2),
+                                    gt:c1.cdf(m2,s2)-c1.cdf(m1,s1)
+                                };
+                            else
+                                aux:=Tuple{
+                                    lt:c1.cdf(m1,s1)-c1.cdf(m2,s2),
+                                    eq:c1.cdf(m2,s2) + (1.0-c2.cdf(m2,s2)) + c2.cdf(m1,s1) - c1.cdf(m1,s1),
+                                    gt:1.0-c2.cdf(m1,s1)-(1.0-c2.cdf(m2,s2))
+                                };
+                            end
+                        end --- end of fun
+                    end
+                end            
+            end;
+            if (swap) then 
+                result:=Tuple{lt:aux.gt,eq:aux.eq,gt:aux.lt};
+            else
+                result:=Tuple{lt:aux.lt,eq:aux.eq,gt:aux.gt};
+            end
+end -- calculate
+
+-- fuzzy operations
+
+uEquals(r : UReal) : UBoolean
+    begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), aux2 : UBoolean;		
+       aux2:=new UBoolean;
+       aux:=self.calculate(r);
+       aux2.b := true;
+       aux2.c := aux.eq;
+       result:=aux2;
+    end
+
+uDistinct(r : UReal) : UBoolean
+    begin
+        declare aux : UBoolean;
+        aux := self.uEquals(r);
+        result := aux.uNot();
+    end
+
+uLt(r : UReal) : UBoolean
+     begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), aux2 : UBoolean;
+       aux2:=new UBoolean;
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.lt;
+       result := aux2;
+    end
+
+uLe(r : UReal) : UBoolean 
+     begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), aux2 : UBoolean;
+       aux2:=new UBoolean;
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.lt+aux.eq;
+       result := aux2;
+    end
+   
+uGt(r : UReal) : UBoolean
+     begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), aux2 : UBoolean;
+       aux2:=new UBoolean;
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.gt;
+       result := aux2;
+    end
+
+uGe(r : UReal) : UBoolean 
+     begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), aux2 : UBoolean;
+       aux2:=new UBoolean;
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.gt+aux.eq;
+       result := aux2;
+    end
+
+-- comparisons with Zero
+
+uEqualsZero() : UBoolean
+    begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), r:UReal, aux2 : UBoolean;
+       r:=new UReal;
+       aux2:=new UBoolean;
+       r.x:=0.0;
+       r.u:=0.0;		
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.eq;
+       result := aux2;
+    end
+
+uLtZero() : UBoolean
+     begin
+        declare aux : Tuple(lt:Real,eq:Real,gt:Real), r:UReal, aux2 : UBoolean;
+       aux2:=new UBoolean;
+       r:=new UReal;
+       r.x:=0.0;
+       r.u:=0.0;		
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.lt;
+       result := aux2;
+    end
+
+uLeZero() : UBoolean 
+     begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), r:UReal, aux2 : UBoolean;
+       aux2:=new UBoolean;
+       r:=new UReal;
+       r.x:=0.0;
+       r.u:=0.0;		
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.lt+aux.eq;
+       result := aux2;
+    end
+   
+uGtZero() : UBoolean
+     begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), r:UReal, aux2 : UBoolean;
+       aux2:=new UBoolean;
+       r:=new UReal;
+       r.x:=0.0;
+       r.u:=0.0;		
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.gt;
+       result := aux2;
+ 
+    end
+
+uGeZero() : UBoolean 
+     begin
+       declare aux : Tuple(lt:Real,eq:Real,gt:Real), r:UReal, aux2 : UBoolean;
+       aux2:=new UBoolean;
+       r:=new UReal;
+       r.x:=0.0;
+       r.u:=0.0;		
+       aux:=self.calculate(r);
+       aux2.b:=true;
+       aux2.c:=aux.gt+aux.eq;
+       result := aux2;
+    end
+
+-- conversion operations
+toInteger() : Integer = self.x.floor() 
+
+toUInteger() : UInteger
+    begin
+        declare aux:UInteger;
+        aux:=new UInteger;
+        aux.x:=self.x.floor(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt();
+        result:=aux;
+    end
+
+toBestUInteger() : UInteger
+    begin
+        declare aux:UInteger;
+        aux:=new UInteger;
+        aux.x:=self.x.round(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt();
+        result:=aux;
+    end
+
+
+toUUnlimitedNatural() : UUnlimitedNatural
+    begin
+        declare aux:UUnlimitedNatural;
+        aux:=new UUnlimitedNatural;
+        aux.x:=self.x.floor(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt;
+        result:=aux;
+    end
+
+toBestUUnlimitedNatural() : UUnlimitedNatural
+    begin
+        declare aux:UUnlimitedNatural;
+        aux:=new UUnlimitedNatural;
+        aux.x:=self.x.round(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt;
+        result:=aux;
+    end
+
+
+toReal() : Real = self.x
+
+toString() : String = 'UReal{x='.concat(self.x.toString()).concat('; u=').concat(self.u.toString()).concat('}')
+
+end
+
+-- -- Lifting operations
+-- context Real::toUReal():UReal
+--     begin
+--         declare aux:UReal;
+--         aux:=new UReal;
+--         aux.x:=self;
+--         aux.u:=0.0;
+--         result:=aux;
+--     end
+--     post: (result.x = self) and (result.u=0.0)
+
+
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-- 
+class UInteger
+
+attributes
+    x : Integer
+    u : Real
+
+operations
+-- Assume normally distributed uncertainties and independent variables
+
+add(r : UInteger) : UInteger
+    begin
+        declare aux : UInteger;
+        aux := new UInteger;
+        aux.x := self.x + r.x;
+        aux.u := (self.u*self.u + r.u*r.u).sqrt();
+        result := aux;
+    end   
+post: (result.x = self.x + r.x) and (result.u=(self.u*self.u + r.u*r.u).sqrt()) 
+
+minus(r : UInteger) : UInteger
+     begin
+        declare aux : UInteger;
+        aux := new UInteger;
+        aux.x := self.x - r.x;
+        aux.u := (self.u*self.u + r.u*r.u).sqrt();
+        result := aux;
+    end   
+post: (result.x = self.x - r.x) and (result.u=(self.u*self.u + r.u*r.u).sqrt()) 
+   
+mult(r : UInteger) : UInteger
+     begin
+        declare aux : UInteger;
+        aux := new UInteger;
+        aux.x := self.x*r.x;
+        aux.u := (r.u*r.u*self.x*self.x + self.u*self.u*r.x*r.x).sqrt();
+        result := aux;
+     end   
+post: (result.x = self.x * r.x) and 
+      (result.u=(r.u*r.u*self.x*self.x + self.u*self.u*r.x*r.x).sqrt()) 
+    
+divideBy(r : UInteger) : UInteger
+     begin
+        declare r1 : UReal, r2 : UReal, r3 : UReal;
+        r1 := self.toUReal();
+        r2 := r.toUReal();
+        r3:=r1.divideBy(r2);
+        result:=r3.toUInteger();
+    end 
+-- post: result = self.toUReal().divideBy(r.toUReal()).toUInteger();  
+
+divideByR(r : UInteger) : UReal
+     begin
+        declare r1 : UReal, r2 : UReal;
+        r1 := self.toUReal();
+        r2 := r.toUReal();
+        result:=r1.divideBy(r2);
+    end   
+-- post: result = self.toUReal().divideBy(r.toUReal());  
+
+mod(r : UInteger) : UInteger
+     begin
+        declare r1 : UReal, r2 : UReal, r3 : UReal, r4 : UReal, r5 : UReal, r6 : UReal;
+        r1 := self.toUReal();
+        r2 := r.toUReal();
+        r3:=r1.divideBy(r2);
+        r4:=r3.floor();
+        r5:=r4.mult(r2);
+        r6:=r1.minus(r5);
+        result:=r6.toUInteger();
+    end   
+
+
+abs() : UInteger
+     begin
+        declare aux : UInteger;
+        aux := new UInteger;
+        aux.x := self.x.abs();
+        aux.u := self.u;
+        result := aux;
+    end   
+post: result.x = (self.x.abs()) and (result.u=self.u)
+    
+neg() : UInteger
+     begin
+        declare aux : UInteger;
+        aux := new UInteger;
+        aux.x := -self.x;
+        aux.u := self.u;
+        result := aux;
+    end   
+post: result.x = (-self.x) and (result.u=self.u)
+
+
+inverse() : UInteger
+     begin
+        declare r1 : UReal, r2 : UReal;
+        r1 := self.toUReal();
+        r2:=r1.inverse();
+        result:=r2.toUInteger();
+    end   
+-- post: result = self.toUReal().inverse().toUInteger()
+    
+power (s : Real) : UInteger
+     begin
+        declare r1 : UReal, r2 : UReal;
+        r1 := self.toUReal();
+        r2:=r1.power(s);
+        result:=r2.toUInteger();
+    end   
+-- post: result = self.toUReal().power(s).toUInteger()
+    
+sqrt() : UInteger 
+    begin
+        declare aux : UInteger;
+        aux := self.power(0.5);
+        result := aux;
+    end
+-- post: result = self.power(0.5)  
+
+-- comparison operations
+
+equals(r : UInteger) : Boolean 
+   = (self.x - self.u).max(r.x - r.u) <= 
+         (self.x + self.u).min(r.x + r.u)
+   
+distinct(r : UInteger) : Boolean
+    = not self.equals(r) 
+
+compareTo(r : UInteger) : Integer
+    = if self.equals(r) then 0
+      else if self.lt(r) then -1 
+           else 1 
+           endif 
+      endif
+
+lt(r : UInteger) : Boolean
+   = (self.x<r.x) and ((self.x + self.u)<(r.x - r.u)) 
+
+le(r : UInteger) : Boolean 
+   = self.lt(r) or self.equals(r)
+    
+gt(r : UInteger) : Boolean
+   = not self.le(r) 
+
+ge(r : UInteger) : Boolean 
+   = not self.lt(r)
+
+max(r : UInteger) : UInteger
+    = if r.lt(self) then self else r endif
+   
+min(r : UInteger) : UInteger
+    = if r.lt(self) then r else self endif
+
+-- comparison operations with Zero=UInteger(0,0.0)
+
+equalsZero() : Boolean 
+   = (self.x - self.u).max(0.0) <= (self.x + self.u).min(0.0)
+   
+ltZero() : Boolean
+   = (self.x + self.u)<0 
+
+leZero() : Boolean 
+   = self.ltZero() or self.equalsZero()
+    
+gtZero() : Boolean
+   = not self.leZero() 
+
+geZero() : Boolean 
+   = not self.ltZero()
+
+
+-- Fuzzy comparison operations
+
+uEquals(r : UInteger) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uEquals(aux2);
+    end
+-- post: result = self.toUReal().uEquals(r.toUReal())
+
+uDistinct(r : UInteger) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uDistinct(aux2);
+    end
+-- post: result = self.toUReal().uDistinct(r.toUReal())
+
+uLt(r : UInteger) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uLt(aux2);
+    end
+-- post: result = self.toUReal().uLt(r.toUReal())
+
+uLe(r : UInteger) : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uLe(aux2);
+    end
+-- post: result = self.toUReal().uLe(r.toUReal())   
+uGt(r : UInteger) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uGt(aux2);
+    end
+-- post: result = self.toUReal().uGt(r.toUReal())
+
+uGe(r : UInteger) : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uGe(aux2);
+    end
+-- post: result = self.toUReal().uGe(r.toUReal())
+
+-- Fuzzy comparison operations with Zero=UInteger(0,0.0)
+
+uEqualsZero() : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, r : UInteger;
+       r:=new UInteger;
+       r.x:=0;
+       r.u:=0.0;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uEquals(aux2);
+    end
+-- post: result = self.toUReal().uEquals(r.toUReal())
+
+uLtZero() : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, r : UInteger;
+       r:=new UInteger;
+       r.x:=0;
+       r.u:=0.0;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uLt(aux2);
+    end
+-- post: result = self.toUReal().uLt(r.toUReal())
+
+uLeZero() : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal, r : UInteger;
+       r:=new UInteger;
+       r.x:=0;
+       r.u:=0.0;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uLe(aux2);
+    end
+-- post: result = self.toUReal().uLe(r.toUReal())   
+uGtZero() : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, r : UInteger;
+       r:=new UInteger;
+       r.x:=0;
+       r.u:=0.0;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uGt(aux2);
+    end
+-- post: result = self.toUReal().uGt(r.toUReal())
+
+uGeZero() : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal, r : UInteger;
+       r:=new UInteger;
+       r.x:=0;
+       r.u:=0.0;
+       aux1:=self.toUReal();
+       aux2:=r.toUReal();
+       result:=aux1.uGe(aux2);
+    end
+-- post: result = self.toUReal().uGe(r.toUReal())
+
+
+-- conversion operations
+
+toUReal() : UReal
+    begin
+       declare aux : UReal;
+       aux:=new UReal;
+       aux.x:=self.x;
+       aux.u:=self.u;
+       result:=aux;
+    end
+post: result.x=self.x and result.u=self.u
+
+toInteger() : Integer = self.x
+
+toReal() : Real = self.x
+
+toString() : String = 'UInteger{x='.concat(self.x.toString()).concat('; u=').concat(self.u.toString()).concat('}')
+   
+ 
+end
+
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-- 
+class UUnlimitedNatural
+
+attributes
+    x : Integer -- '*' is represented by -1
+    u : Real   
+
+operations
+-- Assume normally distributed uncertainties and independent variables
+
+add(r : UUnlimitedNatural) : UUnlimitedNatural
+    begin
+        declare aux : UUnlimitedNatural;
+        aux := new UUnlimitedNatural;
+        aux.x := self.x + r.x;
+        aux.u := (self.u*self.u + r.u*r.u).sqrt();
+        result := aux;
+    end   
+post: (self.x<>-1 and r.x<>-1) implies (result.x = self.x + r.x) and (result.u=(self.u*self.u + r.u*r.u).sqrt()) 
+       -- otherwise result is oclInvalid
+         
+--No minus operation defined for UUnlimitedNatural
+-- minus(r : UUnlimitedNatural) : UUnlimitedNatural
+--      begin
+--     end   
+-- post: (result.x = self.x - r.x) and (result.u=(self.u*self.u + r.u*r.u).sqrt()) 
+   
+mult(r : UUnlimitedNatural) : UUnlimitedNatural
+     begin
+        declare aux : UUnlimitedNatural;
+        aux := new UUnlimitedNatural;
+        aux.x := self.x*r.x;
+        aux.u := (r.u*r.u*self.x*self.x + self.u*self.u*r.x*r.x).sqrt();
+        result := aux;
+     end   
+post: (self.x<>-1 and r.x<>-1) implies (result.x = self.x * r.x) and 
+                                     (result.u=(r.u*r.u*self.x*self.x + self.u*self.u*r.x*r.x).sqrt()) 
+    
+divideBy(r : UUnlimitedNatural) : UUnlimitedNatural
+     begin
+        declare r1 : UReal, r2 : UReal, r3 : UReal;
+        r1 := self.toUReal();
+        r2 := r.toUReal();
+        r3:=r1.divideBy(r2);
+        result:=r3.toUUnlimitedNatural();
+    end 
+-- post: result = self.toUReal().divideBy(r.toUReal()).toUInteger();  
+
+divideByR(r : UUnlimitedNatural) : UReal
+     begin
+        declare r1 : UReal, r2 : UReal;
+        r1 := self.toUReal();
+        r2 := r.toUReal();
+        result:=r1.divideBy(r2);
+    end   
+-- post: result = self.toUReal().divideBy(r.toUReal());  
+
+mod(r : UUnlimitedNatural) : UUnlimitedNatural
+     begin
+        declare r1 : UReal, r2 : UReal, r3 : UReal, r4 : UReal, r5 : UReal, r6 : UReal;
+        r1 := self.toUReal();
+        r2 := r.toUReal();
+        r3:=r1.divideBy(r2);
+        r4:=r3.floor();
+        r5:=r4.mult(r2);
+        r6 := r1.minus(r5);
+        result:=r6.toUUnlimitedNatural();
+    end   
+
+-- comparison operations
+
+equals(r : UUnlimitedNatural) : Boolean 
+   = if (self.x<>-1) and (r.x<>-1) then 
+           (self.x - self.u).max(r.x - r.u) <= 
+                 (self.x + self.u).min(r.x + r.u)
+     else (self.x=-1) and (r.x=-1)
+     endif
+  
+distinct(r : UUnlimitedNatural) : Boolean
+    = not self.equals(r) 
+
+compareTo(r : UUnlimitedNatural) : Integer
+    = if self.equals(r) then 0
+      else if self.lt(r) then -1 
+           else 1 
+           endif 
+      endif
+
+lt(r : UUnlimitedNatural) : Boolean
+   = if (self.x<>-1) and (r.x<>-1) then 
+        (self.x<r.x) and ((self.x + self.u)<(r.x - r.u))
+     else not ((self.x=-1) and (r.x<>-1)) 
+     endif
+
+le(r : UUnlimitedNatural) : Boolean 
+   = self.lt(r) or self.equals(r)
+    
+gt(r : UUnlimitedNatural) : Boolean
+   = not self.le(r) 
+
+ge(r : UUnlimitedNatural) : Boolean 
+   = not self.lt(r)
+
+max(r : UUnlimitedNatural) : UUnlimitedNatural
+   = if (self.x=-1) then self
+     else if (r.x=-1) then r 
+          else if r.lt(self) then self else r endif
+          endif
+     endif
+   
+min(r : UUnlimitedNatural) : UUnlimitedNatural
+   = if (self.x=-1) then r
+     else if (r.x=-1) then self 
+          else if r.lt(self) then self else r endif
+          endif
+     endif
+     
+-- comparison operations with Zero
+
+equalsZero() : Boolean 
+   = (self.x<>-1) and ((self.x - self.u).max(0.0) <= (self.x + self.u).min(0.0))
+  
+ltZero() : Boolean
+   = (self.x<>-1) and (self.x + self.u)<0.0 
+
+leZero() : Boolean 
+   = self.ltZero() or self.equalsZero()
+    
+gtZero() : Boolean
+   = not self.leZero() 
+
+geZero(r : UUnlimitedNatural) : Boolean 
+   = not self.lt(r)
+
+-- Fuzzy comparison operations
+
+uEquals(r : UUnlimitedNatural) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uEquals(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(self.x=-1) and (r.x=-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uEquals(r.toUReal())
+
+uDistinct(r : UUnlimitedNatural) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uDistinct(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(self.x=-1) or (r.x=-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uDistinct(r.toUReal())
+
+uLt(r : UUnlimitedNatural) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uLt(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(r.x=-1)and(self.x<>-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uLt(r.toUReal())
+
+uLe(r : UUnlimitedNatural) : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uLe(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(r.x=-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uLe(r.toUReal())   
+
+uGt(r : UUnlimitedNatural) : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uGt(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(self.x=-1)and(r.x<>-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uGt(r.toUReal())
+
+uGe(r : UUnlimitedNatural) : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uGe(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(self.x=-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uGe(r.toUReal())
+
+
+-- Fuzzy comparison operations with Zero=UUnlimitedNatural(0,0.0)
+
+uEqualsZero() : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean, r : UUnlimitedNatural;
+       r:=new UUnlimitedNatural;
+       r.x:=0;
+       r.u:=0.0;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uEquals(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(self.x=-1) and (r.x=-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uEquals(r.toUReal())
+
+uLtZero() : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean, r : UUnlimitedNatural;
+       r:=new UUnlimitedNatural;
+       r.x:=0;
+       r.u:=0.0;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uLt(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(r.x=-1)and(self.x<>-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uLt(r.toUReal())
+
+uLeZero() : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean,r : UUnlimitedNatural;
+       r:=new UUnlimitedNatural;
+       r.x:=0;
+       r.u:=0.0;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uLe(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(r.x=-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uLe(r.toUReal())   
+
+uGtZero() : UBoolean
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean,r : UUnlimitedNatural;
+       r:=new UUnlimitedNatural;
+       r.x:=0;
+       r.u:=0.0;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uGt(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(self.x=-1)and(r.x<>-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uGt(r.toUReal())
+
+uGeZero() : UBoolean 
+    begin
+       declare aux1 : UReal, aux2:UReal, aux:UBoolean, r : UUnlimitedNatural;
+       r:=new UUnlimitedNatural;
+       r.x:=0;
+       r.u:=0.0;
+       if (self.x<>-1) and (r.x<>-1) then 
+           aux1:=self.toUReal();
+           aux2:=r.toUReal();
+           result:=aux1.uGe(aux2);
+        else 
+           aux:=new UBoolean;
+           aux.b:=(self.x=-1);
+           aux.c:=1.0;
+           if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+           result:=aux;
+        end
+    end
+-- post: result = self.toUReal().uGe(r.toUReal())
+
+
+--- Conversion operations
+
+
+toUReal() : UReal
+    begin
+       declare aux : UReal;
+       aux:=new UReal;
+       aux.x:=self.x;
+       aux.u:=self.u;
+       result:=aux;
+    end
+post: result.x=self.x and result.u=self.u
+
+toUInteger() : UInteger
+    begin
+       declare aux : UInteger;
+       aux:=new UInteger;
+       aux.x:=self.x;
+       aux.u:=self.u;
+       result:=aux;
+    end
+post: result.x=self.x and result.u=self.u
+
+toInteger() : Integer = self.x
+
+toReal() : Real = self.x
+
+toString() : String = 'UUnlimitedNatural{x='+self.x.toString()+'; u='+self.u.toString()+'}'
+
+end
+
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+constraints -- precondition on operations
+
+--- UReal
+
+context UReal::divideBy(r : UReal) : UReal
+pre: (r.x - r.u).max(0) > (r.x + r.u).min(0) --not r.equals(0,0)
+
+context UReal::sqrt() : UReal
+pre:  (self.x + self.u)>=0.0 
+
+context UReal::inverse() : UReal
+    pre:  (self.x - self.u).max(0) > (self.x + self.u).min(0) -- not self.equals(0.0)
+
+--- UInteger
+
+context UInteger::divideBy(r : UInteger) : UInteger
+pre: (r.x - r.u).max(0) > (r.x + r.u).min(0) --not r.equals(0,0)
+
+context UInteger::divideByR(r : UInteger) : UReal
+pre: (r.x - r.u).max(0) > (r.x + r.u).min(0) --not r.equals(0,0)
+
+
+context UInteger::sqrt() : UInteger
+pre:  (self.x + self.u)>=0.0 
+
+context UInteger::inverse() : UInteger
+    pre:  (self.x - self.u).max(0) > (self.x + self.u).min(0) -- not self.equals(0.0)
+
+--- UUnlimitedNatural
+
+context UUnlimitedNatural inv WellFormedNumbers:
+   (self.x <= -1) and (self.x = -1 implies self.u=0.0)
+
+context UUnlimitedNatural::divideBy(r : UUnlimitedNatural) : UUnlimitedNatural
+pre: (r.x - r.u).max(0) > (r.x + r.u).min(0) --not r.equals(0,0)
+     and (r.x <> -1) and (self.x <> -1)
+
+context UUnlimitedNatural::divideByR(r : UUnlimitedNatural) : UReal
+pre: (r.x - r.u).max(0) > (r.x + r.u).min(0) --not r.equals(0,0)
+     and (r.x <> -1) and (self.x <> -1)
+
+context UUnlimitedNatural::add(r : UUnlimitedNatural) : UUnlimitedNatural
+pre: (r.x <> -1) and (self.x <> -1)
+
+context UUnlimitedNatural::mult(r : UUnlimitedNatural) : UUnlimitedNatural
+pre: (r.x <> -1) and (self.x <> -1)
+
+context UUnlimitedNatural::toReal() : Real
+pre: (self.x <> -1)
+
+context UUnlimitedNatural::toUReal() : UReal
+pre: (self.x <> -1)
+
+context UUnlimitedNatural::toInteger() : Integer
+pre: (self.x <> -1)
+
+context UUnlimitedNatural::toUInteger() : UInteger
+pre: (self.x <> -1)

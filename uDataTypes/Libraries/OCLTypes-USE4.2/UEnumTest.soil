@@ -1,0 +1,45 @@
+reset
+!new UEnum('e1')
+!new UEnum('e2')
+!new UEnum('e3')
+!new UEnum('e4')
+!new UEnum('e5')
+!new UEnum('e6')
+!new UBoolean('b')
+
+!e1.values:=Sequence{Tuple{literal='HIGH',conf=1.0},Tuple{literal='MEDIUM',conf=0.0},Tuple{literal='LOW',conf=0.0},Tuple{literal='ZERO',conf=0.0}}
+!e4.values:=Sequence{Tuple{literal='ZERO',conf=0.0},Tuple{literal='LOW',conf=0.0},Tuple{literal='MEDIUM',conf=0.0},Tuple{literal='HIGH',conf=1.0}}
+!e2.values:=Sequence{Tuple{literal='HIGH',conf=0.0},Tuple{literal='MEDIUM',conf=1.0},Tuple{literal='LOW',conf=0.0},Tuple{literal='ZERO',conf=0.0}}
+!e3.values:=Sequence{Tuple{literal='HIGH',conf=0.5},Tuple{literal='MEDIUM',conf=0.5},Tuple{literal='LOW',conf=0.0},Tuple{literal='ZERO',conf=0.0}}
+!e5.values:=Sequence{Tuple{literal='MEDIUM',conf=0.09},Tuple{literal='LOW',conf=0.005},Tuple{literal='ZERO',conf=0.005},Tuple{literal='HIGH',conf=0.90}}
+!e6.values:=Sequence{Tuple{literal='HIGH',conf=0.09},Tuple{literal='ZERO',conf=0.005},Tuple{literal='MEDIUM',conf=0.9},Tuple{literal='LOW',conf=0.005}}
+
+?e1.equals(e4) -- true
+!b:=e1.uEquals(e4)
+?b.c
+
+?e1.equals(e2) -- false
+!b:=e1.uEquals(e2)
+?b.c
+
+?e1.equals(e3) -- false
+!b:=e1.uEquals(e3)
+?b.c
+
+?e3.equals(e2) -- false
+!b:=e3.uEquals(e2)
+?b.c
+
+?e5.equals(e6) -- false
+!b:=e5.uEquals(e6)
+?b.c
+
+?e6.equals(e5) -- false
+!b:=e6.uEquals(e5)
+?b.c
+
+
+
+
+
+

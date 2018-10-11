@@ -1,0 +1,59 @@
+USE version 4.2.0-487, Copyright (C) 1999-2016 University of Bremen
+use> open MovingRobot.use
+compiling specification...
+done
+Model MovingRobot (4 classes, 2 associations, 0 invariants, 3 operations, 0 pre-/postconditions, 0 state machines)
+use> open MovingRobot.soil
+MovingRobot.soil> !new Coordinate('initial')
+MovingRobot.soil> !initial.x:=0.0
+MovingRobot.soil> !initial.y:=0.0
+MovingRobot.soil> !new Coordinate('target')
+MovingRobot.soil> !target.x:=10.0
+MovingRobot.soil> !target.y:=10.0
+MovingRobot.soil>
+MovingRobot.soil> !new Robot('robot')
+MovingRobot.soil> !robot.position:=initial
+MovingRobot.soil> !robot.headsTo:=0
+MovingRobot.soil>
+MovingRobot.soil> !new Movement('m1')
+MovingRobot.soil> !m1.move:=10.0
+MovingRobot.soil>
+MovingRobot.soil> !new Movement('m2')
+MovingRobot.soil> !m2.rotate:=1.5707963267948965
+MovingRobot.soil>
+MovingRobot.soil> !new Movement('m3')
+MovingRobot.soil> !m3.move:=10.0
+MovingRobot.soil>
+MovingRobot.soil> !new Movement('m4')
+MovingRobot.soil> !m4.move:=14.1421356
+MovingRobot.soil> !m4.rotate:=5.0*3.141592653589793/4.0
+MovingRobot.soil>
+MovingRobot.soil> !new Movement('m5')
+MovingRobot.soil> !m5.move:=14.1421356
+MovingRobot.soil> !m5.rotate:=3.141592653589793/4.0
+MovingRobot.soil>
+MovingRobot.soil> !insert(robot,m1) into Plan
+MovingRobot.soil> !insert(robot,m2) into Plan
+MovingRobot.soil> !insert(robot,m3) into Plan
+MovingRobot.soil> !insert(robot,m4) into Plan
+MovingRobot.soil> !insert(robot,m5) into Plan
+MovingRobot.soil>
+MovingRobot.soil> !robot.performAllMoves()
+MovingRobot.soil>
+MovingRobot.soil> ?target.x
+-> 10.0 : Real
+MovingRobot.soil> ?target.y
+-> 10.0 : Real
+MovingRobot.soil> ?robot.position.x
+-> 9.999999999999998 : Real
+MovingRobot.soil> ?robot.position.y
+-> 10.0 : Real
+MovingRobot.soil> ?robot.headsTo
+-> 0.7853981633974483 : Real
+MovingRobot.soil>
+MovingRobot.soil> !b:=robot.position.coincide(target)
+MovingRobot.soil> ?b
+-> true : Boolean
+MovingRobot.soil>
+MovingRobot.soil>
+use>

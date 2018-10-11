@@ -1,0 +1,179 @@
+model MechanicalArm
+
+
+enum Color { Red, Yellow, Green }
+
+class ProductionLine
+attributes
+operations
+	start()
+	begin
+		declare b1:Boolean, b2:Boolean, arm:Arm, a:Apple, p:Position, c:Container, numMoves:Integer;
+		arm := self.arms->any(true);
+		
+		a := arm.tray.apples->any(true); -- Apple.allInstances->any(ap | ap.container.oclIsUndefined());
+		b1:= arm.grasp(a);
+		if (b1) then
+			c:=arm.classify(a);
+			arm.moveTo(c);
+			b2:=arm.drop(a, c);
+			if (not b2) then
+				arm.wastedApples:=arm.wastedApples+1;
+			end
+		else
+			arm.missedApples:=arm.missedApples+1;
+		end;
+		arm.backToBase();
+	end
+end
+
+class Tray
+end
+
+class Arm
+attributes
+	needsCalibration : Boolean
+	missedApples : Integer init : 0
+	wastedApples : Integer init : 0
+	deterioration : UReal init : UReal(0.0, 0.001)
+	tolerance : UReal init : UReal(0.0, 0.01)
+operations
+	grasp(a:Apple) : Boolean
+	begin
+		declare distance : UReal;
+		self.currentPos.x := self.tray.pos.x + self.tolerance;
+		self.currentPos.y := self.tray.pos.y + self.tolerance;
+		self.currentPos.z := self.tray.pos.z + self.tolerance;
+		self.tolerance := self.tolerance + self.deterioration;
+		distance := self.currentPos.distance(self.tray.pos);
+		if ((distance>self.tolerance).confidence()>0.5) then
+			result := false;
+		else
+			delete (a.tray, a) from Apple_Tray;
+			result := true;
+		end
+	end
+	classify(a:Apple):Container
+	begin
+		if (a.color->any(t | t.c=#Red).p>=0.9) then
+			result := Container.allInstances->any(cn | cn.type = #RedDelicious);
+		else
+			if (a.color->any(t | t.c=#Red).p>=0.4 and a.color->any(t | t.c=#Green).p<0.1) then
+				result := Container.allInstances->any(cn | cn.type = #PinkLady);
+			else
+				if (a.color->any(t | t.c=#Yellow).p>0.8) then
+					result := Container.allInstances->any(cn | cn.type = #GoldenDelicious);
+				else
+					if (a.color->any(t | t.c=#Green).p>0.7) then
+						result := Container.allInstances->any(cn | cn.type = #GrannySmith);
+					else
+						result := Container.allInstances->any(cn | cn.type = #Cooking);
+					end
+				end
+			end
+		end
+	end
+	moveTo(c:Container)
+	begin
+		self.currentPos.x := c.pos.x + self.tolerance;
+		self.currentPos.y := c.pos.y + self.tolerance;
+		self.currentPos.z := c.pos.z + self.tolerance;
+		self.tolerance := self.tolerance + self.deterioration;
+	end
+	drop(a:Apple, c:Container) : Boolean
+	begin
+		declare distance:UReal;
+		distance := self.currentPos.distance(c.pos);
+		if ((distance>self.tolerance).confidence()>0.5) then
+			result := false;
+		else
+			result := true;
+			insert (c, a) into Container_Apples
+		end
+	end
+	backToBase()
+	begin
+		self.currentPos.x := self.basePos.x;
+		self.currentPos.y := self.basePos.y;
+		self.currentPos.z := self.basePos.z;
+		-- note that uncertainty has been reset to 0
+		if ((self.tolerance.uncertainty() > self.deterioration.uncertainty()*100.0)) then
+			self.needsCalibration := true;
+		end
+	end
+	calibrate()
+	begin
+		self.tolerance := UReal(0.0, 0.0);
+		self.needsCalibration := false;
+	end
+end
+
+class Container
+attributes
+	type : AppleType
+end
+
+class Position
+attributes
+	x : UReal
+	y : UReal
+	z : UReal
+operations
+	distance(p:Position) : UReal =
+		((self.x-p.x).abs()+
+		(self.y-p.y).abs()+
+		(self.z-p.z).abs());
+end
+
+class Apple
+attributes
+	size : UReal
+	weight : UReal
+	color : Sequence(Tuple(c:Color, p:Real))
+	type : AppleType derive : self.container.type
+operations
+end
+
+enum AppleType { RedDelicious, PinkLady, GoldenDelicious, GrannySmith, Cooking } -- regular enum
+
+composition ProductionLine_Arms between
+	ProductionLine [1] role prodLine
+	Arm [*] role arms
+end
+
+association Tray_Position between
+	Tray [0..1] role tray
+	Position [1] role pos
+end
+
+composition Apple_Tray between
+	Tray [0..1] role tray
+	Apple [*] role apples
+end
+
+association Arm_Tray between
+	Arm [1] role arm
+	Tray [1] role tray
+end
+
+association Arm_CurrentPosition between
+	Arm [0..1] role arm
+	Position [1] role currentPos
+end
+
+association Arm_BasePosition between
+	Arm [0..1] role baseArm
+	Position [1] role basePos
+end
+
+association Container_Position between
+	Container [0..1] role container
+	Position [1] role pos
+end
+
+composition Container_Apples between
+	Container [0..1] role container
+	Apple [0..*] role apples
+end
+
+constraints

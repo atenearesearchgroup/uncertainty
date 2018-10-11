@@ -1,0 +1,46 @@
+model Train
+
+class Observation
+attributes
+position:UReal
+time:UReal
+end
+
+abstract class MovingObject
+attributes
+speed : UReal derive: (self.current.position-self.previous.position)/(self.current.time-self.previous.time)
+timeToStation: UReal derive: (self.headsTo.position-self.current.position)/self.speed
+end
+
+class Train < MovingObject
+end
+
+class Person < MovingObject
+attributes
+arrivesOnTime:UBoolean derive: (self.timeToStation + 3.0) <= self.targetTrain.timeToStation
+end
+
+class Station
+attributes
+position:UReal
+end
+
+association CurrentPosition between
+MovingObject [*] role objectNow 
+Observation [1] role current
+end
+
+association PreviousPosition between
+MovingObject [*] role objectBefore 
+Observation [1] role previous
+end
+
+association HeadsTo between
+MovingObject [*] role object 
+Station [1] role headsTo
+end
+
+association TargetTrain between
+Person [*] role person
+Train [1] role targetTrain
+end
