@@ -2,8 +2,8 @@
 !initial.x:=UReal(0.0, 0.01)
 !initial.y:=UReal(0.0, 0.01)
 !new Coordinate('target')
-!target.x:=UReal(10.0, 0.01)
-!target.y:=UReal(10.0, 0.01)
+!target.x:=UReal(10.0, 0.2)
+!target.y:=UReal(10.0, 0.2)
 
 !new Robot('robot')
 !robot.position:=initial
@@ -20,7 +20,7 @@
 
 !new Movement('m4')
 !m4.move:=UReal(14.1421356, 0.01)
-!m4.rotate:=UReal(5.0, 0.01)* UReal(3.141592653589793,0.01) / UReal(4.0, 0.01)
+!m4.rotate:=UReal(5.0, 0.01) * UReal(3.141592653589793,0.01) / UReal(4.0, 0.01)
 
 !new Movement('m5')
 !m5.move:=UReal(14.1421356, 0.01)

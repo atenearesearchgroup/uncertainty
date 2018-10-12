@@ -5,9 +5,9 @@ attributes
   x : UReal
   y : UReal
 operations
-  coincide(c:Coordinate):Boolean -- self.x.equals(c.x) and self.y.equals(c.y);
+  coincide(c:Coordinate):UBoolean -- self.x.equals(c.x) and self.y.equals(c.y);
   begin
-    result :=  (self.x = c.x) and (self.y = c.y);
+    result :=  (self.x.uEquals(c.x)).uAnd(self.y.uEquals(c.y));
   end
 --  uCoincide(c:Coordinate):UBoolean -- self.x.uEquals(c.x) * self.y.uEquals(c.y);
 --  begin

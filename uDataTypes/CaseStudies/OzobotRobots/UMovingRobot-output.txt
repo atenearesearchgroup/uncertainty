@@ -1,10 +1,9 @@
-use> open C:\Users\Atenea\Dropbox\UMA\otros\GitRepositories\uncertainty\uDataTypes\CaseStudies\OzobotRobots\UMovingRobot.soil
 UMovingRobot.soil> !new Coordinate('initial')
 UMovingRobot.soil> !initial.x:=UReal(0.0, 0.01)
 UMovingRobot.soil> !initial.y:=UReal(0.0, 0.01)
 UMovingRobot.soil> !new Coordinate('target')
-UMovingRobot.soil> !target.x:=UReal(10.0, 0.01)
-UMovingRobot.soil> !target.y:=UReal(10.0, 0.01)
+UMovingRobot.soil> !target.x:=UReal(10.0, 0.2)
+UMovingRobot.soil> !target.y:=UReal(10.0, 0.2)
 UMovingRobot.soil>
 UMovingRobot.soil> !new Robot('robot')
 UMovingRobot.soil> !robot.position:=initial
@@ -21,7 +20,7 @@ UMovingRobot.soil> !m3.move:=UReal(10.0, 0.01)
 UMovingRobot.soil>
 UMovingRobot.soil> !new Movement('m4')
 UMovingRobot.soil> !m4.move:=UReal(14.1421356, 0.01)
-UMovingRobot.soil> !m4.rotate:=UReal(5.0, 0.01)* UReal(3.141592653589793,0.01) / UReal(4.0, 0.01)
+UMovingRobot.soil> !m4.rotate:=UReal(5.0, 0.01) * UReal(3.141592653589793,0.01) / UReal(4.0, 0.01)
 UMovingRobot.soil>
 UMovingRobot.soil> !new Movement('m5')
 UMovingRobot.soil> !m5.move:=UReal(14.1421356, 0.01)
@@ -36,9 +35,9 @@ UMovingRobot.soil>
 UMovingRobot.soil> !robot.performAllMoves()
 UMovingRobot.soil>
 UMovingRobot.soil> ?target.x
--> UReal(10.0,0.01) : UReal
+-> UReal(10.0,0.2) : UReal
 UMovingRobot.soil> ?target.y
--> UReal(10.0,0.01) : UReal
+-> UReal(10.0,0.2) : UReal
 UMovingRobot.soil> ?robot.position.x
 -> UReal(10.00019635243198,0.3316664066254812) : UReal
 UMovingRobot.soil> ?robot.position.y
@@ -48,6 +47,6 @@ UMovingRobot.soil> ?robot.headsTo
 UMovingRobot.soil>
 UMovingRobot.soil> !b:=robot.position.coincide(target)
 UMovingRobot.soil> ?b
--> true : Boolean
+-> UBoolean(true,0.5780485270683343) : UBoolean
 UMovingRobot.soil>
 use>
