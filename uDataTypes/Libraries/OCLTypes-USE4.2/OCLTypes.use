@@ -410,48 +410,119 @@ uNot() : UBoolean
         if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
         result:=aux;
     end
-post: (result.b) and (result.c = if self.b then 1-self.c else self.c endif)
+post: if self=null -- or self=invalid %USE does not implement oclIsInvalid()
+      then result = self 
+      else (result.b) and 
+             (result.c = if self.b then 1-self.c else self.c endif)
+      endif
 
 uAnd(b : UBoolean) : UBoolean
     begin
         declare aux : UBoolean;
-        aux := new UBoolean;
-        aux.b:=self.b and b.b;
-        aux.c:= self.c * b.c;
-        -- return the UBoolean number in normal form:
-        if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+        if (b=null) then 
+		    if (not self.toBoolean()) then -- self
+			    aux := new UBoolean;
+				aux.b:=self.b;
+				aux.c:=self.c;
+                if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+			else
+			    aux:=null
+			end;
+		else
+            aux := new UBoolean;
+            aux.b:=self.b and b.b;
+            aux.c:= self.c * b.c;
+            -- return the UBoolean number in normal form:
+            if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+		end;
         result:=aux;
     end
-post: let C : Real = (self.c * b.c) in
-      (result.b) and (result.c = if (self.b and b.b) then C else (1 - C) endif)
+post: let C : Real = self.c*b.c in
+      if (b=null) then
+          if (not self.toBoolean()) then (result.b) and (result.c=if (self.b) then self.c else (1-self.c) endif)
+		  else result=null 
+		  endif
+      else (result.b) and (result.c=if (self.b and b.b) then C else (1-C) endif)
+	  endif
+-- USE does not support the OCL 4-valued logic
+-- post: let C : Real = self.c*b.c in
+--      if (self.b and b.b) = null then null
+--      else if (self.b and b.b) = invalid then invalid
+--           else (result.b) and (result.c=if (self.b and b.b) then C else (1-C) endif)
+--           endif
+--      endif
 
 uOr(b : UBoolean) : UBoolean
     begin
         declare aux : UBoolean;
-        aux := new UBoolean;
-        aux.b:=self.b or b.b;
-        aux.c:= self.c + b.c - (self.c * b.c); 
-        -- return the UBoolean number in normal form:
-        if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+        if (b=null) then 
+		    if (self.toBoolean()) then -- self
+			    aux := new UBoolean;
+				aux.b:=self.b;
+				aux.c:=self.c;
+                if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+			else
+			    aux:=null
+			end;
+		else
+            aux := new UBoolean;
+            aux.b:=self.b or b.b;
+            aux.c:= self.c + b.c - (self.c * b.c);
+            -- return the UBoolean number in normal form:
+            if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+		end;
         result:=aux;
     end
-post: let C : Real = (self.c + b.c - (self.c * b.c)) in
-      (result.b) and 
-      (result.c = if (self.b or b.b) then C else (1 - C) endif)
+post: let C : Real = self.c + b.c - (self.c * b.c) in
+      if (b=null) then
+          if (self.toBoolean()) then (result.b) and (result.c=if (self.b) then self.c else (1-self.c) endif)
+		  else result=null 
+		  endif
+      else (result.b) and (result.c=if (self.b or b.b) then C else (1-C) endif)
+	  endif
+-- USE does not support the OCL 4-valued logic
+-- post: let C : Real = (self.c + b.c - (self.c * b.c)) in
+--       if (self.b or b.b) = null then null
+--       else if (self.b or b.b) = invalid then invalid
+--            else (result.b) and (result.c=if (self.b or b.b) then C else (1-C) endif)
+--            endif
+--        endif
 
 uImplies(b : UBoolean) : UBoolean
     begin
         declare aux : UBoolean;
-        aux := new UBoolean;
-        aux.b:=self.b implies b.b;
-        aux.c:= self.c + b.c - (self.c * b.c); 
-        -- return the UBoolean number in normal form:
-        if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+        if (b=null) then 
+		    if (not self.toBoolean()) then -- not self
+			    aux := new UBoolean;
+				aux.b:=not self.b;
+				aux.c:=self.c;
+                if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+			else
+			    aux:=null
+			end;
+		else
+            aux := new UBoolean;
+            aux.b:=self.b implies b.b;
+            aux.c:= self.c + b.c - (self.c * b.c);
+            -- return the UBoolean number in normal form:
+            if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
+		end;
         result:=aux;
-    end
-post: let C : Real = (self.c + b.c - (self.c * b.c)) in
-      (result.b) and 
-      (result.c = if (self.b implies b.b) then C else (1 - C) endif)
+	end
+post: let C : Real = self.c + b.c - (self.c * b.c) in
+      if (b=null) then
+          if (not self.toBoolean()) then (result.b) and (result.c=if not (self.b) then self.c else (1-self.c) endif)
+		  else result=null 
+		  endif
+      else (result.b) and (result.c=if (self.b implies b.b) then C else (1-C) endif)
+	  endif
+-- USE does not support the OCL 4-valued logic
+-- post: let C : Real = (self.c + b.c - (self.c * b.c)) in
+--        if (self.b implies b.b) = null then null
+--        else if (self.b implies b.b) = invalid then invalid
+--             else (result.b) and (result.c=if (self.b implies b.b) then C else (1-C) endif)
+--            endif
+--        endif
 
 
 uEquivalent(b : UBoolean) : UBoolean

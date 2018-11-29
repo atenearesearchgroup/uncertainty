@@ -1,3 +1,7 @@
+------------------------------------------------------
+-- CASE A: CERTAIN COLLECTIONS WITH UNCERTAIN ELEMENTS
+------------------------------------------------------
+
 -- ForAll
 source->uForAll(e | P(e)) : UBoolean
 source->iterate(e, acc:UBoolean=UBoolean(true, 1.0) | acc.uAnd(P(e)))
@@ -70,4 +74,99 @@ source->iterate(v, acc:Collection=Collection{} |
 	if P(v).toBooleanC(c) then acc->excluding(v) else acc endif)
 	
 -- sum
+source->iterate(v, acc:UReal=UReal(0,0) | acc.add(v)) 
+
+
+------------------------------------------------------
+-- CASE B: UNCERTAIN COLLECTIONS
+-- They are of the form (S,c) with S the collection, 
+-- and c its confidence
+------------------------------------------------------
+
+-- ForAll
+source->uForAll(e | P(e)) : UBoolean
+post: let r : UBoolean = source.S->iterate(e, acc:UBoolean=UBoolean(true, 1.0) | acc.uAnd(P(e)))
+      in result.x = r.x and result.c = r.c*source.c
+
+
+-- Exists
+source->uExists(e | P(e)) : UBoolean
+post: let r : UBoolean = source.S->iterate(e, acc:UBoolean=UBoolean(true, 0.0) | acc.uOr(P(e)))
+      in result.x = r.x and result.c = r.c*source.c
+	
+-- includes
+source->uIncludes(e) : UBoolean
+post: let r : UBoolean = source.S->exists(v | v.uEquals(e))
+      in result.x = r.x and result.c = r.c*source.c
+
+-- includesAll
+source->uIncludesAll(C2) : UBoolean
+post: let r : UBoolean = C2.S->forAll(e | source.S->uIncludes(e))
+      in result.x = r.x and result.c = r.c * source.c * C2.c
+
+-- excludes
+source->uExcludes(e) : UBoolean
+post: let r : UBoolean = source.S->forAll(v | v.uEquals(e).uNot())
+      in result.x = r.x and result.c = r.c*source.c
+
+
+-- excludesAll
+source->uExcludesAll(C2) : UBoolean
+post: let r : UBoolean = C2.S->forAll(e | source.S->uExcludes(e))
+      in result.x = r.x and result.c = r.c * source.c * C2.c
+
+-- count
+source->count(e) : Integer
+body: source.S->iterate(v, acc:Integer=0 | if v.uEquals(e).toBoolean() then acc + 1 else acc)
+
+
+source->uCount(e) : UInteger -- does not consider the confidence.
+body: source.S->iterate(v, acc:UInteger=UInteger(0,0) | acc.add(UInteger(1,v.uEquals(e).c))
+
+-- O tambien podemos especificar un umbral de confianza
+source->countC(e,c) : Integer
+body: source.S->iterate(v, acc:Integer=0 |
+	if v.uEquals(e).toBooleanC(c) then acc + 1 else acc)
+
+source->one(P()) : UBoolean
+body: source->select(e | P(e))->size() = 1
+
+source->uSize() : UInteger
+
+post: result.x = self.S->size() and result.u = self.confToDist()
+
+
+source->uUnion(us:USet(T)) :USet(T)
+
+post: result.S = self.S.union(us.S) and
+ result.c = self.distToConf(self.confToDist() + 
+us.confToDist(), self.S->size()+us.S->size())
+
+-- isUnique
+source->isUnique(e) : Boolean
+source->forAll(e | source->one(e))
+
+source->uIsUnique(e) : UBoolean
+(source->uCount(e)).uEquals(UInteger(1,0))
+
+-- select
+source->select(P()) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBoolean() then acc->including(v) else acc endif)
+
+-- AV: podemos incluir tambien un umbral de confianza, que se usa en el toBoolean():
+source->select(P(),c) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBooleanC(c) then acc->including(v) else acc endif) 
+	
+-- reject
+source->reject(P()) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBoolean() then acc->excluding(v) else acc endif)
+
+source->reject(P(),c) : Collection
+source->iterate(v, acc:Collection=Collection{} |
+	if P(v).toBooleanC(c) then acc->excluding(v) else acc endif)
+	
+-- sum -- does not change
 source->iterate(v, acc:UReal=UReal(0,0) | acc.add(v)) 
