@@ -1,0 +1,159 @@
+model RobotBattle
+
+class Battlefield
+end
+
+class Clock
+attributes
+now:Integer
+end
+
+class Robot < MovingObject
+attributes
+id:String
+operations
+pointAt(o:UnidentifiedObject):Mark
+begin
+declare gs:Mark;
+gs:=new Mark;
+-- create links gunshot links
+insert (gs,self.position) into GunShotPosition;
+insert (self,gs) into Marks;
+insert (gs,o) into Hit;
+-- previous version
+-- declare gs:Mark, x:UReal, y:UReal, u1:UReal, u2:UReal, distance:UReal;
+--   gs:=new Mark;
+--  -- compute the attributes
+--  -- gs.angle
+--   x:=(o.position.x - self.position.x);
+--   y:=(o.position.y - self.position.y);
+--   if (x = 0.0) then 
+-- 	  if ((y >= UReal(0.0, 0.0)).value()) then
+-- 		u1:= UReal(1.570796326791001,0.0);
+--         gs.angle:=u1.setUncertainty(y.uncertainty());
+-- 	  else
+--		u2:= UReal(4.712388980373001246,0.0); 
+--		gs.angle:=u2.setUncertainty(y.uncertainty())
+--	  end; 
+--  else
+--	gs.angle:=(y/x).atan(); 
+--  end;
+-- hitsTarget:UBoolean 
+--  distance:= self.position.distance(o.position);
+--  gs.hitsTarget:= ((self.position.x-o.position.x)+distance*self.angle.cos()).abs() <= o.width and
+--   ((self.position.y-o.position.y)+distance*self.angle.sin()).abs() <= o.width; 
+end -- operation pointAt
+shootAtMarkedThreats()
+begin
+end
+
+end -- class Robot
+
+class UnidentifiedObject < MovingObject
+attributes
+id:String
+end
+
+class Mark
+attributes
+-- threat: ThreatLevel derive:
+--    let distance : Real =  robot.position.distance(target.position).value in
+--    if  distance <= 200.0 then #HIGH 
+--    else if distance <= 500.0 then #MEDIUM 
+--        else #LOW 
+--	   endif 
+--  endif
+
+angle:Real derive: 
+  let x:Real = (target.position.x - robot.position.x) in
+  let y:Real = (target.position.y - robot.position.y) in
+  if (x = 0.0) then 
+	  if (y >= 0.0) then 1.570796326791001
+	  else 4.712388980373001246
+	  endif
+  else
+	(y/x).atan() 
+  endif
+
+hitsTarget:Boolean derive:
+   let distance : Real =  robot.position.distance(target.position) in
+   ((robot.position.x-target.position.x)+distance*self.angle.cos()).abs() <= target.width and
+   ((robot.position.y-target.position.y)+distance*self.angle.sin()).abs() <= target.width 
+
+end -- class Mark
+
+class Coordinate
+attributes
+x:Real
+y:Real
+operations
+distance(other:Coordinate):Real = ((self.x - other.x)*(self.x - other.x) + (self.y - other.y)*(self.y - other.y)).sqrt()
+end
+
+abstract class MovingObject
+attributes
+width:Real
+angle:Real
+speed:Real
+operations
+-- headTo(angle:Real)
+-- begin
+-- self.angle:=angle;
+-- end
+-- post: self.angle = angle
+-- 
+-- changeSpeed(speed:UReal)
+-- begin
+-- self.speed:=speed;
+-- end
+-- post: self.speed = speed
+
+move(seconds:Integer)
+begin
+  declare c:Coordinate, d:Real;
+  c:=new Coordinate;
+  d:=self.speed * seconds;
+  c.x:=self.position.x+d*self.angle.cos();
+  c.y:=self.position.y+d*self.angle.sin();
+  delete (self,self.position) from ObjectPosition;
+  insert (self,c) into ObjectPosition;
+end
+
+end
+
+association GunShotPosition between
+Mark [0..1] role mark 
+Coordinate [1] role position
+end
+
+association ObjectPosition between
+MovingObject [0..1] role object 
+Coordinate [1] role position
+end
+
+association Marks between
+Robot [1] role robot
+Mark [*] role mark
+end
+
+association Hit between
+Mark [*] role mark
+UnidentifiedObject [1] role target
+end
+
+composition Robots between
+Battlefield [1] role battlefield
+MovingObject [*] role movingObjects
+end
+
+composition Clocks between
+Battlefield [1]
+Clock [1]
+end
+
+
+constraints
+
+-- context Clock inv UniqueClock: 
+--    Clock.allInstances->size = 1
+

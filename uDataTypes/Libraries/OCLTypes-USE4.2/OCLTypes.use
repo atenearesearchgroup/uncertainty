@@ -727,8 +727,8 @@ uEquivalent(b : UBoolean_A) : UBoolean_A
         result:=aux;
     end
 post: (Sequence{1..self.sample->size}->
-        forAll(i|result.sample->at(i)=(self.sample->at(i) xor b.sample->at(i))))
--- post: result = self.uImplies(b).uAnd(b.uImplies(self))
+        forAll(i|result.sample->at(i)=not(self.sample->at(i) xor b.sample->at(i))))
+-- post: result = self.uImplies(b).uAnd(b.uImplies(self)) -- or, similarly, not(self.uXor(b))
  
 equals(b : UBoolean_A) : Boolean = (self.b=b.b) and (self.c=b.c)
 
@@ -780,6 +780,8 @@ add(r : UReal) : UReal
         aux.u := (self.u*self.u + r.u*r.u).sqrt();
         result := aux;
     end   
+post: result.x=self.x + r.x and
+      result.u=(self.u*self.u + r.u*r.u).sqrt()
 
 minus(r : UReal) : UReal
      begin
@@ -789,6 +791,8 @@ minus(r : UReal) : UReal
         aux.u := (self.u*self.u + r.u*r.u).sqrt();
         result := aux;
     end   
+post: result.x=self.x - r.x and
+      result.u=(self.u*self.u + r.u*r.u).sqrt()
    
 mult(r : UReal) : UReal
      begin
@@ -798,6 +802,8 @@ mult(r : UReal) : UReal
         aux.u := (r.u*r.u*self.x*self.x + self.u*self.u*r.x*r.x).sqrt();
         result := aux;
      end   
+post: result.x=(self.x*r.x) and
+    result.u=(r.u*r.u*self.x*self.x+self.u*self.u*r.x*r.x).sqrt()
     
 divideBy(r : UReal) : UReal
      begin
@@ -808,6 +814,9 @@ divideBy(r : UReal) : UReal
                  ((r.u*r.u*self.x*self.x)/(r.x*r.x*r.x*r.x))).sqrt();
         result := aux;
     end   
+post: result.x=(self.x/r.x + (self.x*r.u*r.u)/(r.x*r.x*r.x)) and
+    result.u=((self.u*self.u/r.x) + 
+                 ((r.u*r.u*self.x*self.x)/(r.x*r.x*r.x*r.x))).sqrt()
 
 sin() :UReal
      begin
@@ -817,6 +826,8 @@ sin() :UReal
         aux.u := (self.x.cos() * self.u).abs() ;
         result := aux;
     end   
+post: result.x=self.x.sin() and
+      result.u=(self.x.cos()*self.u).abs()
 
 cos() :UReal
      begin
@@ -826,15 +837,21 @@ cos() :UReal
         aux.u := (self.x.sin() * self.u).abs() ;
         result := aux;
     end   
+post: result.x=self.x.cos() and
+      result.u=(self.x.sin()*self.u).abs()
     
 tan():UReal
     begin
-        declare aux1 : UReal, aux2 : UReal;
-        aux1 := self.sin();
-        aux2 := self.cos();
-        result:=aux1.divideBy(aux2);
+        declare aux : UReal;
+        aux := new UReal;
+        aux.x := self.x.tan();
+        aux.u := self.u / (self.x.cos()*self.x.cos()) ;
+        result := aux;
     end
+post: result.x=self.x.tan() and
+      result.u= self.u / (self.x.cos()*self.x.cos())
 
+	
 atan() :UReal
      begin
         declare aux : UReal;
@@ -843,6 +860,8 @@ atan() :UReal
         aux.u := self.u / (1 + self.x*self.x) ;
         result := aux;
     end   
+post: result.x=self.x.atan() and
+      result.u=self.u / (1 + self.x*self.x)
 
 asin() :UReal
      begin
@@ -852,6 +871,8 @@ asin() :UReal
         aux.u := self.u / ((1 - self.x*self.x).sqrt()) ;
         result := aux;
     end   
+post: result.x=self.x.asin() and
+      result.u=self.u / ((1 - self.x*self.x).sqrt())
 
 acos() :UReal
      begin
@@ -861,6 +882,8 @@ acos() :UReal
         aux.u := self.u / ((1 - self.x*self.x).sqrt()) ;
         result := aux;
     end   
+post: result.x=self.x.acos() and
+      result.u=self.u / ((1 - self.x*self.x).sqrt())
 
    
 abs() : UReal
@@ -870,7 +893,10 @@ abs() : UReal
         aux.x := (self.x).abs();
         aux.u := self.u;
         result := aux;
-    end   
+    end 
+post: result.x=self.x.abs() and
+      result.u=self.u 
+	
     
 neg() : UReal
      begin
@@ -880,6 +906,8 @@ neg() : UReal
         aux.u := self.u;
         result := aux;
     end   
+post: result.x=-self.x and
+      result.u=self.u 
 
 floor() : UReal
      begin
@@ -889,6 +917,8 @@ floor() : UReal
         aux.u := self.u;
         result := aux;
     end   
+post: result.x=self.x.floor() and
+      result.u=self.u 
     
 round() : UReal
     begin
@@ -898,7 +928,8 @@ round() : UReal
         aux.u := self.u;
         result := aux;
     end   
-    
+post: result.x=self.x.round() and
+      result.u=self.u 
     
 inverse() : UReal
      begin
@@ -917,14 +948,21 @@ power (s : Real) : UReal
         aux.u := s*self.u*self.x.power(s-1);
         result := aux;
     end   
+post: result.x=self.x.power(s) +
+               ((s*(s-1))/2)*self.x.power(s-2)*(self.u*self.u) and
+      result.u=s*self.u*self.x.power(s-1) 
     
 sqrt() : UReal 
     begin
         declare aux : UReal;
-        aux := self.power(0.5);
+		-- aux:=self.power(0.5);
+        aux.x := self.x.sqrt() - (self.u*self.u*self.x*self.x*self.x)/(8*self.x.sqrt());
+        aux.u := self.u/(2*self.x.sqrt());
         result := aux;
     end
-   
+post: result.x=self.x.sqrt() - (self.u*self.u*self.x*self.x*self.x)/(8*self.x.sqrt()) and
+      result.u=self.u/(2*self.x.sqrt())    
+	  
 -- comparison operations
 
 equals(r : UReal) : Boolean 
@@ -1230,6 +1268,342 @@ end
 --     end
 --     post: (result.x = self) and (result.u=0.0)
 
+
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+--
+-- UReal, using Type_A uncertainty.
+-- We assume all samples have the same size
+
+constraints
+
+context UReal_A inv SameSampleSize:
+UReal_A.allInstances->forAll(u1,u2|u1.sample->size = u2.sample->size)
+
+-- 
+class UReal_A
+attributes
+   sample : Sequence(Real)
+   x : Real derive: self.sample->avg()
+   u : Real derive: self.sample->stdDev()
+
+operations
+add(r : UReal_A) : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)) + (r.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(self.sample->at(i) + r.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append(self.sample->at(self.sample->size) + r.sample->at(self.sample->size));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i) + r.sample->at(i))))
+
+minus(r : UReal_A) : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)) - (r.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(self.sample->at(i) - r.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append(self.sample->at(self.sample->size) - r.sample->at(self.sample->size));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i) - r.sample->at(i))))
+
+mult(r : UReal_A) : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)) * (r.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(self.sample->at(i) * r.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append(self.sample->at(self.sample->size) * r.sample->at(self.sample->size));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i) * r.sample->at(i))))
+
+divideBy(r : UReal_A) : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{if r.sample->at(1)=0 then 0 else (self.sample->at(1)) / (r.sample->at(1)) endif}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(if r.sample->at(i)=0 then 0 else self.sample->at(i) / r.sample->at(i) endif)->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append(if r.sample->at(self.sample->size)=0 then 0 else self.sample->at(self.sample->size) / r.sample->at(self.sample->size) endif);
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(if r.sample->at(i)=0 then 0 else self.sample->at(i) / r.sample->at(i) endif)))
+
+neg() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{-(self.sample->at(1))}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append(-self.sample->at(i))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append(-self.sample->at(self.sample->size));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(-self.sample->at(i))))
+
+abs() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).abs()}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).abs())->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).abs());
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).abs()))
+		
+floor() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).floor()}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).floor())->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).floor());
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).floor()))
+		
+round() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).round()}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).round())->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).round());
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).round()))
+		
+sqrt() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).sqrt()}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).sqrt())->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).sqrt());
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).round()))
+		
+power(s:Real) : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).power(s)}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).power(s))->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).power(s));
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).power(s)))
+
+-- COMPARISON OPERATIONS
+equals(r : UReal_A) : Boolean 
+   = (self.x - self.u).max(r.x - r.u) <= 
+         (self.x + self.u).min(r.x + r.u)
+distinct(r : UReal_A) : Boolean
+    = not self.equals(r) 
+compareTo(r : UReal_A) : Integer
+    = if self.equals(r) then 0
+      else if self.lt(r) then -1 
+           else 1 endif endif
+lt(r : UReal_A) : Boolean
+   = (self.x<r.x) and ((self.x + self.u)<(r.x - r.u)) 
+le(r : UReal_A) : Boolean 
+   = self.lt(r) or self.equals(r)
+gt(r : UReal_A) : Boolean
+   = not self.le(r) 
+ge(r : UReal_A) : Boolean 
+   = not self.lt(r)
+max(r : UReal_A) : UReal_A
+    = if r.lt(self) then self else r endif
+min(r : UReal_A) : UReal_A
+    = if r.lt(self) then r else self endif
+
+-- TRIGONOMETRIC OPERATIONS		
+sin() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).sin()}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).sin())->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).sin());
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).sin()))
+	
+cos() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).cos()}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).cos())->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).cos());
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).cos()))
+	
+tan() : UReal_A
+    begin
+        declare aux : UReal_A;
+        aux := new UReal_A;
+        aux.sample:=self.sample;
+        aux.sample:=Sequence{(self.sample->at(1)).tan()}->
+                     union(aux.sample->subSequence(2,self.sample->size));
+        for i in Sequence{2..self.sample->size-1} do
+            aux.sample:=aux.sample->subSequence(1,i-1)->
+                        append((self.sample->at(i)).tan())->
+                        union(aux.sample->subSequence(i+1,self.sample->size));
+        end;
+        aux.sample:=aux.sample->subSequence(1,self.sample->size-1)->
+                    append((self.sample->at(self.sample->size)).tan());
+        result:=aux;
+    end
+post: (Sequence{1..self.sample->size}->
+        forAll(i|result.sample->at(i)=(self.sample->at(i)).tan()))
+	
+toInteger() : Integer = self.x.floor() 
+
+toUInteger() : UInteger
+    begin
+        declare aux:UInteger;
+        aux:=new UInteger;
+        aux.x:=self.x.floor(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt;
+        result:=aux;
+    end
+
+toBestUInteger() : UInteger
+    begin
+        declare aux:UInteger;
+        aux:=new UInteger;
+        aux.x:=self.x.round(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt;
+        result:=aux;
+    end
+
+
+toUUnlimitedNatural() : UUnlimitedNatural
+    begin
+        declare aux:UUnlimitedNatural;
+        aux:=new UUnlimitedNatural;
+        aux.x:=self.x.floor(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt;
+        result:=aux;
+    end
+
+toBestUUnlimitedNatural() : UUnlimitedNatural
+    begin
+        declare aux:UUnlimitedNatural;
+        aux:=new UUnlimitedNatural;
+        aux.x:=self.x.round(); 
+        aux.u:=((self.u*self.u)+(self.x-aux.x)*(self.x-aux.x)).sqrt;
+        result:=aux;
+    end
+
+
+toReal() : Real = self.x
+
+toString() : String = 'UReal_A{x='.concat(self.x.toString()).concat('; u=').concat(self.u.toString()).concat('}')
+
+		
+end
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -- 
@@ -1930,6 +2304,7 @@ pre:  (self.x + self.u)>=0.0
 
 context UReal::inverse() : UReal
     pre:  (self.x - self.u).max(0) > (self.x + self.u).min(0) -- not self.equals(0.0)
+
 
 --- UInteger
 
