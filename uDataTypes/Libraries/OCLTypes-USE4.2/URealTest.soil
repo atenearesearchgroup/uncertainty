@@ -58,5 +58,12 @@ reset
 !b:=r5.uEquals(r6)
 ?b.b
 ?b.c
+!b:=r1.uLt(r1)
+?b.b
+?b.c
+!b:=r1.uLt(r2)
+?b.b
+?b.c
+
 
 
