@@ -503,13 +503,13 @@ uImplies(b : UBoolean) : UBoolean
 		else
             aux := new UBoolean;
             aux.b:=self.b implies b.b;
-            aux.c:= self.c + b.c - (self.c * b.c);
+            aux.c:= (1-self.c) + b.c - ((1-self.c) * b.c);
             -- return the UBoolean number in normal form:
             if (not aux.b) then aux.b:= true; aux.c:=1-aux.c; end;
 		end;
         result:=aux;
 	end
-post: let C : Real = self.c + b.c - (self.c * b.c) in
+post: let C : Real = (1-self.c) + b.c - ((1-self.c) * b.c) in
       if (b=null) then
           if (not self.toBoolean()) then (result.b) and (result.c=if not (self.b) then self.c else (1-self.c) endif)
 		  else result=null 
