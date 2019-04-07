@@ -39,7 +39,7 @@ public class UReal implements Cloneable,Comparable<UReal> {
 	}
   
     public UReal (double x, double u) {
-        this.x = x; this.u = u;
+        this.x = x; this.u = Math.abs(u);
     }
 	
     public UReal(String x) { //creates an UReal from a string representing a real, with u=0.
@@ -49,7 +49,7 @@ public class UReal implements Cloneable,Comparable<UReal> {
     
     public UReal(String x, String u) { //creates an UReal from two strings representing (x,u).
     	this.x = Double.parseDouble(x);
-    	this.u = Double.parseDouble(u);
+    	this.u = Math.abs(Double.parseDouble(u));
     }
    
     /**
