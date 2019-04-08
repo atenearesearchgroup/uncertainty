@@ -1,4 +1,4 @@
-package org.modelexecution.quantitytypes.java;
+package uDataTypes.java;
 
 public class UInteger implements Cloneable,Comparable<UInteger> {
 	
