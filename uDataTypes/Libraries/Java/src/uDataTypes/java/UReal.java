@@ -124,16 +124,10 @@ public class UReal implements Cloneable,Comparable<UReal> {
 		// both variables have associated uncertainty
 		
 		double a = this.getX() / r.getX();
-//		double b = (this.getX()*r.getU()*r.getU())/(Math.pow(r.getX(), 3));
-		double b = (this.getX()*r.getU()*r.getU())/(r.getX()*r.getX()*r.getX());
+		double b = 0.0; //(this.getX()*r.getU()*r.getU())/(r.getX()*r.getX()*r.getX());
 		result.setX(a + b);
-		System.out.println(a);
-		System.out.println(b);
-		System.out.println(a+b);
-
 		
-		double c = ((u*u)/Math.abs(r.getX()));
-//		double d = (this.getX()*this.getX()*r.getU()*r.getU()) / Math.pow(r.getX(), 4);
+		double c = ((this.getU()*this.getU())/Math.abs(r.getX()));
 		double d = (this.getX()*this.getX()*r.getU()*r.getU()) / (r.getX()*r.getX()*r.getX()*r.getX());
 		result.setU(Math.sqrt(c + d));
 		

@@ -22,12 +22,16 @@ public class UncertaintyTest {
 	
 	UInteger a = new UInteger(-4,3.0);
 	UInteger b = new UInteger(2,4.0);
+	UReal ar = new UReal(-4.0,3.0);
+	UReal br = new UReal(2.0,4.0);
 	System.out.println("a/a=" + a.divideBy(a));
 	System.out.println("a/b=" + a.divideBy(b));
 	System.out.println("b/a=" + b.divideBy(a));
 	System.out.println("a/R b=" + a.divideByR(b));
 	System.out.println("a mod b=" + a.mod(b));
-	
+	System.out.println("ar/ar=" + ar.divideBy(ar));
+	System.out.println("ar/br=" + ar.divideBy(br));
+	System.out.println("br/ar=" + br.divideBy(ar));
 	
 	}
 		
