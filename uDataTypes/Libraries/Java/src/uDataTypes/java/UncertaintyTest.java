@@ -20,6 +20,15 @@ public class UncertaintyTest {
 	
 	System.out.println("z2="+(x.ge(y2)));
 	
+	UInteger a = new UInteger(-4,3.0);
+	UInteger b = new UInteger(2,4.0);
+	System.out.println("a/a=" + a.divideBy(a));
+	System.out.println("a/b=" + a.divideBy(b));
+	System.out.println("b/a=" + b.divideBy(a));
+	System.out.println("a/R b=" + a.divideByR(b));
+	System.out.println("a mod b=" + a.mod(b));
+	
+	
 	}
 		
 
