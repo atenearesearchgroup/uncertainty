@@ -33,6 +33,9 @@ public class UncertaintyTest {
 	System.out.println("ar/br=" + ar.divideBy(br));
 	System.out.println("br/ar=" + br.divideBy(ar));
 	
+	System.out.println(new UReal(2.0,5.0).divideBy(new UReal(65.0,0.0)));
+	System.out.println(new UInteger(2,5.0).divideBy(new UInteger(65,0.0)));
+	System.out.println(new UInteger(2,5.0).divideByR(new UInteger(65,0.0)));
 	}
 		
 
