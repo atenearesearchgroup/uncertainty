@@ -3,6 +3,37 @@ model MechanicalArm
 
 enum Color { Red, Yellow, Green }
 
+class UColor
+attributes
+  values: Sequence(Tuple(literal:Color, conf:Real))
+--operations
+ -- equals(ue: UColor): Boolean = self.values -> asSet = ue.values -> asSet
+ -- conf (lit:Color): Real = -- confidence of a literal
+-- 	let L: Sequence(Color) = self.values->collect(literal) in
+-- 	if L->includes(lit) then self.values->collect(conf)->at(L->indexOf(lit)) else 0.0 endif
+--  literals (): Sequence ( Color ) = self.values->collect(literal)
+--  uEquals(ue: UColor ): UBoolean = 
+--       if self.equals(ue) then UBoolean(true,1.0)
+--      else UBoolean(true, 
+--	       let L:Sequence(Color) = self.literals()->union(ue.literals()) in
+--           1.0 - (L-> iterate (l ; s : Real = 0.0 | let x1 : Real = self.conf(l) in 
+--													let x2 : Real = ue.conf(l) in 
+--													(s + (x2-x1)*(x2 -x1))/4).sqrt()))
+--     endif
+-- 
+-- post : self.equals (ue) implies (result.b and result.literal =1.0)
+-- post : not self.equals (ue) implies result.b and let L:Sequence(Color) = self.literals()->union(ue.literals()) in
+-- result .c = 1.0 - (L-> iterate (l ; s : Real = 0.0 | let x1 : Real = self.conf(l) in
+-- let x2 : Real = ue. conf (l) in 
+-- s + (x2-x1)*(x2 -x1))/4).sqrt()
+constraints
+inv UColorUniqueLiterals :
+  self.values->size() = self.values->collect(literal)->asSet->size
+inv UColorProbabilities :
+  self.values->collect(conf)->sum()=1.0 and self.values->collect(conf)->select(c | c <0.0 or c >1.0)->isEmpty() 
+end
+
+
 class ProductionLine
 attributes
 operations
@@ -12,16 +43,18 @@ operations
 		arm := self.arms->any(true);
 		
 		a := arm.tray.apples->any(true); -- Apple.allInstances->any(ap | ap.container.oclIsUndefined());
-		b1:= arm.grasp(a);
-		if (b1) then
-			c:=arm.classify(a);
-			arm.moveTo(c);
-			b2:=arm.drop(a, c);
-			if (not b2) then
-				arm.wastedApples:=arm.wastedApples+1;
-			end
-		else
-			arm.missedApples:=arm.missedApples+1;
+		if a<>null then
+			b1:= arm.grasp(a);
+			if (b1) then
+				c:=arm.classify(a);
+				arm.moveTo(c);
+				b2:=arm.drop(a, c);
+				if (not b2) then
+					arm.wastedApples:=arm.wastedApples+1;
+				end
+			else
+				arm.missedApples:=arm.missedApples+1;
+			end;
 		end;
 		arm.backToBase();
 	end
@@ -55,16 +88,16 @@ operations
 	end
 	classify(a:Apple):Container
 	begin
-		if (a.color->any(t | t.c=#Red).p>=0.9) then
+		if (a.color.values->any(t | t.literal=#Red).conf>=0.9) then
 			result := Container.allInstances->any(cn | cn.type = #RedDelicious);
 		else
-			if (a.color->any(t | t.c=#Red).p>=0.4 and a.color->any(t | t.c=#Green).p<0.1) then
+			if (a.color.values->any(t | t.literal=#Red).conf>=0.4 and a.color.values->any(t | t.literal=#Green).conf<0.1) then
 				result := Container.allInstances->any(cn | cn.type = #PinkLady);
 			else
-				if (a.color->any(t | t.c=#Yellow).p>0.8) then
+				if (a.color.values->any(t | t.literal=#Yellow).conf>0.8) then
 					result := Container.allInstances->any(cn | cn.type = #GoldenDelicious);
 				else
-					if (a.color->any(t | t.c=#Green).p>0.7) then
+					if (a.color.values->any(t | t.literal=#Green).conf>0.7) then
 						result := Container.allInstances->any(cn | cn.type = #GrannySmith);
 					else
 						result := Container.allInstances->any(cn | cn.type = #Cooking);
@@ -129,7 +162,7 @@ class Apple
 attributes
 	size : UReal
 	weight : UReal
-	color : Sequence(Tuple(c:Color, p:Real))
+	color : UColor -- Sequence(Tuple(c:Color, p:Real))
 	type : AppleType derive : self.container.type
 operations
 end

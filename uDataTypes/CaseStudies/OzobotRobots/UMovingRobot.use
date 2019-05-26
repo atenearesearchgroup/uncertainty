@@ -5,10 +5,11 @@ attributes
   x : UReal
   y : UReal
 operations
-  coincide(c:Coordinate):UBoolean -- self.x.equals(c.x) and self.y.equals(c.y);
-  begin
-    result :=  (self.x.uEquals(c.x)).uAnd(self.y.uEquals(c.y));
-  end
+  coincide(c:Coordinate):UBoolean = self.x=c.x and self.y=c.y
+-- self.x.equals(c.x) and self.y.equals(c.y);
+--  begin
+--    result :=  (self.x.uEquals(c.x)).uAnd(self.y.uEquals(c.y));
+--  end
 --  uCoincide(c:Coordinate):UBoolean -- self.x.uEquals(c.x) * self.y.uEquals(c.y);
 --  begin
 --    declare fx:Real, fy:Real;
@@ -74,6 +75,6 @@ end
 
 constraints
 
--- context Robot inv PrecisionUnderControl:
---   self.position.x.value.u < 0.01 and self.position.y.value.u < 0.01
+ context Robot inv PrecisionUnderControl:
+  self.position.x.uncertainty() < 0.1 and self.position.y.uncertainty < 0.01
 

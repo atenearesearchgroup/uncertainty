@@ -1,12 +1,17 @@
 model RobotBattle
 
-class UString
-end
 
 -- enum ThreatLevel {LOW, MEDIUM, HIGH}
 
 class Battlefield
-end
+operations
+  move(seconds:UInteger)
+  begin
+    for o in self.movingObjects do
+      o.move(seconds)
+    end
+  end
+end -- class Battlefield
 
 class Clock
 attributes
@@ -25,31 +30,21 @@ gs:=new Mark;
 insert (gs,self.position) into GunShotPosition;
 insert (self,gs) into Marks;
 insert (gs,o) into Hit;
--- previous version
--- declare gs:Mark, x:UReal, y:UReal, u1:UReal, u2:UReal, distance:UReal;
---   gs:=new Mark;
---  -- compute the attributes
---  -- gs.angle
---   x:=(o.position.x - self.position.x);
---   y:=(o.position.y - self.position.y);
---   if (x = 0.0) then 
--- 	  if ((y >= UReal(0.0, 0.0)).value()) then
--- 		u1:= UReal(1.570796326791001,0.0);
---         gs.angle:=u1.setUncertainty(y.uncertainty());
--- 	  else
---		u2:= UReal(4.712388980373001246,0.0); 
---		gs.angle:=u2.setUncertainty(y.uncertainty())
---	  end; 
---  else
---	gs.angle:=(y/x).atan(); 
---  end;
--- hitsTarget:UBoolean 
---  distance:= self.position.distance(o.position);
---  gs.hitsTarget:= ((self.position.x-o.position.x)+distance*self.angle.cos()).abs() <= o.width and
---   ((self.position.y-o.position.y)+distance*self.angle.sin()).abs() <= o.width; 
+result:=gs;
 end -- operation pointAt
+
 shootAtMarkedThreats()
 begin
+for m in self.mark do
+  if m.hitsTarget.confidence()>=0.5 then -- shoot at it
+    if m.hitsTarget.confidence()>=0.90 then -- destroy it
+		if m.target<>null then -- maybe it was hit by other robot
+			destroy(m.target) 
+		end;
+        destroy(m); -- and also destroy the mark
+	end;
+  end;
+end;
 end
 
 end -- class Robot
@@ -61,24 +56,15 @@ end
 
 class Mark
 attributes
--- threat: ThreatLevel derive:
---    let distance : Real =  robot.position.distance(target.position).value in
---    if  distance <= 200.0 then #HIGH 
---    else if distance <= 500.0 then #MEDIUM 
---        else #LOW 
---	   endif 
---  endif
 
 angle:UReal derive: 
   let x:UReal = (target.position.x - robot.position.x) in
   let y:UReal = (target.position.y - robot.position.y) in
-  if (x = 0.0) then 
-	  if ((y >= UReal(0.0, 0.0)).value()) then
-		let u1:UReal = UReal(1.570796326791001,0.0) in
-			u1.setUncertainty(y.uncertainty())
+  if ((x.value()-x.uncertainty()<=0)and(x.value()+x.uncertainty()>=0)) then -- x=0? 
+	  if ((y>=0).confidence()>=0.5) then  -- y>=0?
+		UReal(1.570796326791001,y.uncertainty())
 	  else
-		let u2:UReal = UReal(4.712388980373001246,0.0) in 
-			u2.setUncertainty(y.uncertainty())
+		UReal(4.712388980373001246,y.uncertainty())
 	  endif
   else
 	(y/x).atan() 
@@ -97,6 +83,7 @@ x:UReal
 y:UReal
 operations
 distance(other:Coordinate):UReal = ((self.x - other.x)*(self.x - other.x) + (self.y - other.y)*(self.y - other.y)).sqrt()
+-- closeTo(other:Coordinate,gap:UReal):UBoolean = self.distance(other) <= gap
 end
 
 abstract class MovingObject
