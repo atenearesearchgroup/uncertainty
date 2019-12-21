@@ -10,6 +10,14 @@
     <showrolenames>true</showrolenames>
     <showgrid>false</showgrid>
   </diagramOptions>
+  <node id="SBoolean" sizeCalculated="true" type="Class">
+    <name>SBoolean</name>
+    <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">
+      <x>1278.0</x>
+      <y>483.0</y>
+    </strategy>
+    <hidden>false</hidden>
+  </node>
   <node id="UBoolean_A" sizeCalculated="true" type="Class">
     <name>UBoolean_A</name>
     <strategy type="org.tzi.use.gui.views.diagrams.elements.positioning.StrategyFixed">

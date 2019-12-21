@@ -17,6 +17,8 @@ operations
 --    fy:=self.y.uEquals(c.y);
 --    result :=  fx * fy;
 --  end
+  distance(c:Coordinate):UReal =
+    ((self.x-c.x)*(self.x-c.x) + (self.y-c.y)*(self.y-c.y)).sqrt()
 end
   
 class Robot

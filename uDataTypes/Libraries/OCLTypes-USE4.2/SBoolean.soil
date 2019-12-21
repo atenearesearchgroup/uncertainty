@@ -1,0 +1,29 @@
+reset
+!new SBoolean('o1')
+!new SBoolean('o2')
+!new SBoolean('o3')
+!new SBoolean('o4')
+--!new SBoolean('o5')
+--!new SBoolean('o6')
+!new UBoolean('u1')
+--!new UBoolean('u2')
+!o1.b:=0.7
+!o1.d:=0.1
+!o1.u:=0.2
+!o1.a:=0.9
+!o2.b:=0.9
+!o2.d:=0.1
+!o2.u:=0.0
+!o2.a:=0.95
+!o3.b:=0.1
+!o3.d:=0.1
+!o3.u:=0.8
+!o3.a:=0.9
+--?o1.toString()
+!u1:=o1.toUBoolean()
+?u1.toString()
+!o4:=o1.uNot()
+?o4.toString()
+?o4.a
+
+
