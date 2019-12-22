@@ -602,9 +602,7 @@ end
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 --------------------------------------------
 
-class SBoolean -- Binomnial Opinions
-   -- canonical form:
-   -- pairs (true,c), with c the confidence that self is true
+class SBoolean -- Binomial Opinions
 attributes
    b : Real -- belief mass: degree of belief that self is TRUE
    d : Real -- disbelief mass: degree of belief that self is FALSE
