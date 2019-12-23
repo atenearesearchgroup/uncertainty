@@ -56,8 +56,34 @@ public class SBooleanTest {
 	System.out.println(txorf2.hashCode());
 	System.out.println(tequif2.hashCode());
 	
+	SBoolean b5 = new SBoolean(0.4,0.2,0.4,0.9);
+	System.out.println("b5="+b5+" p="+b5.projection()+" mu="+b5.uncertaintyMaximized()+" uBoolean="+b5.toUBoolean());
 	
+	b5 = (new SBoolean(0.75,0.15,0.1,0.5)).and(new SBoolean(0.1,0,0.9,0.2));
+	System.out.println("b5="+b5+" p="+b5.projection()+" mu="+b5.uncertaintyMaximized()+" uBoolean="+b5.toUBoolean());
 	
+	b5 = (new SBoolean(0.75,0.15,0.1,0.5)).or(new SBoolean(0.35,0,0.65,0.2));
+	System.out.println("b5="+b5+" p="+b5.projection()+" mu="+b5.uncertaintyMaximized()+" uBoolean="+b5.toUBoolean());
+	
+	SBoolean x = new SBoolean(0.0,0.0,1,0.8);
+	SBoolean yGivenX = new SBoolean(0.4,0.5,0.1,0.4);
+	SBoolean yGivenNotX = new SBoolean(0.0,0.4,0.6,0.4);
+	SBoolean y = x.deduceY(yGivenX, yGivenNotX);
+	System.out.println("y="+y+" p="+y.projection()+" mu="+y.uncertaintyMaximized()+" uBoolean="+y.toUBoolean());
+
+
+	x = new SBoolean(0.10,0.8,0.1,0.8);
+	yGivenX = new SBoolean(0.4,0.5,0.1,0.4);
+	yGivenNotX = new SBoolean(0.0,0.4,0.6,0.4);
+	y = x.deduceY(yGivenX, yGivenNotX);
+	System.out.println("y="+y+" p="+y.projection()+" mu="+y.uncertaintyMaximized()+" uBoolean="+y.toUBoolean());
+
+	x = new SBoolean(0.0,0.40,0.6,0.5);
+	yGivenX = new SBoolean(0.55,0.3,0.15,0.38);
+	yGivenNotX = new SBoolean(0.1,0.75,0.15,0.38);
+	y = x.deduceY(yGivenX, yGivenNotX);
+	System.out.println("y="+y+" p="+y.projection()+" mu="+y.uncertaintyMaximized()+" uBoolean="+y.toUBoolean());
+
 }
 	
 

@@ -16,11 +16,20 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
         this.b = 1.0; this.d = 0.0; this.u = 0.0; this.a = 1.0; // Dogmatic TRUE
     }
 
+    public SBoolean(boolean b) {
+        if (b) {this.b = 1.0; this.d = 0.0; this.u = 0.0; this.a = 1.0;} // Dogmatic TRUE
+        else {this.b = 0.0; this.d = 1.0; this.u = 0.0; this.a = 0.0;} // Dogmatic FDALSE
+    }
+
     public SBoolean(double b, double d, double u, double a) {
     	this.b = b; 
     	this.d = d; 
     	this.u = u; 
     	this.a = a;
+    	if (Math.abs(this.b+this.d+this.u-1.0)>0.001 ||
+    		this.b<0 || this.d<0 || this.u<0 || this.a<0 || 
+    		this.b>1 || this.d>1 || this.u>1 || this.a>1 ) 
+    		throw new IllegalArgumentException("Illegal parameters");
     }
 	
     public SBoolean(String b, String d, String u, String a) { //creates an UBoolean from two strings representing (x,u).
@@ -28,6 +37,9 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     	this.d = Double.parseDouble(d); 
     	this.u = Double.parseDouble(u); 
     	this.a = Double.parseDouble(a);
+    	if (Math.abs(this.b+this.d+this.u-1.0)>0.001 ||
+        		this.b<0 || this.d<0 || this.u<0 || this.a<0 || 
+        		this.b>1 || this.d>1 || this.u>1 || this.a>1 ) throw new IllegalArgumentException("Illegal parameters");
     }
     
     public SBoolean(UBoolean b) { // type embedding -- without uncertainty
@@ -38,16 +50,12 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     }
    
     /**
-     * Setters and getters 
+     * getters (no setters in order to respect well-formed rules
      */
     public double belief() {return this.b;} 
     public double disbelief() {return this.d;} 
     public double uncertainty() {return this.u;} 
     public double baseRate() {return this.a;} 
-    public void setBelief(double b) {this.b = b;}
-    public void setDisbelief(double d) {this.d = d;}
-    public void setUncertainty(double u) {this.u = u;}
-    public void setBaseRate(double a) {this.a = a;}
 
     /*********
      * Auxiliary operations
@@ -113,17 +121,14 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 		return result;
 	}
 
-	public SBoolean implies(SBoolean s) {// assumes independent variables
+	public SBoolean implies(SBoolean s) {
 
-		if (this==s) return this.clone(); // x implies x
-
-		return this.not().or(s);
+		return this.not().or(s); // this is to be consistent with UBoolean, because in Subjective Logic this is not the case...
 	}
 
     public SBoolean equivalent(SBoolean s) {
 		// return this.implies(b).and(b.implies(this));
-		 return this.xor(s).not();
- 	
+		 return this.xor(s).not(); 	
 	}
 
 	public SBoolean xor(SBoolean s) {
@@ -135,6 +140,82 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 		);
 		 return result;
 		//return this.equivalent(b).not();
+	}
+	
+	public double projectiveDistance(SBoolean s) { // projectiveDistance
+		return Math.abs(this.projection()-s.projection())/2;
+	}
+
+	public double conjunctiveCertainty(SBoolean s) {
+		return (1.0-this.u)*(1-s.u);
+	}
+	
+	public double degreeOfConflict(SBoolean s) {
+		return this.projectiveDistance(s)*this.conjunctiveCertainty(s);
+	}
+	
+	public SBoolean deduceY(SBoolean yGivenX, SBoolean yGivenNotX) { // DEDUCTION: returns Y, acting "this" as X
+		SBoolean y = new SBoolean();
+		double px = this.projection();
+		double K;
+		y.a = (yGivenX.u+yGivenNotX.u < 2.0)? (this.a*yGivenX.b+(1-this.a)*yGivenNotX.b)/(1-this.a*yGivenX.u-(1-this.a)*yGivenNotX.u) : yGivenX.a;
+		double pyxhat = yGivenX.b*this.a + yGivenNotX.b*(1-this.a)+ y.a*(yGivenX.u*this.a+yGivenNotX.u*(1-this.a));
+		double bIy = this.b*yGivenX.b+this.d*yGivenNotX.b+this.u*(yGivenX.b*this.a+yGivenNotX.b*(1-this.a));
+		double dIy = this.b*yGivenX.d+this.d*yGivenNotX.d+this.u*(yGivenX.d*this.a+yGivenNotX.d*(1-this.a));
+		double uIy = this.b*yGivenX.u+this.d*yGivenNotX.u+this.u*(yGivenX.u*this.a+yGivenNotX.u*(1-this.a));
+		// case I
+		//if (((yGivenX.b>yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d))||((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d))) 
+		K=0.0;
+
+		// case II.A.1
+		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
+				(pyxhat <= (yGivenNotX.b+y.a*(1-yGivenNotX.b-yGivenX.d))) &&
+				(px<=this.a) ) 
+			{K=(this.a*this.u*(bIy-yGivenNotX.b))/((this.b+this.a*this.u)*y.a);}
+		// case II.A.2
+		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
+				(pyxhat <= (yGivenNotX.b+y.a*(1-yGivenNotX.b-yGivenX.d))) &&
+				(px>this.a) ) 
+			{K=(this.a*this.u*(dIy-yGivenX.d)*(yGivenX.b-yGivenNotX.b))/((this.d+(1-this.a)*this.u)*y.a*(yGivenNotX.d-yGivenX.d));}
+		// case II.B.1
+		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
+				(pyxhat > (yGivenNotX.b+y.a*(1-yGivenNotX.b-yGivenX.d))) &&
+				(px<=this.a) ) 
+			{K=((1-this.a)*this.u*(bIy-yGivenNotX.b)*(yGivenNotX.d-yGivenX.d))/((this.b+this.a*this.u)*(1-y.a)*(yGivenX.b-yGivenNotX.b));}
+		// case II.B.2
+		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
+				(pyxhat > (yGivenNotX.b+y.a*(1-yGivenNotX.b-yGivenX.d))) &&
+				(px>this.a) ) 
+			{K=((1-this.a)*this.u*(dIy-yGivenX.d))/((this.d+(1-this.a)*this.u)*(1-y.a));}
+
+		// case III.A.1
+		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
+				(pyxhat <= (yGivenX.b+y.a*(1-yGivenNotX.b-yGivenX.d))) &&
+				(px<=this.a) ) 
+			{K=((1-this.a)*this.u*(dIy-yGivenNotX.d)*(yGivenNotX.b-yGivenX.b))/((this.b+this.a*this.u)*y.a*(yGivenX.d-yGivenNotX.d));}
+		
+		// case III.A.2
+		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
+				(pyxhat <= (yGivenX.b+y.a*(1-yGivenX.b-yGivenNotX.d))) &&
+				(px>this.a) ) 
+			{K=((1-this.a)*this.u*(bIy-yGivenX.d))/((this.d+(1-this.a)*this.u)*y.a);}
+
+		// case III.B.1
+		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
+				(pyxhat > (yGivenX.b+y.a*(1-yGivenX.b-yGivenNotX.d))) &&
+				(px<=this.a) ) 
+			{K=(this.a*this.u*(dIy-yGivenNotX.b))/((this.b+this.a*this.u)*(1-y.a));}
+
+		// case III.B.2
+		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
+				(pyxhat > (yGivenX.b+y.a*(1-yGivenX.b-yGivenNotX.d))) &&
+				(px>this.a) ) 
+			{K=(this.a*this.u*(bIy-yGivenX.b)*(yGivenX.d-yGivenNotX.d))/((this.d+(1-this.a)*this.u)*(1-y.a)*(yGivenNotX.b-yGivenX.b));}
+		
+		y.b = bIy - y.a*K;
+		y.d = dIy - (1-y.a)*K;
+		y.u = uIy + K;
+		return y;
 	}
 
 	/***
