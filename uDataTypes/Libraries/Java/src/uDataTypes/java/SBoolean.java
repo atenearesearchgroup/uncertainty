@@ -6,7 +6,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	protected double b; // belief mass: degree of belief that self is TRUE
 	protected double d; //  disbelief mass: degree of belief that self is FALSE
 	protected double u; //  uncertainty mass: amount of uncommitted belief  
-	protected double a; //  -- base rate: prior probability of self being TRUE
+	protected double a; //  base rate: prior probability of self being TRUE
 
 	
     /**
@@ -50,7 +50,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     }
    
     /**
-     * getters (no setters in order to respect well-formed rules
+     * getters (no setters in order to respect well-formed rules)
      */
     public double belief() {return this.b;} 
     public double disbelief() {return this.d;} 
@@ -65,23 +65,18 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     	return this.b + this.a*this.u;
     }
     
-    public SBoolean uncertaintyMaximized() { // Returns the equivalent SBoolean with maximum uncertainty. 
-    										 // The dual operation is toUBoolean, which returns the equivalent SBoolean, with u==0
- 	   double p = this.projection();
- 	   if (this.a == 1.0) return new SBoolean(1.0-p,0.0,p,this.a);
- 	   if (p < this.a) 
- 		   return new SBoolean(
-			   0.0,
-			   1.0 - (p/this.a),
-			   p/this.a,
-			   this.a);
- 	   return new SBoolean(
-			   (p-this.a)/(1.0-this.a),
-			   0.0,
-			   (1.0-p)/(1.0-this.a),
-			   this.a);	
-    }
-    
+	public double projectiveDistance(SBoolean s) { // projectiveDistance
+		return Math.abs(this.projection()-s.projection())/2;
+	}
+
+	public double conjunctiveCertainty(SBoolean s) {
+		return (1.0-this.u)*(1-s.u);
+	}
+	
+	public double degreeOfConflict(SBoolean s) {
+		return this.projectiveDistance(s)*this.conjunctiveCertainty(s);
+	}
+
     /*********
      * Type Operations
      */
@@ -141,19 +136,16 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 		 return result;
 		//return this.equivalent(b).not();
 	}
-	
-	public double projectiveDistance(SBoolean s) { // projectiveDistance
-		return Math.abs(this.projection()-s.projection())/2;
+
+	public SBoolean uncertaintyMaximized() { // Returns the equivalent SBoolean with maximum uncertainty. 
+		 // The dual operation is toUBoolean, which returns the equivalent SBoolean, with u==0
+		double p = this.projection();
+		if (this.a == 1.0) return new SBoolean(1.0-p,0.0,p,this.a);
+		if (p < this.a) 
+			return new SBoolean(0.0, 1.0 - (p/this.a), p/this.a, this.a);
+		return new SBoolean((p-this.a)/(1.0-this.a), 0.0, (1.0-p)/(1.0-this.a), this.a);	
 	}
 
-	public double conjunctiveCertainty(SBoolean s) {
-		return (1.0-this.u)*(1-s.u);
-	}
-	
-	public double degreeOfConflict(SBoolean s) {
-		return this.projectiveDistance(s)*this.conjunctiveCertainty(s);
-	}
-	
 	public SBoolean deduceY(SBoolean yGivenX, SBoolean yGivenNotX) { // DEDUCTION: returns Y, acting "this" as X
 		SBoolean y = new SBoolean();
 		double px = this.projection();
