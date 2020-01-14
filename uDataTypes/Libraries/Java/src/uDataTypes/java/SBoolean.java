@@ -140,7 +140,11 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	public SBoolean uncertaintyMaximized() { // Returns the equivalent SBoolean with maximum uncertainty. 
 		 // The dual operation is toUBoolean, which returns the equivalent SBoolean, with u==0
 		double p = this.projection();
-		if (this.a == 1.0) return new SBoolean(1.0-p,0.0,p,this.a);
+		// Extreme cases
+		if ((this.a == 1.0) && (p==1)) return new SBoolean(0.0,0.0,1,this.a);
+		if ((this.a == 1.0) && (this.u==1)) return new SBoolean(0.0,0.0,1,this.a);
+		if (this.a == 0.0 && (this.b==0)) return  new SBoolean(0.0,0.0,1,this.a);
+		// Normal cases
 		if (p < this.a) 
 			return new SBoolean(0.0, 1.0 - (p/this.a), p/this.a, this.a);
 		return new SBoolean((p-this.a)/(1.0-this.a), 0.0, (1.0-p)/(1.0-this.a), this.a);	
