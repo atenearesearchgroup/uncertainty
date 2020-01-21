@@ -29,7 +29,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     	if (Math.abs(this.b+this.d+this.u-1.0)>0.001 ||
     		this.b<0 || this.d<0 || this.u<0 || this.a<0 || 
     		this.b>1 || this.d>1 || this.u>1 || this.a>1 ) 
-    		throw new IllegalArgumentException("Illegal parameters");
+    		throw new IllegalArgumentException("Invalid parameters");
     }
 	
     public SBoolean(String b, String d, String u, String a) { //creates an UBoolean from two strings representing (x,u).
@@ -39,7 +39,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     	this.a = Double.parseDouble(a);
     	if (Math.abs(this.b+this.d+this.u-1.0)>0.001 ||
         		this.b<0 || this.d<0 || this.u<0 || this.a<0 || 
-        		this.b>1 || this.d>1 || this.u>1 || this.a>1 ) throw new IllegalArgumentException("Illegal parameters");
+        		this.b>1 || this.d>1 || this.u>1 || this.a>1 ) throw new IllegalArgumentException("Invalid parameters");
     }
     
     public SBoolean(UBoolean b) { // type embedding -- without uncertainty

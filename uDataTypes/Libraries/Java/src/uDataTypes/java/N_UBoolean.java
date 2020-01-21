@@ -27,6 +27,7 @@ public class N_UBoolean implements Cloneable, Comparable<N_UBoolean> {
     }
 
     public N_UBoolean(boolean value, double c) {
+    	if ((c < 0.0) || (c > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
         this.confidence = value ? c : 1 - c;
         fillSample(sample, this.confidence);
     }
@@ -44,6 +45,7 @@ public class N_UBoolean implements Cloneable, Comparable<N_UBoolean> {
      */
 
     private void fillSample(boolean s[], double c){
+    	if ((c < 0.0) || (c > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
         for (int i = 0; i < SAMPLESIZE; i++) {
             // s[i] = (rnd.nextDouble() <= c);
             s[i] = Double.compare(rnd.nextDouble(), c) <= 0; // MFB . <= or < ; [0.0, 1.0)

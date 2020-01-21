@@ -17,6 +17,8 @@ public class UString {
     public UString(String s, double sConf) {
         string = s;
         this.sConf = sConf;
+    	if ((sConf < 0.0) || (sConf > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
+
     }
 
     /***
@@ -38,7 +40,8 @@ public class UString {
     }
 
     public double confToDist(double conf, int size){
-        return size *(1 - conf);
+    	if ((conf < 0.0) || (conf > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
+      return size *(1 - conf);
     }
 
     public double distToConf(double dist, int size){
@@ -83,7 +86,7 @@ public class UString {
     }
 
     public UString uSubstring(int lower, int upper){
-        if (lower < 1 ) throw new RuntimeException("lower should be greater than 0");
+       if (lower < 1 ) throw new IllegalArgumentException("lower should be greater than 0");
         lower = lower -1; // para incluir desde hasta
         String s = this.getString().substring(lower, upper);
         double sConf = this.getsConf();

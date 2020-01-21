@@ -25,6 +25,7 @@ public class UBoolean implements Cloneable, Comparable<UBoolean> {
 	}
   
     public UBoolean(boolean b, double c) {
+    	if ((c < 0.0) || (c > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
     	this.b=b;
     	this.c=c;
 		setNormalForm();
@@ -39,6 +40,8 @@ public class UBoolean implements Cloneable, Comparable<UBoolean> {
     public UBoolean(String b, String c) { //creates an UBoolean from two strings representing (x,u).
     	this.b = Boolean.parseBoolean(b);
     	this.c = Double.parseDouble(c);
+    	if ((this.c < 0.0) || (this.c > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
+
 		setNormalForm();
     }
    
