@@ -1,5 +1,8 @@
 package uDataTypes.java;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class SBooleanTest {
 	
 	public static void main(final String[] args) {
@@ -11,6 +14,10 @@ public class SBooleanTest {
 		System.out.println(
 				"f=" + f + " p=" + f.projection() + " mu=" + f.uncertaintyMaximized() + " uBoolean=" + f.toUBoolean());
 
+		final SBoolean b = new SBoolean(0.7, 0.1, 0.2, 0.5);
+		System.out.println("b=" + b + " p=" + b.projection() + " mu=" + b.uncertaintyMaximized() + " uBoolean="
+				+ b.toUBoolean());
+		
 		final SBoolean b0 = new SBoolean(0.85, 0.05, 0.10, 0.9);
 		System.out.println("b0=" + b0 + " p=" + b0.projection() + " mu=" + b0.uncertaintyMaximized() + " uBoolean="
 				+ b0.toUBoolean());
@@ -35,11 +42,11 @@ public class SBooleanTest {
 		System.out.println("tandf=" + tandf + " p=" + tandf.projection() + " mu=" + tandf.uncertaintyMaximized()
 				+ " uBoolean=" + tandf.toUBoolean());
 
-		final SBoolean torf1 = b1.or(b2);
-		System.out.println("torf1=" + torf1 + " p=" + torf1.projection() + " mu=" + torf1.uncertaintyMaximized()
+		final SBoolean torf1 = t.or(b1);
+		System.out.println("torb1=" + torf1 + " p=" + torf1.projection() + " mu=" + torf1.uncertaintyMaximized()
 				+ " uBoolean=" + torf1.toUBoolean());
-		final SBoolean tandf1 = b1.and(b2);
-		System.out.println("tandf1=" + tandf1 + " p=" + tandf1.projection() + " mu=" + tandf1.uncertaintyMaximized()
+		final SBoolean tandf1 = t.and(b1);
+		System.out.println("tandb1=" + tandf1 + " p=" + tandf1.projection() + " mu=" + tandf1.uncertaintyMaximized()
 				+ " uBoolean=" + tandf1.toUBoolean());
 
 		final SBoolean torf2 = b3.or(b4);
@@ -102,6 +109,28 @@ public class SBooleanTest {
 	yGivenNotX = new SBoolean(0.1,0.75,0.15,0.38);
 	y = x.deduceY(yGivenX, yGivenNotX);
 	System.out.println("y="+y+" p="+y.projection()+" mu="+y.uncertaintyMaximized()+" uBoolean="+y.toUBoolean());
+	
+    SBoolean wcf, majF, minF, CCF, eCCF, ACF;
+    Collection<SBoolean> opinions = new ArrayList<>();
+    opinions.add(b1);
+    opinions.add(b2);
+    opinions.add(b3);
+    opinions.add(b4);
+    opinions.add(b5);
+    wcf = SBoolean.weightedBeliefFusion(opinions);
+	System.out.println("WCF="+wcf+" p="+wcf.projection()+" w="+wcf.getRelativeWeight());
+    majF = SBoolean.majorityBeliefFusion(opinions);
+	System.out.println("MaF="+majF+" p="+majF.projection()+" w="+majF.getRelativeWeight());
+    minF = SBoolean.minimumBeliefFusion(opinions);
+	System.out.println("MiF="+minF+" p="+minF.projection()+" w="+minF.getRelativeWeight());
+    ACF = SBoolean.averageBeliefFusion(opinions);
+	System.out.println("ACF="+ACF+" p="+ACF.projection()+" w="+ACF.getRelativeWeight());
+    CCF = SBoolean.cumulativeBeliefFusion(opinions);
+	System.out.println("CCF="+CCF+" p="+CCF.projection()+" w="+CCF.getRelativeWeight());
+    eCCF = SBoolean.epistemicCumulativeBeliefFusion(opinions);
+	System.out.println("eCCF="+eCCF+" p="+eCCF.projection()+" w="+eCCF.getRelativeWeight());
+    
+
 
 }
 	
