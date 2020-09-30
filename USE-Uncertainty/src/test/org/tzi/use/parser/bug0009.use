@@ -1,0 +1,6 @@
+model foobar
+class foo
+attributes
+  bar_attr : UReal
+end
+

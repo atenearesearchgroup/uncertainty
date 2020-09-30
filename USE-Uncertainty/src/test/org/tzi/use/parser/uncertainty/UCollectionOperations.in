@@ -1,0 +1,174 @@
+# COLLECTIONS
+
+# SUM
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->sum()
+-> UReal(12.2, 0.5590169944) : UReal
+
+Sequence{UReal(52, 0.5), 3.2, 2, UReal(-53, 20), UReal(20, 5)}->sum()
+-> UReal(24.2, 20.6215906273) : UReal
+
+# FORALL
+
+Set{1, 2, UReal(2,5)}->forAll(e | e >= 1)
+-> UBoolean(true, 0.5792596878) : UBoolean
+
+Set{UReal(1, 0.5),UReal(1,0.75), 1.2}->forAll(e | e >= 1.2)
+-> UBoolean(true, 0.1360612114) : UBoolean
+
+Set{UReal(1, 0.5), 3}->forAll(e | e < 0)
+-> UBoolean(true, 0.0) : UBoolean
+
+# - Property of FORALL
+( Set{1, UReal(1,0.78)}->forAll(e | e > 0) ).equals( (1 > 0) and (UReal(1, 0.78) > 0) )
+-> true : Boolean
+
+( Set{1, UReal(1,0.78)}->forAll(e | e < 0) ).equals( (1 < 0) and (UReal(1, 0.78) < 0) )
+-> true : Boolean
+
+# EXISTS
+Set{0, 1, UReal(3,0.5)}->exists(e | e = 0)
+-> UBoolean(true, 1.0) : UBoolean
+
+Set{0, 1, UReal(3, 0.5)}->exists(e | e >= 3)
+-> UBoolean(true, 0.4999999995) : UBoolean
+
+# Property of EXISTS
+( Set{1, UReal(1,0.2)}->exists(e | e >= 1.1)).equals( (1 >= 1.1) or (UReal(1,0.2) >= 1.1))
+-> true : Boolean
+
+( Set{1, UReal(1,0.1)}->exists(a,b| a <> b and a = b) ).equals( (1 <> 1 and 1 = 1) or (1 <> UReal(1,0.1) and 1 = UReal(1,0.1)))
+-> true : Boolean
+
+# INCLUDES
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->includes(2.5)
+-> UBoolean(true, 1.0) : UBoolean
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->includes(UReal(2, 0.2))
+-> UBoolean(true, 0.5850213691) : UBoolean
+
+Set{UReal(2, 0.35), UReal(2, 0.3)}->includes(UReal(2, 0.29))
+-> UBoolean(true, 0.9835952315) : UBoolean
+
+Set{}->includes(UReal(2, 3))
+-> UBoolean(true, 0.0) : UBoolean
+
+Set{Undefined}->includes(UReal(2, 3))
+-> UBoolean(true, 0.0) : UBoolean
+
+# INCLUDES ALL
+
+Set{}->includesAll(Set{UReal(2, 3)})
+-> UBoolean(true, 0.0) : UBoolean
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->includesAll(Set{2.5, UReal(3.5, 0.15)})
+-> UBoolean(true, 0.758018702) : UBoolean
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->includesAll(Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)})
+-> UBoolean(true, 1.0) : UBoolean
+
+Set{UReal(2, 0.3)}->includesAll(Set{1, 2, 3})
+-> UBoolean(true, 0.0) : UBoolean
+
+# - POST CONDITION TECH REPORT
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in \\
+let B = Set{UReal(2, 0.5), 1, 3.2} in (B->forAll(e | A->includes(e))).equals(A->includesAll(B))
+-> true : Boolean
+
+let A = Set{UReal(2, 0.5), 1, 2.5, 5.3, UReal(3.5, 0.25)} in \\
+let B = Set{UReal(2, 0.5), 1, 3.2} in (B->forAll(e | A->includes(e))).equals(A->includesAll(B))
+-> true : Boolean
+
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in \\
+let B = Set{UReal(2, 0.15), UReal(3.4, 0.25)} in (B->forAll(e | A->includes(e))).equals(A->includesAll(B))
+-> true : Boolean
+
+
+# EXCLUDES
+
+Set{}->excludes(UReal(1, 2))
+-> UBoolean(true, 1.0) : UBoolean
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->excludes(UReal(59,2))
+-> UBoolean(true, 1.0) : UBoolean
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->excludes(UReal(3.5, 0.25))
+-> UBoolean(true, 0.0) : UBoolean
+
+# - PROST-CONDITIONS
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in \\
+let B = UReal(3, 2) in ( A->forAll(e | e <> B) ).equals( A->excludes(B))
+-> true : Boolean
+
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in \\
+let B = UReal(0, 2) in ( A->forAll(e | e <> B) ).equals( A->excludes(B))
+-> true : Boolean
+
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in \\
+let B = UReal(59, 2) in ( A->forAll(e | e <> B) ).equals( A->excludes(B))
+-> true : Boolean
+
+# EXCLUDES-ALL
+
+Set{}->excludesAll(Set{UReal(2, 3)})
+-> UBoolean(true, 1.0) : UBoolean
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->excludesAll(Set{UReal(59,3),UReal(-310,9)})
+-> UBoolean(true, 1.0) : UBoolean
+
+Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)}->excludesAll(Set{UReal(3.5, 0.25)})
+-> UBoolean(true, 0.0) : UBoolean
+
+# POSTCONDITION FOR OVERLAPPING TEST CASES
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in \\
+let B = Set{UReal(2.75, 1), 1} in \\
+( A->excludesAll(B) ).equals( B->forAll(b | A->excludes(b)) )
+-> true : Boolean
+
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in \\
+let B = Set{UReal(1, 3), UReal(5, 2)} in \\
+( A->excludesAll(B) ).equals( B->forAll(b | A->excludes(b)) )
+-> true : Boolean
+
+let A = Set{UReal(2, 0.5), 1, 2.5, 3.2, UReal(3.5, 0.25)} in let B = Set{UReal(-11, 3), UReal(55, 2)} in ( A->excludesAll(B) ).equals( B->forAll(b | A->excludes(b)) )
+-> true : Boolean
+
+
+# USELECT
+
+Set{UReal(2, 0.5), 2.5, 3.2, 1, UReal(3, 0.25)}->uSelect(e | e >= 2)
+-> Set{2.5,UReal(3.0, 0.25),3.2} : Set(UReal)
+
+Set{UReal(2, 0.5), 2.5, 3.2, 1, UReal(3, 0.25)}->uSelect(e | e <= 2)
+-> Set{1,UReal(2.0, 0.5)} : Set(UReal)
+
+# POSTCONDITION FOR USELECT
+let A = Set{2, 3, UReal(3, 0.5)} in (A->iterate(v; acc : Set(UReal) = Set {} | if (v > 2).toBoolean() then acc->including(v) else acc endif) ).equals(A->uSelect(e|e>2))
+-> true : Boolean
+
+let A = Sequence{UReal(-3,5), 2.3, UReal(2,3), UReal(67,3), -50} in \\
+(A->iterate(v; acc : Sequence(UReal) = Sequence {} | if (v > 2).toBoolean() then acc->including(v) else acc endif) ).equals(A->uSelect(e|e>2))
+-> true : Boolean
+
+let A = Bag{2.3, UReal(2,3), UReal(67,3)} in \\
+(A->iterate(v; acc : Bag(UReal) = Bag {} | if (v > 2).toBoolean() then acc->including(v) else acc endif) ).equals(A->uSelect(e|e>2))
+-> true : Boolean
+
+
+# USELECTC
+
+Set{UReal(2, 0.5), 2.5, 3.2, 1, UReal(3, 0.25)}->uSelectC(e | e >= 2, 0.49)
+-> Set{2.5,UReal(3.0, 0.25),3.2,UReal(2.0, 0.5)} : Set(UReal)
+
+Set{UReal(2, 0.5), 2.5, 3.2, 1, UReal(3, 0.25)}->uSelectC(e | e <= 2, 0.49)
+-> Set{1,UReal(2.0, 0.5)} : Set(UReal)
+
+# POST CONDITION FOR USELECTC
+
+let A = Set{UReal(2, 0.5), 2.5, 3.2, 1, UReal(3, 0.25)} in let C = 0.7 in \\
+(A->iterate (v ; acc : Set(UReal) = Set {} | if (v >= 2). toBooleanC (C) then acc -> including (v) else acc endif ) ).equals( A->uSelectC(e | e >= 2, C) )
+-> true : Boolean
+
+let A = Set{UReal(52, 0.5), 3.2, 2, UReal(-53, 20), UReal(20, 5)} in let C = 0.45 in \\
+(A->iterate (v ; acc : Set(UReal) = Set {} | if (v >= 2). toBooleanC (C) then acc -> including (v) else acc endif ) ).equals( A->uSelectC(e | e >= 2, C) )
+-> true : Boolean

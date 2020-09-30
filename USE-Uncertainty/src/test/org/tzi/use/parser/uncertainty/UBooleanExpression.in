@@ -1,0 +1,401 @@
+#
+# TIPO UBOOLEAN
+#
+
+# Creación
+
+UBoolean(3 + 2, 1)
+-> Value must be Boolean
+
+UBoolean(3 / 0, 1)
+-> Value must be Boolean
+
+UBoolean(true or false, UReal(2, 3))
+-> Probability must be a Integer or Real
+
+UBoolean(true and false, 3 / 0)
+-> Undefined : OclVoid
+
+UBoolean(true or false, 3 - 5)
+-> Undefined : OclVoid
+# -> Probability must be a non-uncertainty number between 0 and 1
+
+UBoolean(true or false, 23 * 3)
+-> Undefined : OclVoid
+# -> Probability must be a non-uncertainty number between 0 and 1
+
+UBoolean(true and false, 1 - 0.2)
+-> UBoolean(true, 0.2) : UBoolean
+
+UBoolean(true or false, 1 - 0.4)
+-> UBoolean(true, 0.6) : UBoolean
+
+UBoolean(false, 1 - 0.1)
+-> UBoolean(true, 0.1) : UBoolean
+
+UBoolean(true or false, 0.65)
+-> UBoolean(true, 0.65) : UBoolean
+
+UBoolean(false, 0.42)
+-> UBoolean(true, 0.58) : UBoolean
+
+
+# AND
+
+UBoolean(false, 0.5) and UBoolean(false, 0.2)
+-> UBoolean(true, 0.4) : UBoolean
+
+UBoolean(false, 0.9) and UBoolean(true, 0.8)
+-> UBoolean(true, 0.08) : UBoolean
+
+UBoolean(false, 0.55) and UBoolean(true, 0.49)
+-> UBoolean(true, 0.2205) : UBoolean
+
+true and false
+-> false : Boolean
+
+false and UBoolean(false, 0.49)
+-> UBoolean(true, 0.0) : UBoolean
+
+UBoolean(false, 0.79) and false
+-> UBoolean(true, 0.0) : UBoolean
+
+UBoolean(false, 0.79) and true
+-> UBoolean(true, 0.21) : UBoolean
+
+UBoolean(true, 0.79) and true
+-> UBoolean(true, 0.79) : UBoolean
+
+Undefined and Undefined
+-> Undefined : OclVoid
+
+UBoolean(true, 0.9) and Undefined
+-> Undefined : OclVoid
+
+true and Undefined
+-> Undefined : OclVoid
+
+Undefined and UBoolean(false, 0.9)
+-> Undefined : OclVoid
+
+Undefined and false
+-> false : Boolean
+
+Undefined and UBoolean(true, 0)
+-> UBoolean(true, 0.0) : UBoolean
+
+UBoolean(false, 1) and Undefined
+-> UBoolean(true, 0.0) : UBoolean
+
+# AND PROPERTIES
+
+# - CONMUTATIVE
+( UBoolean(true, 0.3) and UBoolean(true, 0.8) ).equals( (UBoolean(true, 0.8) and UBoolean(true, 0.3)) )
+-> true : Boolean
+
+( true and UBoolean(true, 0.8) ).equals( (UBoolean(true, 0.8) and true) )
+-> true : Boolean
+
+( Undefined and UBoolean(true, 0.8) ).equals( (UBoolean(true, 0.8) and Undefined) )
+-> true : Boolean
+
+# - ASSOCIATIVITY
+( UBoolean(true, 0.4) and (UBoolean(false, 0.55) and UBoolean(true, 0.8)) ).equals(( (UBoolean(true, 0.4) and UBoolean(false, 0.55)) and UBoolean(true, 0.8) ))
+-> true : Boolean
+
+( false and (UBoolean(false, 0.55) and UBoolean(true, 0.8)) ).equals(( (false and UBoolean(false, 0.55)) and UBoolean(true, 0.8) ))
+-> true : Boolean
+
+( true and (Undefined and UBoolean(true, 0.8)) ).equals(( (true and Undefined) and UBoolean(true, 0.8) ))
+-> true : Boolean
+
+# - IDENTITY
+( UBoolean(false, 0.4) and UBoolean(true, 1) ).equals( UBoolean(false, 0.4) )
+-> true : Boolean
+
+( UBoolean(false, 0.4) and true ).equals( UBoolean(false, 0.4) )
+-> true : Boolean
+
+
+# OR
+
+UBoolean(false, 0.45) or UBoolean(false, 0.76)
+-> UBoolean(true, 0.658) : UBoolean
+
+UBoolean(false, 0.45) or UBoolean(true, 0.37)
+-> UBoolean(true, 0.7165) : UBoolean
+
+UBoolean(true, 0.45) or UBoolean(true, 0.76)
+-> UBoolean(true, 0.868) : UBoolean
+
+true or false
+-> true : Boolean
+
+false or UBoolean(false, 0.49)
+-> UBoolean(true, 0.51) : UBoolean
+
+UBoolean(false, 0.79) or false
+-> UBoolean(true, 0.21) : UBoolean
+
+UBoolean(true, 0.79) or true
+-> UBoolean(true, 1.0) : UBoolean
+
+Undefined or Undefined
+-> Undefined : OclVoid
+
+UBoolean(true, 0.9) or Undefined
+-> Undefined : OclVoid
+
+true or Undefined
+-> true : Boolean
+
+Undefined or UBoolean(false, 0.9)
+-> Undefined : OclVoid
+
+Undefined or false
+-> Undefined : OclVoid
+
+Undefined or UBoolean(true, 1)
+-> UBoolean(true, 1.0) : UBoolean
+
+UBoolean(false, 1) or Undefined
+-> Undefined : OclVoid
+
+# OR PROPERTIES
+
+# - CONMUTATIVITY
+( UBoolean(true, 0.5) or UBoolean(true, 0.16) ).equals( UBoolean(true, 0.16) or UBoolean(true, 0.5) )
+-> true : Boolean
+
+( false or UBoolean(true, 0.16) ).equals( UBoolean(true, 0.16) or false )
+-> true : Boolean
+
+( Undefined or UBoolean(true, 0.16) ).equals( UBoolean(true, 0.16) or Undefined )
+-> true : Boolean
+
+# - ASSOCIATIVITY
+( UBoolean(false, 0.1) or (UBoolean(false, 0.4) or UBoolean(true, 0.6)) ).equals ( (UBoolean(false, 0.1) or UBoolean(false, 0.4)) or UBoolean(true, 0.6) )
+-> true : Boolean
+
+( true or (UBoolean(false, 0.4) or UBoolean(true, 0.6)) ).equals ( (true or UBoolean(false, 0.4)) or UBoolean(true, 0.6) )
+-> true : Boolean
+
+( true or (Undefined or UBoolean(true, 0.6)) ).equals ( (true or Undefined) or UBoolean(true, 0.6) )
+-> true : Boolean
+
+# - IDENTITY
+( UBoolean(true, 0.4) or UBoolean(true, 0) ).equals( UBoolean(true, 0.4) )
+-> true : Boolean
+
+( UBoolean(false, 0.4) or UBoolean(true, 0) ).equals( UBoolean(false, 0.4) )
+-> true : Boolean
+
+( true or UBoolean(true, 0) ).equals( UBoolean(true, 1) )
+-> true : Boolean
+
+( Undefined or UBoolean(true, 0) ).equals( Undefined )
+-> true : Boolean
+
+# NOT
+
+not Undefined
+-> Undefined : OclVoid
+
+not UBoolean(true, 0)
+-> UBoolean(true, 1.0) : UBoolean
+
+not UBoolean(true, 1)
+-> UBoolean(true, 0.0) : UBoolean
+
+not UBoolean(true, 0.2)
+-> UBoolean(true, 0.8) : UBoolean
+
+not UBoolean(true, 0.5)
+-> UBoolean(true, 0.5) : UBoolean
+
+not UBoolean(true, 0.8)
+-> UBoolean(true, 0.2) : UBoolean
+
+not UBoolean(false, 0)
+-> UBoolean(true, 0.0) : UBoolean
+
+not UBoolean(false, 1)
+-> UBoolean(true, 1.0) : UBoolean
+
+not UBoolean(false, 0.2)
+-> UBoolean(true, 0.2) : UBoolean
+
+not UBoolean(false, 0.5)
+-> UBoolean(true, 0.5) : UBoolean
+
+not UBoolean(false, 0.8)
+-> UBoolean(true, 0.8) : UBoolean
+
+# OR PROPERTIES
+
+# NOT(NOT(A)) = A
+( not ( not UBoolean(false, 0.2)) ).equals( UBoolean(false, 0.2) )
+-> true : Boolean
+
+( not ( not UBoolean(true, 0.2)) ).equals( UBoolean(true, 0.2) )
+-> true : Boolean
+
+# NOT (A OR B) = NOT(A) AND NOT(B)
+( not (UBoolean(true, 0.36) or UBoolean(true, 0.39)) ).equals( (not UBoolean(true, 0.36)) and (not UBoolean(true, 0.39)) )
+-> true : Boolean
+
+( not (UBoolean(false, 0.8) or UBoolean(true, 0.39)) ).equals( (not UBoolean(false, 0.8)) and (not UBoolean(true, 0.39)) )
+-> true : Boolean
+
+( not (UBoolean(false, 0.04) or UBoolean(false, 0.9)) ).equals( (not UBoolean(false, 0.04)) and (not UBoolean(false, 0.9)) )
+-> true : Boolean
+
+# NOT (A AND B) = NOT(A) OR NOT(B)
+( not (UBoolean(true, 0.36) and UBoolean(true, 0.39)) ).equals( (not UBoolean(true, 0.36)) or (not UBoolean(true, 0.39)) )
+-> true : Boolean
+
+( not (UBoolean(false, 0.8) and UBoolean(true, 0.39)) ).equals( (not UBoolean(false, 0.8)) or (not UBoolean(true, 0.39)) )
+-> true : Boolean
+
+( not (UBoolean(false, 0.04) and UBoolean(false, 0.9)) ).equals( (not UBoolean(false, 0.04)) or (not UBoolean(false, 0.9)) )
+-> true : Boolean
+
+
+# XOR
+
+UBoolean(false, 0.4) xor UBoolean(false, 0.2)
+-> UBoolean(true, 0.2) : UBoolean
+
+UBoolean(false, 0.2) xor UBoolean(true, 0.3)
+-> UBoolean(true, 0.5) : UBoolean
+
+UBoolean(true, 0.1) xor UBoolean(true, 0.1)
+-> UBoolean(true, 0.0) : UBoolean
+
+UBoolean(false, 0) xor UBoolean(false, 1)
+-> UBoolean(true, 1.0) : UBoolean
+
+true xor false
+-> true : Boolean
+
+false xor UBoolean(false, 0.5)
+-> UBoolean(true, 0.5) : UBoolean
+
+UBoolean(false, 0.2) xor false
+-> UBoolean(true, 0.8) : UBoolean
+
+UBoolean(false, 0.6) xor true
+-> UBoolean(true, 0.6) : UBoolean
+
+UBoolean(true,  0.3) xor true
+-> UBoolean(true, 0.7) : UBoolean
+
+UBoolean(true,  0.0) xor true
+-> UBoolean(true, 1.0) : UBoolean
+
+Undefined xor Undefined
+-> Undefined : OclVoid
+
+UBoolean(true, 0.5) xor Undefined
+-> Undefined : OclVoid
+
+Undefined xor UBoolean(false, 0.4)
+-> Undefined : OclVoid
+
+
+# EQUIVALENT
+
+UBoolean(false, 0.2).equivalent(UBoolean(false, 0.4))
+-> UBoolean(true, 0.8) : UBoolean
+
+UBoolean(false, 0.8).equivalent(UBoolean(true, 0.5))
+-> UBoolean(true, 0.7) : UBoolean
+
+UBoolean(true, 0.34).equivalent(UBoolean(true, 0.56))
+-> UBoolean(true, 0.78) : UBoolean
+
+true.equivalent(false)
+-> false : Boolean
+
+true.equivalent(true)
+-> true : Boolean
+
+false.equivalent(true)
+-> false : Boolean
+
+false.equivalent(false)
+-> true : Boolean
+
+false.equivalent(UBoolean(false, 0.49))
+-> UBoolean(true, 0.49) : UBoolean
+
+UBoolean(false, 0.79).equivalent(false)
+-> UBoolean(true, 0.79) : UBoolean
+
+UBoolean(true, 0.79).equivalent( true )
+-> UBoolean(true, 0.79) : UBoolean
+
+
+# VALUE
+UBoolean(true, 0.2).value()
+-> true : Boolean
+
+UBoolean(true, 0.55).value()
+-> true : Boolean
+
+UBoolean(true, 0.9).value()
+-> true : Boolean
+
+# UNCERTAINTY
+
+UBoolean(true, 0).confidence()
+-> 0.0 : Real
+
+UBoolean(true, 0.5).confidence()
+-> 0.5 : Real
+
+UBoolean(true, 1).confidence()
+-> 1.0 : Real
+
+
+# UEQUALS
+
+UBoolean(false, 0.2) = UBoolean(false, 0.4)
+-> UBoolean(true, 0.8) : UBoolean
+
+UBoolean(false, 0.8) = UBoolean(true, 0.5)
+-> UBoolean(true, 0.7) : UBoolean
+
+UBoolean(true, 0.34) = UBoolean(true, 0.56)
+-> UBoolean(true, 0.78) : UBoolean
+
+false = UBoolean(false, 0.49)
+-> UBoolean(true, 0.49) : UBoolean
+
+UBoolean(false, 0.79) = false
+-> UBoolean(true, 0.79) : UBoolean
+
+UBoolean(true, 0.79) = true
+-> UBoolean(true, 0.79) : UBoolean
+
+UBoolean(true, 0.2) = Undefined
+-> false : Boolean
+
+UBoolean(true, 0.2) = null
+-> false : Boolean
+
+# TRANSFORMATION
+
+# to Boolean
+
+UBoolean(true, 0).toBoolean()
+-> false : Boolean
+
+UBoolean(true, 0.49).toBoolean()
+-> false : Boolean
+
+UBoolean(true, 0.5).toBoolean()
+-> true : Boolean
+
+UBoolean(true, 1).toBoolean()
+-> true : Boolean

@@ -1,0 +1,1882 @@
+#
+## TIPOS UREAL
+#
+
+# Creación
+
+UReal(2, 0)
+-> UReal(2.0, 0.0) : UReal
+
+UReal(2, 2)
+-> UReal(2.0, 2.0) : UReal
+
+UReal(2, -2)
+-> UReal(2.0, 2.0) : UReal
+
+UReal(0, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 2)
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0, -2)
+-> UReal(0.0, 2.0) : UReal
+
+UReal(2+2, 3)
+-> UReal(4.0, 3.0) : UReal
+
+UReal(55.23, 9.34)
+-> UReal(55.23, 9.34) : UReal
+
+UReal(55.23, 0.34)
+-> UReal(55.23, 0.34) : UReal
+
+UReal(55.23, -66.34)
+-> UReal(55.23, 66.34) : UReal
+
+UReal(0.34, 55.23)
+-> UReal(0.34, 55.23) : UReal
+
+UReal(0.34, 0.34)
+-> UReal(0.34, 0.34) : UReal
+
+UReal(0.34, -66.34)
+-> UReal(0.34, 66.34) : UReal
+
+UReal(-66.34, 55.23)
+-> UReal(-66.34, 55.23) : UReal
+
+UReal(-66.34, 0.34)
+-> UReal(-66.34, 0.34) : UReal
+
+UReal(-66.34, -66.34)
+-> UReal(-66.34, 66.34) : UReal
+
+UReal(2.3, 5)
+-> UReal(2.3, 5.0) : UReal
+
+UReal(3*3/5, 9*(3-4))
+-> UReal(1.8, 9.0) : UReal
+
+UReal('Hola', 9.3)
+-> Value must be Integer or Real
+
+UReal(9.3, 'Hola')
+-> Uncertainty must be Integer or Real
+
+UReal(2, 2 + 3/0)
+-> Undefined : OclVoid
+
+UReal(2 / 0, 3)
+-> Undefined : OclVoid
+
+UReal(3 / 0, 2 / 0)
+-> Undefined : OclVoid
+
+#
+# Tipos
+#
+
+UReal(2.3, 5).oclIsTypeOf(UReal)
+-> true : Boolean
+
+(3.2).oclIsKindOf(UReal)
+-> true : Boolean
+
+2.oclIsKindOf(UReal)
+-> true : Boolean
+
+#
+# Operciones
+#
+
+
+# ABS
+
+UReal(2, 3).abs()
+-> UReal(2.0, 3.0) : UReal
+
+UReal(0, 3).abs()
+-> UReal(0.0, 3.0) : UReal
+
+UReal(-2, 3).abs()
+-> UReal(2.0, 3.0) : UReal
+
+
+# VALUE
+
+UReal(-3, 2.3).value()
+-> -3.0 : Real
+
+UReal(0, 2.3).value()
+-> 0.0 : Real
+
+UReal(3, 2.3).value()
+-> 3.0 : Real
+
+# SET VALUE
+UReal(-2, 3).setValue(0.0)
+-> UReal(0.0, 3.0) : UReal
+
+UReal(-2, 3).setValue(-2.0)
+-> UReal(-2.0, 3.0) : UReal
+
+UReal(-2, 3).setValue(-2)
+-> UReal(-2.0, 3.0) : UReal
+
+UReal(-2, 3).setValue(3 / 0)
+-> Undefined : OclVoid
+
+# UNCERTAINTY
+UReal(-3, -2.3).uncertainty()
+-> 2.3 : Real
+
+UReal(-3, 0).uncertainty()
+-> 0.0 : Real
+
+# SET UNCERTAINTY
+
+UReal(-3, 0).setUncertainty(-3)
+-> UReal(-3.0, 3.0) : UReal
+
+UReal(-3, 0).setUncertainty(3)
+-> UReal(-3.0, 3.0) : UReal
+
+UReal(-3, 0).setUncertainty(3.0)
+-> UReal(-3.0, 3.0) : UReal
+
+UReal(-3, 0).setUncertainty(3 / 0)
+-> Undefined : OclVoid
+
+
+# SQRT
+
+UReal(-3, 2.3).sqrt()
+-> Undefined : OclVoid
+
+# TODO descomentar cuando se arregle
+# UReal(0, 0).sqrt()
+# -> UReal(0.0, 0.0) : UReal
+
+UReal(0, 2).sqrt()
+-> Undefined : OclVoid
+
+UReal(4, 0).sqrt()
+-> UReal(2.0, 0.0) : UReal
+
+UReal(4, 2).sqrt()
+-> UReal(2.0, 0.5) : UReal
+
+
+# POWER
+
+UReal(0, 0).power(0)
+-> Undefined : OclVoid
+
+UReal(0, 0).power(3)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0).power(-2)
+-> Undefined : OclVoid
+
+UReal(0, 0).power(3.5)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 2).power(0)
+-> Undefined : OclVoid
+
+UReal(0, 4).power(3)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 3).power(-3)
+-> Undefined : OclVoid
+
+UReal(0, 1).power(3.5)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(3, 0).power(0)
+-> UReal(1.0, 0.0) : UReal
+
+UReal(2, 0).power(3)
+-> UReal(8.0, 0.0) : UReal
+
+UReal(4, 0).power(-2)
+-> UReal(0.0625, 0.0) : UReal
+
+UReal(4, 0).power(1.5)
+-> UReal(8.0, 0.0) : UReal
+
+UReal(1.5, 3.2).power(0)
+-> UReal(1.0, 0.0) : UReal
+
+UReal(2, 4).power(4)
+-> UReal(16.0, 128.0) : UReal
+
+UReal(1, 3).power(-2)
+-> UReal(1.0, 6.0) : UReal
+
+UReal(1, 2).power(0.25)
+-> UReal(1.0, 0.5) : UReal
+
+
+# SQRT & POWER
+
+UReal(-2, 5).power(1/2).equals( UReal(-2, 5).sqrt() )
+-> true : Boolean
+
+UReal(0, 5).power(1/2).equals( UReal(0, 5).sqrt() )
+-> true : Boolean
+
+# FIXME: No da exacto.
+# left  : UReal(1.016465997955662, 1.0606601717798214) : UReal
+# right : UReal(1.4142135623730951, 1.0606601717798212) : UReal
+# UReal(2, 3).power(1/2).equals( UReal(2, 3).sqrt() )
+# -> true : Boolean
+
+
+# NEG
+
+UReal(3.0, 2.3).neg()
+-> UReal(-3.0, 2.3) : UReal
+
+UReal(0.0, 2.3).neg()
+-> UReal(0.0, 2.3) : UReal
+
+UReal(-3.0, 2.3).neg()
+-> UReal(3.0, 2.3) : UReal
+
+
+# FLOOR
+
+UReal(3.7, 3.2).floor()
+-> UReal(3.0, 3.2) : UReal
+
+UReal(3.2, 3.2).floor()
+-> UReal(3.0, 3.2) : UReal
+
+UReal(3.5, 3.2).floor()
+-> UReal(3.0, 3.2) : UReal
+
+
+# ROUND
+
+UReal(2, 3).round()
+-> UReal(2.0, 3.0) : UReal
+
+UReal(2.7, 3).round()
+-> UReal(3.0, 3.0) : UReal
+
+UReal(2.5, 3).round()
+-> UReal(3.0, 3.0) : UReal
+
+UReal(2.2, 3).round()
+-> UReal(2.0, 3.0) : UReal
+
+UReal(-0.5, 3).round()
+-> UReal(0.0, 3.0) : UReal
+
+UReal(-0.8, 3).round()
+-> UReal(-1.0, 3.0) : UReal
+
+
+# FLOOR & ROUND
+
+(UReal(3.2, 3).floor()).equals( UReal(3.2, 3.0).round() )
+-> true : Boolean
+
+(UReal(3, 3).floor()).equals( UReal(3, 3.0).round() )
+-> true : Boolean
+
+(UReal(3.5, 3).floor()).equals( UReal(3.5, 3.0).round() )
+-> false : Boolean
+
+(UReal(3.9, 3).floor()).equals( UReal(3.9, 3.0).round() )
+-> false : Boolean
+
+
+# INV
+
+UReal(8, 0.75).inv()
+-> UReal(0.125, 0.01171875) : UReal
+
+UReal(0, 0.5).inv()
+-> Undefined : OclVoid
+
+
+# MIN
+
+UReal(0.0, 0.0).min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(UReal(1.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(1.0, 0.0).min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(3.0, 0.0).min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(UReal(3.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(UReal(3.0, 2.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(3.0, 2.0).min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(3.0, 0.0).min(UReal(0.0, 2.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0.0, 2.0).min(UReal(3.0, 0.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(3.0, 2.0).min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(UReal(3.0, 2.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 2.0).min(UReal(0.0, 0.2))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0.0, 2.0).min(UReal(1.0, 0.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(1.0, 0.0).min(UReal(0.0, 2.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0.0, 2.0).min(UReal(-1.0, 0.25))
+-> UReal(-1.0, 0.25) : UReal
+
+UReal(-1.0, 0.25).min(UReal(0.0, 2.0))
+-> UReal(-1.0, 0.25) : UReal
+
+UReal(0.0, 2.0).min(UReal(5.0, 2.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(5.0, 2.0).min(UReal(0.0, 2.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0.0, 0.0).min(0)
+-> UReal(0.0, 0.0) : UReal
+
+0.min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(1)
+-> UReal(0.0, 0.0) : UReal
+
+1.min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(1.0, 0.0).min(0)
+-> UReal(0.0, 0.0) : UReal
+
+0.min(UReal(1.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 2.0).min(3)
+-> UReal(0.0, 2.0) : UReal
+
+3.min(UReal(0.0, 2.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(3.0, 2.0).min(0)
+-> UReal(0.0, 0.0) : UReal
+
+0.min(UReal(3.0, 2.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(0.0)
+-> UReal(0.0, 0.0) : UReal
+
+0.0.min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(1.5)
+-> UReal(0.0, 0.0) : UReal
+
+1.5.min(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(1.0, 0.0).min(0)
+-> UReal(0.0, 0.0) : UReal
+
+0.min(UReal(1.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 2.0).min(2.5)
+-> UReal(0.0, 2.0) : UReal
+
+2.5.min(UReal(0.0, 2.0))
+-> UReal(0.0, 2.0) : UReal
+
+0.min(UReal(3.0, 2.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).min(3 / 0)
+-> Undefined : OclVoid
+
+(3 / 0).min(UReal(0.0, 0.0))
+-> Undefined : OclVoid
+
+
+# MAX
+
+UReal(0.0, 0.0).max(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).max(UReal(1.0, 0.0))
+-> UReal(1.0, 0.0) : UReal
+
+UReal(1.0, 0.0).max(UReal(0.0, 0.0))
+-> UReal(1.0, 0.0) : UReal
+
+UReal(3.0, 0.0).max(UReal(0.0, 0.0))
+-> UReal(3.0, 0.0) : UReal
+
+UReal(0.0, 0.0).max(UReal(3.0, 0.0))
+-> UReal(3.0, 0.0) : UReal
+
+UReal(0.0, 0.0).max(UReal(3.0, 2.0))
+-> UReal(3.0, 2.0) : UReal
+
+UReal(3.0, 2.0).max(UReal(0.0, 0.0))
+-> UReal(3.0, 2.0) : UReal
+
+UReal(3.0, 0.0).max(UReal(0.0, 2.0))
+-> UReal(3.0, 0.0) : UReal
+
+UReal(0.0, 2.0).max(UReal(3.0, 0.0))
+-> UReal(3.0, 0.0) : UReal
+
+UReal(3.0, 2.0).max(UReal(0.0, 0.0))
+-> UReal(3.0, 2.0) : UReal
+
+UReal(0.0, 0.0).max(UReal(3.0, 2.0))
+-> UReal(3.0, 2.0) : UReal
+
+UReal(0.0, 2.0).max(UReal(0.0, 0.2))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0.0, 2.0).max(UReal(1.0, 0.0))
+-> UReal(1.0, 0.0) : UReal
+
+UReal(1.0, 0.0).max(UReal(0.0, 2.0))
+-> UReal(1.0, 0.0) : UReal
+
+UReal(0.0, 2.0).max(UReal(-1.0, 0.25))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(-1.0, 0.25).max(UReal(0.0, 2.0))
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0.0, 2.0).max(UReal(5.0, 2.0))
+-> UReal(5.0, 2.0) : UReal
+
+UReal(0.0, 0.0).max(0)
+-> UReal(0.0, 0.0) : UReal
+
+0.max(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).max(1)
+-> UReal(1.0, 0.0) : UReal
+
+1.max(UReal(0.0, 0.0))
+-> UReal(1.0, 0.0) : UReal
+
+UReal(1.0, 0.0).max(0)
+-> UReal(1.0, 0.0) : UReal
+
+0.max(UReal(1.0, 0.0))
+-> UReal(1.0, 0.0) : UReal
+
+UReal(0.0, 2.0).max(3)
+-> UReal(3.0, 0.0) : UReal
+
+3.max(UReal(0.0, 2.0))
+-> UReal(3.0, 0.0) : UReal
+
+UReal(3.0, 2.0).max(0)
+-> UReal(3.0, 2.0) : UReal
+
+0.max(UReal(3.0, 2.0))
+-> UReal(3.0, 2.0) : UReal
+
+UReal(0.0, 0.0).max(0.0)
+-> UReal(0.0, 0.0) : UReal
+
+0.0.max(UReal(0.0, 0.0))
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0.0, 0.0).max(1.5)
+-> UReal(1.5, 0.0) : UReal
+
+1.5.max(UReal(0.0, 0.0))
+-> UReal(1.5, 0.0) : UReal
+
+UReal(1.0, 0.0).max(0)
+-> UReal(1.0, 0.0) : UReal
+
+0.max(UReal(1.0, 0.0))
+-> UReal(1.0, 0.0) : UReal
+
+UReal(0.0, 2.0).max(2.5)
+-> UReal(2.5, 0.0) : UReal
+
+2.5.max(UReal(0.0, 2.0))
+-> UReal(2.5, 0.0) : UReal
+
+UReal(3.0, 2.0).max(0)
+-> UReal(3.0, 2.0) : UReal
+
+0.max(UReal(3.0, 2.0))
+-> UReal(3.0, 2.0) : UReal
+
+UReal(3.0, 2.0).max(3 / 0)
+-> Undefined : OclVoid
+
+(3 / 0).max(UReal(3.0, 2.0))
+-> Undefined : OclVoid
+
+
+# TO REAL
+
+UReal(-2, 0).toReal()
+-> -2.0 : Real
+
+UReal(-2, 2).toReal()
+-> -2.0 : Real
+
+UReal(0, 0).toReal()
+-> 0.0 : Real
+
+UReal(0, 3).toReal()
+-> 0.0 : Real
+
+UReal(3, 0).toReal()
+-> 3.0 : Real
+
+UReal(3, 5).toReal()
+-> 3.0 : Real
+
+UReal(0.5, 3.2).toReal()
+-> 0.5 : Real
+
+
+# TO INTEGER
+
+UReal(-2, 0).toInteger()
+-> -2 : Integer
+
+UReal(-2, 2).toInteger()
+-> -2 : Integer
+
+UReal(0, 0).toInteger()
+-> 0 : Integer
+
+UReal(0, 3).toInteger()
+-> 0 : Integer
+
+UReal(3, 0).toInteger()
+-> 3 : Integer
+
+UReal(3, 5).toInteger()
+-> 3 : Integer
+
+UReal(0.5, 3.2).toInteger()
+-> 0 : Integer
+
+
+# TO UInteger
+
+UReal(5.0, 0.3).toUInteger()
+-> UInteger(5, 0.3) : UInteger
+
+UReal(5.5, 5).toUInteger()
+-> UInteger(5, 5.0) : UInteger
+
+UReal(0, -5).toUInteger()
+-> UInteger(0, 5.0) : UInteger
+
+UReal(-5.3, 3.75).toUInteger()
+-> UInteger(-5, 3.75) : UInteger
+
+
+# TO STRING
+UReal(-2, 0).toString()
+-> 'UReal(-2.0, 0.0)' : String
+
+UReal(-2, 2).toString()
+-> 'UReal(-2.0, 2.0)' : String
+
+UReal(0, 0).toString()
+-> 'UReal(0.0, 0.0)' : String
+
+UReal(0, 3).toString()
+-> 'UReal(0.0, 3.0)' : String
+
+UReal(3, 0).toString()
+-> 'UReal(3.0, 0.0)' : String
+
+UReal(3, 5).toString()
+-> 'UReal(3.0, 5.0)' : String
+
+UReal(0.5, 3.2).toString()
+-> 'UReal(0.5, 3.2)' : String
+
+# ADD
+
+UReal(-9, 0) + UReal(-9, 0)
+-> UReal(-18.0, 0.0) : UReal
+
+UReal(-3, 0) + UReal(-3, 9)
+-> UReal(-6.0, 9.0) : UReal
+
+UReal(-7, 0) + UReal(3, 0)
+-> UReal(-4.0, 0.0) : UReal
+
+UReal(-2, 0) + UReal(10, 7)
+-> UReal(8.0, 7.0) : UReal
+
+UReal(-9, 7) + UReal(-9, 0)
+-> UReal(-18.0, 7.0) : UReal
+
+UReal(-3, 3) + UReal(-3, 4)
+-> UReal(-6.0, 5.0) : UReal
+
+UReal(-9, 3) + UReal(7, 0)
+-> UReal(-2.0, 3.0) : UReal
+
+UReal(-6, 3) + UReal(10, 4)
+-> UReal(4.0, 5.0) : UReal
+
+UReal(0, 0) + UReal(0, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) + UReal(0, 1)
+-> UReal(0.0, 1.0) : UReal
+
+UReal(0, 0) + UReal(6, 0)
+-> UReal(6.0, 0.0) : UReal
+
+UReal(0, 0) + UReal(9, 4)
+-> UReal(9.0, 4.0) : UReal
+
+UReal(0, 2) + UReal(0, 0)
+-> UReal(0.0, 2.0) : UReal
+
+UReal(0, 3) + UReal(0, 4)
+-> UReal(0.0, 5.0) : UReal
+
+UReal(0, 4) + UReal(2, 0)
+-> UReal(2.0, 4.0) : UReal
+
+UReal(0, 3) + UReal(8, 4)
+-> UReal(8.0, 5.0) : UReal
+
+UReal(9, 0) + UReal(9, 0)
+-> UReal(18.0, 0.0) : UReal
+
+UReal(3, 0) + UReal(3, 1)
+-> UReal(6.0, 1.0) : UReal
+
+UReal(7, 0) + UReal(8, 0)
+-> UReal(15.0, 0.0) : UReal
+
+UReal(2, 0) + UReal(7, 8)
+-> UReal(9.0, 8.0) : UReal
+
+UReal(9, 9) + UReal(9, 0)
+-> UReal(18.0, 9.0) : UReal
+
+UReal(3, 3) + UReal(3, 4)
+-> UReal(6.0, 5.0) : UReal
+
+UReal(9, 2) + UReal(10, 0)
+-> UReal(19.0, 2.0) : UReal
+
+UReal(6, 3) + UReal(1, 4)
+-> UReal(7.0, 5.0) : UReal
+
+
+UReal(-3, 0) + -3.0
+-> UReal(-6.0, 0.0) : UReal
+
+UReal(-6, 0) + -1.2
+-> UReal(-7.2, 0.0) : UReal
+
+UReal(-5, 3) + -5.0
+-> UReal(-10.0, 3.0) : UReal
+
+UReal(-8, 5) + -2.0
+-> UReal(-10.0, 5.0) : UReal
+
+UReal(0, 0) + 0.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) + 3.0
+-> UReal(3.0, 0.0) : UReal
+
+UReal(0, 3) + 0.0
+-> UReal(0.0, 3.0) : UReal
+
+UReal(0, 5) + -5.0
+-> UReal(-5.0, 5.0) : UReal
+
+UReal(5, 0) + 5.0
+-> UReal(10.0, 0.0) : UReal
+
+UReal(3, 0) + 0.6
+-> UReal(3.6, 0.0) : UReal
+
+UReal(7, 3) + 7.0
+-> UReal(14.0, 3.0) : UReal
+
+UReal(2, 5) + 0.5
+-> UReal(2.5, 5.0) : UReal
+
+
+UReal(-3, 0) + -3
+-> UReal(-6.0, 0.0) : UReal
+
+UReal(-6, 0) + -12
+-> UReal(-18.0, 0.0) : UReal
+
+UReal(-5, 3) + -5
+-> UReal(-10.0, 3.0) : UReal
+
+UReal(-8, 5) + -2
+-> UReal(-10.0, 5.0) : UReal
+
+UReal(0, 0) + 0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) + 3
+-> UReal(3.0, 0.0) : UReal
+
+UReal(0, 3) + 0
+-> UReal(0.0, 3.0) : UReal
+
+UReal(0, 5) + -5
+-> UReal(-5.0, 5.0) : UReal
+
+UReal(5, 0) + 5
+-> UReal(10.0, 0.0) : UReal
+
+UReal(3, 0) + 56
+-> UReal(59.0, 0.0) : UReal
+
+UReal(7, 3) + 7
+-> UReal(14.0, 3.0) : UReal
+
+UReal(2, 5) + 65
+-> UReal(67.0, 5.0) : UReal
+
+
+UReal(2, 5) + 3 / 0
+-> Undefined : OclVoid
+
+
+# ADD - NEUTRO
+
+( UReal(2, 5) + UReal(0, 0) ).equals( UReal(2, 5) )
+-> true : Boolean
+
+( UReal(2, 5) + 0.0 ).equals( UReal(2, 5) )
+-> true : Boolean
+
+( UReal(2, 5) + 0 ).equals( UReal(2, 5) )
+-> true : Boolean
+
+# ADD - CONMUTATIVA
+
+( UReal(6, 3) + UReal(5, 0.3) ).equals( UReal(5, 0.3) + UReal(6, 3) )
+-> true : Boolean
+
+( UReal(9, 32) + 0.53 ).equals( 0.53 + UReal(9, 32) )
+-> true : Boolean
+
+( UReal(2, 3) + 5 ).equals( 5 + UReal(2, 3) )
+-> true : Boolean
+
+# ADD - ASSOCIATIVE
+
+( UReal(6, 3) + (UReal(5, 3) + UReal(9,2)) ).equals( (UReal(6, 3) + UReal(5, 3)) + UReal(9,2) )
+-> true : Boolean
+
+( UReal(6, 3) + (5.3 + UReal(9,2)) ).equals( (UReal(6, 3) + 5.3) + UReal(9,2) )
+-> true : Boolean
+
+( UReal(6, 3) + (5 + UReal(9,2)) ).equals( (UReal(6, 3) + 5) + UReal(9,2) )
+-> true : Boolean
+
+( UReal(6, 3) + (5 + 2) ).equals( (UReal(6, 3) + 5) + 2 )
+-> true : Boolean
+
+( 3.5 + (5 + UReal(9,2)) ).equals( (3.5 + 5) + UReal(9,2) )
+-> true : Boolean
+
+
+# MINUS
+
+UReal(-9, 0) - UReal(-9, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(-5, 0) - UReal(-5, 3)
+-> UReal(0.0, 3.0) : UReal
+
+UReal(-4, 0) - UReal(2, 0)
+-> UReal(-6.0, 0.0) : UReal
+
+UReal(-10, 0) - UReal(4, 1)
+-> UReal(-14.0, 1.0) : UReal
+
+UReal(-9, 9) - UReal(-9, 0)
+-> UReal(0.0, 9.0) : UReal
+
+UReal(-2, 3) - UReal(-2, 4)
+-> UReal(0.0, 5.0) : UReal
+
+UReal(-6, 2) - UReal(5, 0)
+-> UReal(-11.0, 2.0) : UReal
+
+UReal(-2, 3) - UReal(4, 4)
+-> UReal(-6.0, 5.0) : UReal
+
+UReal(0, 0) - UReal(0, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) - UReal(0, 4)
+-> UReal(0.0, 4.0) : UReal
+
+UReal(0, 0) - UReal(6, 0)
+-> UReal(-6.0, 0.0) : UReal
+
+UReal(0, 0) - UReal(7, 3)
+-> UReal(-7.0, 3.0) : UReal
+
+UReal(0, 4) - UReal(0, 0)
+-> UReal(0.0, 4.0) : UReal
+
+UReal(0, 4) - UReal(0, 3)
+-> UReal(0.0, 5.0) : UReal
+
+UReal(0, 4) - UReal(1, 0)
+-> UReal(-1.0, 4.0) : UReal
+
+UReal(0, 4) - UReal(2, 3)
+-> UReal(-2.0, 5.0) : UReal
+
+UReal(9, 0) - UReal(9, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(5, 0) - UReal(5, 3)
+-> UReal(0.0, 3.0) : UReal
+
+UReal(4, 0) - UReal(8, 0)
+-> UReal(-4.0, 0.0) : UReal
+
+UReal(10, 0) - UReal(10, 12)
+-> UReal(0.0, 12.0) : UReal
+
+UReal(9, 5) - UReal(9, 0)
+-> UReal(0.0, 5.0) : UReal
+
+UReal(2, 3) - UReal(2, 4)
+-> UReal(0.0, 5.0) : UReal
+
+UReal(6, 1) - UReal(4, 0)
+-> UReal(2.0, 1.0) : UReal
+
+UReal(2, 3) - UReal(5, 4)
+-> UReal(-3.0, 5.0) : UReal
+
+
+UReal(-3, 0) - -3.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(-6, 0) - -1.2
+-> UReal(-4.8, 0.0) : UReal
+
+UReal(-5, 3) - -5.0
+-> UReal(0.0, 3.0) : UReal
+
+UReal(-8, 5) - -2.0
+-> UReal(-6.0, 5.0) : UReal
+
+UReal(0, 0) - 0.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) - 3.0
+-> UReal(-3.0, 0.0) : UReal
+
+UReal(0, 3) - 0.0
+-> UReal(0.0, 3.0) : UReal
+
+UReal(0, 5) - -5.0
+-> UReal(5.0, 5.0) : UReal
+
+UReal(5, 0) - 5.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(3, 0) - 0.6
+-> UReal(2.4, 0.0) : UReal
+
+UReal(7, 3) - 7.0
+-> UReal(0.0, 3.0) : UReal
+
+UReal(2, 5) - 0.5
+-> UReal(1.5, 5.0) : UReal
+
+
+UReal(-3, 0) - -3
+-> UReal(0.0, 0.0) : UReal
+
+UReal(-6, 0) - -12
+-> UReal(6.0, 0.0) : UReal
+
+UReal(-5, 3) - -5
+-> UReal(0.0, 3.0) : UReal
+
+UReal(-8, 5) - -2
+-> UReal(-6.0, 5.0) : UReal
+
+UReal(0, 0) - 0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) - 3
+-> UReal(-3.0, 0.0) : UReal
+
+UReal(0, 3) - 0
+-> UReal(0.0, 3.0) : UReal
+
+UReal(0, 5) - -5
+-> UReal(5.0, 5.0) : UReal
+
+UReal(5, 0) - 5
+-> UReal(0.0, 0.0) : UReal
+
+UReal(3, 0) - 56
+-> UReal(-53.0, 0.0) : UReal
+
+UReal(7, 3) - 7
+-> UReal(0.0, 3.0) : UReal
+
+UReal(2, 5) - 65
+-> UReal(-63.0, 5.0) : UReal
+
+# MINUS - (A - A = 0)
+
+# FIXME: No da cero en uncertainty.
+# left : UReal(0.0, 5.656854249492381) : UReal
+# ( UReal(3, 4) - UReal(3, 4) ).equals( 0 )
+# -> true : Boolean
+
+( UReal(3, 0) - 3.0 ).equals( 0 )
+-> true : Boolean
+
+( UReal(3, 0) - 3 ).equals( 0 )
+-> true : Boolean
+
+( 3.0 - UReal(3, 0) ).equals( 0 )
+-> true : Boolean
+
+# MINUS - ANTI-COMMUTATIVE
+
+( UReal(3, 4) - UReal(5, 2) ).equals( -(UReal(5, 2) - UReal(3, 4)) )
+-> true : Boolean
+
+( UReal(3, 4) - 5 ).equals( -(5 - UReal(3, 4)) )
+-> true : Boolean
+
+( 4.3 - UReal(5, 2) ).equals( -(UReal(5, 2) - 4.3) )
+-> true : Boolean
+
+# MINUS - NON-ASSOCIATIVE
+( UReal(3, 4) - (UReal(5, 2) - UReal(2, 0.53)) ).equals( (UReal(3, 4) - UReal(5, 2)) - UReal(2, 0.53) )
+-> false : Boolean
+( UReal(3, 0) - (UReal(5, 0) - UReal(2, 0)) ).equals( (UReal(3, 0) - UReal(5, 0)) - UReal(2, 0) )
+-> false : Boolean
+
+# MINUS - UNARY MINUS = NEG
+
+( -UReal(3, 4) ).equals( UReal(3, 4).neg() )
+-> true : Boolean
+
+( - UReal(-3, 0) ).equals( UReal(-3, 0).neg() )
+-> true : Boolean
+
+( 0 - UReal(3, 4) ).equals( UReal(3, 4).neg() )
+-> true : Boolean
+
+( (UReal(1, 0) - 1) - UReal(3, 4) ).equals( UReal(3, 4).neg() )
+-> true : Boolean
+
+
+# MULTIPLY
+
+
+UReal(-9, 0) * UReal(-9, 0)
+-> UReal(81.0, 0.0) : UReal
+
+UReal(-5, 0) * UReal(-5, 3)
+-> UReal(25.0, 15.0) : UReal
+
+UReal(-4, 0) * UReal(2, 0)
+-> UReal(-8.0, 0.0) : UReal
+
+UReal(-10, 0) * UReal(4, 1)
+-> UReal(-40.0, 10.0) : UReal
+
+UReal(-9, 9) * UReal(-9, 0)
+-> UReal(81.0, 81.0) : UReal
+
+UReal(-2, 3) * UReal(-2, 4)
+-> UReal(4.0, 10.0) : UReal
+
+UReal(-6, 2) * UReal(5, 0)
+-> UReal(-30.0, 10.0) : UReal
+
+UReal(-2, 3) * UReal(2, 4)
+-> UReal(-4.0, 10.0) : UReal
+
+UReal(0, 0) * UReal(0, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) * UReal(0, 4)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) * UReal(6, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) * UReal(7, 3)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 4) * UReal(0, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 4) * UReal(0, 3)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 4) * UReal(1, 0)
+-> UReal(0.0, 4.0) : UReal
+
+UReal(0, 4) * UReal(2, 3)
+-> UReal(0.0, 8.0) : UReal
+
+UReal(9, 0) * UReal(9, 0)
+-> UReal(81.0, 0.0) : UReal
+
+UReal(5, 0) * UReal(5, 3)
+-> UReal(25.0, 15.0) : UReal
+
+UReal(4, 0) * UReal(8, 0)
+-> UReal(32.0, 0.0) : UReal
+
+UReal(10, 0) * UReal(10, 12)
+-> UReal(100.0, 120.0) : UReal
+
+UReal(9, 5) * UReal(9, 0)
+-> UReal(81.0, 45.0) : UReal
+
+UReal(2, 3) * UReal(2, 4)
+-> UReal(4.0, 10.0) : UReal
+
+UReal(6, 1) * UReal(4, 0)
+-> UReal(24.0, 4.0) : UReal
+
+UReal(2, 3) * UReal(5, 4)
+-> UReal(10.0, 17.0) : UReal
+
+
+
+UReal(-3, 0) * -3.0
+-> UReal(9.0, 0.0) : UReal
+
+UReal(-6, 0) * -1.2
+-> UReal(7.2, 0.0) : UReal
+
+UReal(-5, 3) * -5.0
+-> UReal(25.0, 15.0) : UReal
+
+UReal(-8, 5) * -2.0
+-> UReal(16.0, 10.0) : UReal
+
+UReal(0, 0) * 0.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) * 3.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 3) * 0.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 5) * -5.0
+-> UReal(0.0, 25.0) : UReal
+
+UReal(5, 0) * 5.0
+-> UReal(25.0, 0.0) : UReal
+
+UReal(3, 0) * 0.6
+-> UReal(1.8, 0.0) : UReal
+
+UReal(7, 3) * 7.0
+-> UReal(49.0, 21.0) : UReal
+
+UReal(2, 5) * 0.5
+-> UReal(1.0, 2.5) : UReal
+
+
+
+UReal(-3, 0) * -3
+-> UReal(9.0, 0.0) : UReal
+
+UReal(-6, 0) * -12
+-> UReal(72.0, 0.0) : UReal
+
+UReal(-5, 3) * -5
+-> UReal(25.0, 15.0) : UReal
+
+UReal(-8, 5) * -2
+-> UReal(16.0, 10.0) : UReal
+
+UReal(0, 0) * 0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) * 3
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 3) * 0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 5) * -5
+-> UReal(0.0, 25.0) : UReal
+
+UReal(5, 0) * 5
+-> UReal(25.0, 0.0) : UReal
+
+UReal(3, 0) * 56
+-> UReal(168.0, 0.0) : UReal
+
+UReal(7, 3) * 7
+-> UReal(49.0, 21.0) : UReal
+
+UReal(2, 5) * 65
+-> UReal(130.0, 325.0) : UReal
+
+# MULTIPLY - COMMUTATIVE
+
+( UReal(3, 2) * UReal(5, 2) ).equals( UReal(5, 2) * UReal(3, 2) )
+-> true : Boolean
+
+( UReal(3, 2) * UReal(5, 0) ).equals( UReal(5, 0) * UReal(3, 2) )
+-> true : Boolean
+
+( UReal(3, 2) * 5 ).equals( 5 * UReal(3, 2) )
+-> true : Boolean
+
+( UReal(3, 2) * -5.53 ).equals( -5.53 * UReal(3, 2) )
+-> true : Boolean
+
+# MULTIPLY - ASSOCIATIVE
+
+( UReal(3, 5) * (UReal(5, 1) * UReal(1, 2)) ).equals( (UReal(3, 5) * UReal(5, 1)) * UReal(1, 2) )
+-> true : Boolean
+
+( UReal(3, 5) * (5.1 * UReal(1, 2)) ).equals( (UReal(3, 5) * 5.1) * UReal(1, 2) )
+-> true : Boolean
+
+( UReal(3, 5) * (5.1 * 1.2) ).equals( (UReal(3, 5) * 5.1) * 1.2 )
+-> true : Boolean
+
+( UReal(3, 5) * (5 * UReal(1, 2)) ).equals( (UReal(3, 5) * 5) * UReal(1, 2) )
+-> true : Boolean
+
+( UReal(3, 5) * (5 * 1.2) ).equals( (UReal(3, 5) * 5) * 1.2 )
+-> true : Boolean
+
+( UReal(3, 5) * (5 * 2) ).equals( (UReal(3, 5) * 5) * 2 )
+-> true : Boolean
+
+# MULTIPLY - NON DISTRIBUTIVE + WITH NON SCALAR MULTIPLIER
+
+( UReal(2,1) * (UReal(3,1) + UReal(5, 0.2)) ).equals( UReal(2,1) * UReal(3,1) +  UReal(2,1) * UReal(5, 0.2) )
+-> false : Boolean
+
+# MULTIPLY - DISTRIBUTIVE + WITH SCALAR MULTIPLIER
+
+( 5.1 * (UReal(3, 2) + UReal(1, 2)) ).equals( (5.1 * UReal(3, 2)) + (5.1 * UReal(1, 2)) )
+-> true : Boolean
+
+( 2 * (UReal(3, 2) + UReal(1, 2)) ).equals( (2 * UReal(3, 2)) + (2 * UReal(1, 2)) )
+-> true : Boolean
+
+# MULTIPLY - A * 1 = 1
+
+( UReal(3, 2) * UReal(1, 0) ).equals( UReal(3, 2) )
+-> true : Boolean
+
+( UReal(3, 2) * 1 ).equals( UReal(3, 2) )
+-> true : Boolean
+
+
+# DIVISION
+
+
+UReal(-9, 0) / UReal(-9, 0)
+-> UReal(1.0, 0.0) : UReal
+
+UReal(-5, 0) / UReal(-5, 3)
+-> UReal(1.0, 0.12) : UReal
+
+UReal(-4, 0) / UReal(2, 0)
+-> UReal(-2.0, 0.0) : UReal
+
+UReal(-10, 0) / UReal(4, 1)
+-> UReal(-2.5, 0.0625) : UReal
+
+UReal(-9, 9) / UReal(-9, 0)
+-> UReal(1.0, 1.0) : UReal
+
+UReal(-2, 3) / UReal(-2, 4)
+-> UReal(1.0, 2.9154759474) : UReal
+
+UReal(-6, 2) / UReal(5, 0)
+-> UReal(-1.2, 0.4) : UReal
+
+UReal(-2, 3) / UReal(2, 4)
+-> UReal(-1.0, 2.9154759474) : UReal
+
+UReal(0, 0) / UReal(0, 0)
+-> Undefined : OclVoid
+
+UReal(0, 0) / UReal(0, 4)
+-> Undefined : OclVoid
+
+UReal(0, 0) / UReal(6, 0)
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 0) / UReal(7, 3)
+-> UReal(0.0, 0.0612244898) : UReal
+
+UReal(0, 4) / UReal(0, 0)
+-> Undefined : OclVoid
+
+UReal(0, 4) / UReal(0, 3)
+-> Undefined : OclVoid
+
+UReal(0, 4) / UReal(1, 0)
+-> UReal(0.0, 4.0) : UReal
+
+UReal(0, 4) / UReal(2, 3)
+-> UReal(0.0, 2.8284271247) : UReal
+
+UReal(9, 0) / UReal(9, 0)
+-> UReal(1.0, 0.0) : UReal
+
+UReal(5, 0) / UReal(5, 3)
+-> UReal(1.0, 0.12) : UReal
+
+UReal(4, 0) / UReal(8, 0)
+-> UReal(0.5, 0.0) : UReal
+
+UReal(10, 0) / UReal(10, 12)
+-> UReal(1.0, 0.12) : UReal
+
+UReal(9, 5) / UReal(9, 0)
+-> UReal(1.0, 0.5555555556) : UReal
+
+UReal(2, 3) / UReal(2, 4)
+-> UReal(1.0, 2.9154759474) : UReal
+
+UReal(6, 1) / UReal(4, 0)
+-> UReal(1.5, 0.25) : UReal
+
+UReal(2, 3) / UReal(5, 4)
+-> UReal(0.4, 1.379275172) : UReal
+
+
+
+UReal(-3, 0) / -3.0
+-> UReal(1.0, 0.0) : UReal
+
+UReal(-6, 0) / -1.2
+-> UReal(5.0, 0.0) : UReal
+
+UReal(-5, 3) / -5.0
+-> UReal(1.0, 0.6) : UReal
+
+UReal(-8, 5) / -2.0
+-> UReal(4.0, 2.5) : UReal
+
+UReal(0, 0) / 0.0
+-> Undefined : OclVoid
+
+UReal(0, 0) / 3.0
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 3) / 0.0
+-> Undefined : OclVoid
+
+UReal(0, 5) / -5.0
+-> UReal(0.0, 1.0) : UReal
+
+UReal(5, 0) / 5.0
+-> UReal(1.0, 0.0) : UReal
+
+UReal(3, 0) / 0.6
+-> UReal(5.0, 0.0) : UReal
+
+UReal(7, 3) / 7.0
+-> UReal(1.0, 0.4285714286) : UReal
+
+UReal(2, 5) / 0.5
+-> UReal(4.0, 10.0) : UReal
+
+
+
+UReal(-3, 0) / -3
+-> UReal(1.0, 0.0) : UReal
+
+UReal(-6, 0) / -12
+-> UReal(0.5, 0.0) : UReal
+
+UReal(-5, 3) / -5
+-> UReal(1.0, 0.6) : UReal
+
+UReal(-8, 5) / -2
+-> UReal(4.0, 2.5) : UReal
+
+UReal(0, 0) / 0
+-> Undefined : OclVoid
+
+UReal(0, 0) / 3
+-> UReal(0.0, 0.0) : UReal
+
+UReal(0, 3) / 0
+-> Undefined : OclVoid
+
+UReal(0, 5) / -5
+-> UReal(0.0, 1.0) : UReal
+
+UReal(5, 0) / 5
+-> UReal(1.0, 0.0) : UReal
+
+UReal(3, 0) / 56
+-> UReal(0.0535714286, 0.0) : UReal
+
+UReal(7, 3) / 7
+-> UReal(1.0, 0.4285714286) : UReal
+
+UReal(2, 5) / 65
+-> UReal(0.0307692308, 0.0769230769) : UReal
+
+
+# DIVISION - COMPATIBILITY BETWEEN IVN() AND /
+( UReal(2, 3).inv() ).equals( 1 / UReal(2, 3) )
+-> true : Boolean
+
+( UReal(0, 3).inv() ).equals( 1 / UReal(0, 3) )
+-> true : Boolean
+
+# DIVISION - NON CONMUTATIVE
+( UReal(2, 3) / UReal(1, 0.5) ).equals( UReal(1, 0.5) / UReal(2, 3) )
+-> false : Boolean
+
+( 2.3 / UReal(1, 0.5) ).equals( UReal(1, 0.5) / 2.3 )
+-> false : Boolean
+
+( 2 / UReal(1, 0.5) ).equals( UReal(1, 0.5) / 2 )
+-> false : Boolean
+
+# DIVISION - NON ASSOCIATIVE
+
+( UReal(2, 3) / (UReal(1, 0.5) / UReal(-0.5, 0.25)) ).equals( (UReal(2, 3) / UReal(1, 0.5)) / UReal(-0.5, 0.25) )
+-> false : Boolean
+
+( UReal(2, 3) / (12.59 / UReal(-0.5, 0.25)) ).equals( (UReal(2, 3) / 12.59) / UReal(-0.5, 0.25) )
+-> false : Boolean
+
+( UReal(2, 3) / (12 / UReal(-0.5, 0.25)) ).equals( (UReal(2, 3) / 12) / UReal(-0.5, 0.25) )
+-> false : Boolean
+
+# DIVISION -> A / 1 = A
+
+( UReal(2, 3) / 1 ).equals( UReal(2, 3) )
+-> true : Boolean
+
+# UREAL - LESS THAN
+
+(UReal(0,0) < UReal(0,0)).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) < UReal(1,0)).toBoolean()
+-> true : Boolean
+
+(UReal(3,0) < UReal(0,0)).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) < UReal(3,2)).toBoolean()
+-> true : Boolean
+
+(UReal(3,0) < UReal(0,2)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) < UReal(3,0)).toBoolean()
+-> true : Boolean
+
+(UReal(3,2) < UReal(0,0)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) < UReal(0,2)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) < UReal(0,1)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) < UReal(1,0.25)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) < UReal(-1,0.25)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) < UReal(5,2)).toBoolean()
+-> true : Boolean
+
+(UReal(5,2) < UReal(0,2)).toBoolean()
+-> false : Boolean
+
+
+(UReal(0,0) < 0).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) < 1).toBoolean()
+-> true : Boolean
+
+(UReal(1,0) < 0).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) < 3).toBoolean()
+-> true : Boolean
+
+(UReal(3,2) < 0).toBoolean()
+-> false : Boolean
+
+
+(UReal(0,0) < 0.0).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) < 1.0).toBoolean()
+-> true : Boolean
+
+(UReal(1,0) < 0.0).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) < 3.0).toBoolean()
+-> true : Boolean
+
+(UReal(3,2) < 0.0).toBoolean()
+-> false : Boolean
+
+# UREAL - LESS THAN - NON SYMETRIC
+
+( UReal(3,2) < UReal(0, 0) <> UReal(0, 0) < UReal(3, 2) ).toBoolean()
+-> true : Boolean
+
+( UReal(3,2) < 0 <> 0 < UReal(3, 2) ).toBoolean()
+-> true : Boolean
+
+( UReal(3,2) < 0.5 <> 0.5 < UReal(3, 2) ).toBoolean()
+-> true : Boolean
+
+# UREAL - GREATER OR EQUAL THAN
+
+(UReal(0,0) >= UReal(0, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) >= UReal(1, 0)).toBoolean()
+-> false : Boolean
+
+(UReal(3,0) >= UReal(0, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) >= UReal(3, 2)).toBoolean()
+-> false : Boolean
+
+(UReal(3,0) >= UReal(0, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) >= UReal(3, 0)).toBoolean()
+-> false : Boolean
+
+(UReal(3,2) >= UReal(0, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) >= UReal(0, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) >= UReal(0, 1)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) >= UReal(1, 0.25)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) >= UReal(-1, 0.25)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) >= UReal(5, 2)).toBoolean()
+-> false : Boolean
+
+(UReal(5,2) >= UReal(0, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) >= 0).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) >= 1).toBoolean()
+-> false : Boolean
+
+(UReal(1,0) >= 0).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) >= 3).toBoolean()
+-> false : Boolean
+
+(UReal(3,2) >= 0).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) >= 0.0).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) >= 1.0).toBoolean()
+-> false : Boolean
+
+(UReal(1,0) >= 0.0).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) >= 3.0).toBoolean()
+-> false : Boolean
+
+(UReal(3,2) >= 0.0).toBoolean()
+-> true : Boolean
+
+
+# UREAL - LESS THAN
+
+(UReal(0,0) <= UReal(0, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) <= UReal(1, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(3,0) <= UReal(0, 0)).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) <= UReal(3, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(3,0) <= UReal(0, 2)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) <= UReal(3, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(3,2) <= UReal(0, 0)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) <= UReal(0, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) <= UReal(0, 1)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) <= UReal(1, 0.25)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) <= UReal(-1, 0.25)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) <= UReal(5, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(5,2) <= UReal(0, 2)).toBoolean()
+-> false : Boolean
+
+
+(UReal(0,0) <= 0).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) <= 1).toBoolean()
+-> true : Boolean
+
+(UReal(1,0) <= 0).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) <= 3).toBoolean()
+-> true : Boolean
+
+(UReal(3,2) <= 0).toBoolean()
+-> false : Boolean
+
+
+(UReal(0,0) <= 0.0).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) <= 1.0).toBoolean()
+-> true : Boolean
+
+(UReal(1,0) <= 0.0).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) <= 3.0).toBoolean()
+-> true : Boolean
+
+(UReal(3,2) <= 0.0).toBoolean()
+-> false : Boolean
+
+
+# UREAL - GREATER THAN
+
+(UReal(0,0) > UReal(0, 0)).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) > UReal(1, 0)).toBoolean()
+-> false : Boolean
+
+(UReal(3,0) > UReal(0, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) > UReal(3, 2)).toBoolean()
+-> false : Boolean
+
+(UReal(3,0) > UReal(0, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) > UReal(3, 0)).toBoolean()
+-> false : Boolean
+
+(UReal(3,2) > UReal(0, 0)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) > UReal(0, 2)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) > UReal(0, 1)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) > UReal(1, 0.25)).toBoolean()
+-> false : Boolean
+
+(UReal(0,2) > UReal(-1, 0.25)).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) > UReal(5, 2)).toBoolean()
+-> false : Boolean
+
+(UReal(5,2) > UReal(0, 2)).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) > 0).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) > 1).toBoolean()
+-> false : Boolean
+
+(UReal(1,0) > 0).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) > 3).toBoolean()
+-> false : Boolean
+
+(UReal(3,2) > 0).toBoolean()
+-> true : Boolean
+
+(UReal(0,0) > 0.0).toBoolean()
+-> false : Boolean
+
+(UReal(0,0) > 1.0).toBoolean()
+-> false : Boolean
+
+(UReal(1,0) > 0.0).toBoolean()
+-> true : Boolean
+
+(UReal(0,2) > 3.0).toBoolean()
+-> false : Boolean
+
+(UReal(3,2) > 0.0).toBoolean()
+-> true : Boolean
+
+# UREAL - GREATER THAN - NON SYMETRIC
+
+( UReal(3,2) > UReal(0, 0) ).equals( UReal(0, 0) > UReal(3, 2) )
+-> false : Boolean
+
+( UReal(3,2) > 0 ).equals( 0 > UReal(3, 2) )
+-> false : Boolean
+
+( UReal(3,2) > 0.5 ).equals( 0.5 > UReal(3, 2) )
+-> false : Boolean
+
+
+# UREAL - uEQUALS "="
+
+( UReal(0, 0) = UReal(0, 0) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 0) = UReal(1, 0) ).toBoolean()
+-> false : Boolean
+
+( UReal(3, 0) = UReal(0, 0) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 0) = UReal(3, 2) ).toBoolean()
+-> false : Boolean
+
+( UReal(3, 0) = UReal(0, 2) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) = UReal(3, 0) ).toBoolean()
+-> false : Boolean
+
+( UReal(3, 2) = UReal(0, 0) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) = UReal(0, 2) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) = UReal(0, 1) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) = UReal(1, 0.25) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) = UReal(-1, 0.25) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) = UReal(5, 2) ).toBoolean()
+-> false : Boolean
+
+( UReal(5, 2) = UReal(0, 2) ).toBoolean()
+-> false : Boolean
+
+
+( UReal(0, 0) = 0 ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 0) = 1 ).toBoolean()
+-> false : Boolean
+
+( UReal(1, 0) = 0 ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) = 3 ).toBoolean()
+-> false : Boolean
+
+( UReal(3, 2) = 0 ).toBoolean()
+-> false : Boolean
+
+
+( UReal(0, 0) = 0.0 ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 0) = 1.0 ).toBoolean()
+-> false : Boolean
+
+( UReal(1, 0) = 0.0 ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) = 3.0 ).toBoolean()
+-> false : Boolean
+
+( UReal(3, 2) = 0.0 ).toBoolean()
+-> false : Boolean
+
+UReal(2, 3) = Undefined
+-> false : Boolean
+
+UReal(2, 3) = null
+-> false : Boolean
+
+
+# UREAL - uDISTINCT "<>"
+
+( UReal(0, 0) <> UReal(0, 0) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 0) <> UReal(1, 0) ).toBoolean()
+-> true : Boolean
+
+( UReal(3, 0) <> UReal(0, 0) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 0) <> UReal(3, 2) ).toBoolean()
+-> true : Boolean
+
+( UReal(3, 0) <> UReal(0, 2) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) <> UReal(3, 0) ).toBoolean()
+-> true : Boolean
+
+( UReal(3, 2) <> UReal(0, 0) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) <> UReal(0, 2) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) <> UReal(0, 1) ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 2) <> UReal(1, 0.25) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) <> UReal(-1, 0.25) ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) <> UReal(5, 2) ).toBoolean()
+-> true : Boolean
+
+( UReal(5, 2) <> UReal(0, 2) ).toBoolean()
+-> true : Boolean
+
+
+( UReal(0, 0) <> 0 ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 0) <> 1 ).toBoolean()
+-> true : Boolean
+
+( UReal(1, 0) <> 0 ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) <> 3 ).toBoolean()
+-> true : Boolean
+
+( UReal(3, 2) <> 0 ).toBoolean()
+-> true : Boolean
+
+
+( UReal(0, 0) <> 0.0 ).toBoolean()
+-> false : Boolean
+
+( UReal(0, 0) <> 1.0 ).toBoolean()
+-> true : Boolean
+
+( UReal(1, 0) <> 0.0 ).toBoolean()
+-> true : Boolean
+
+( UReal(0, 2) <> 3.0 ).toBoolean()
+-> true : Boolean
+
+( UReal(3, 2) <> 0.0 ).toBoolean()
+-> true : Boolean
+
+UReal(2, 3) <> Undefined
+-> true : Boolean
+
+UReal(2, 3) <> null
+-> true : Boolean
