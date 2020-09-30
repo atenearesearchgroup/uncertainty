@@ -121,7 +121,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 		return adjust(this.projectiveDistance(s)*this.conjunctiveCertainty(s));
 	}
 
-	public SBoolean increasedUncertainty() {
+	/* public SBoolean increasedUncertainty() {
 	        if (this.isVacuous()) return this.clone();
 	        
 	    	double sqrt_u = Math.sqrt(this.uncertainty());
@@ -133,6 +133,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
 	        return new SBoolean(brBelief, brDisbelief, brUncertainty, this.baseRate());
 	    }
+	*/
 
 	public boolean isAbsolute() {
 	    return (this.belief() == 1.0D) || (this.disbelief() == 1.0D);
@@ -262,6 +263,8 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
 	public SBoolean uncertaintyMaximized() { // Returns the equivalent SBoolean with maximum uncertainty. 
 		 // The dual operation is toUBoolean, which returns the equivalent SBoolean, with u==0
+		// return this.increasedUncertainty();
+		// Replaced by another version
 		double p = this.projection();
 		// Extreme cases
 		if ((this.a == 1.0D) && (p==1.0D)) return new SBoolean(0.0D,0.0D,1.0D,this.a,this.getRelativeWeight());
@@ -271,7 +274,8 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 		if (p < this.a) 
 			return new SBoolean(0.0D, 1.0D - (p/this.a), p/this.a, this.a,this.getRelativeWeight());
 		return new SBoolean((p-this.a)/(1.0D-this.a), 0.0D, (1.0D-p)/(1.0D-this.a), this.a,this.getRelativeWeight());	
-	}
+		
+		}
 
 	public SBoolean deduceY(SBoolean yGivenX, SBoolean yGivenNotX) { // DEDUCTION: returns Y, acting "this" as X
 		SBoolean y = new SBoolean();
