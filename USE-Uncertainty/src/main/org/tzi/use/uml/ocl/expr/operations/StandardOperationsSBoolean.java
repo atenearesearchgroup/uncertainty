@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import org.tzi.use.uml.ocl.expr.EvalContext;
 import org.tzi.use.uml.ocl.type.Type;
 import org.tzi.use.uml.ocl.type.TypeFactory;
+import org.tzi.use.uml.ocl.value.RealValue;
 import org.tzi.use.uml.ocl.value.SBooleanValue;
 import org.tzi.use.uml.ocl.value.StringValue;
 import org.tzi.use.uml.ocl.value.Value;
@@ -590,7 +591,495 @@ public enum StandardOperationsSBoolean {
             SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
             return sboolA.implies(sboolB);
         }
-    });
+    }),
+    
+    
+ // getRelativeWeight : SBoolean -> Real
+    GETRELATIVEWEIGHT(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "getRelativeWeight";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 1 && params[0].isTypeOfSBoolean() ?
+                    TypeFactory.mkReal() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            return sbool.getRelativeWeight();
+        }
+    }),
+    
+    // isAbsolute : SBoolean -> Boolean
+    ISABSOLUTE(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "isAbsolute";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 1 && params[0].isTypeOfSBoolean() ?
+                    TypeFactory.mkBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            return sbool.isAbsolute();
+        }
+    }),
+    
+    // isVacuous : SBoolean -> Boolean
+    ISVACUOUS(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "isVacuous";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 1 && params[0].isTypeOfSBoolean() ?
+                    TypeFactory.mkBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            return sbool.isVacuous();
+        }
+    }),
+    
+    // isCertain : SBoolean x Real -> Boolean
+    ISCERTAIN(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "isCertain";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 &&
+            	params[0].isTypeOfSBoolean() &&
+            	params[1].isKindOfReal(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            RealValue threshold = RealValue.valueOf(args[1]);
+            return sbool.isCertain(threshold);
+        }
+    }), 
+    
+    // isDogmatic : SBoolean -> Boolean
+    ISDOGMATIC(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "isDogmatic";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 1 && params[0].isTypeOfSBoolean() ?
+                    TypeFactory.mkBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            return sbool.isDogmatic();
+        }
+    }),
+    
+    // isMaximizedUncertainty : SBoolean -> Boolean
+    ISMAXIMIZEDUNCERTAINTY(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "isMaximizedUncertainty";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 1 && params[0].isTypeOfSBoolean() ?
+                    TypeFactory.mkBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            return sbool.isMaximizedUncertainty();
+        }
+    }),
+    
+    // isUncertain : SBoolean -> Boolean
+    ISUNCERTAIN(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "isUncertain";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 &&
+            	params[0].isTypeOfSBoolean() &&
+            	params[1].isKindOfReal(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            RealValue threshold = RealValue.valueOf(args[1]);
+            return sbool.isUncertain(threshold);
+        }
+    }),
+    
+    // uncertainOpinion : SBoolean -> SBoolean
+    UNCERTAINOPINION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "uncertainOpinion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 1 && params[0].isTypeOfSBoolean() ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            return sbool.uncertainOpinion();
+        }
+    }),
+    
+    // certainty : SBoolean -> Real
+    CERTAINTY(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "certainty";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 1 && params[0].isTypeOfSBoolean() ?
+                    TypeFactory.mkReal() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sbool = SBooleanValue.valueOf(args[0]);
+            return sbool.certainty();
+        }
+    }),
+    
+    // minimumBeliefFusion : SBoolean x SBoolean -> SBoolean
+    MINIMUMBELIEFFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "minimumBeliefFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.minimumBeliefFusion(sboolB);
+        }
+    }),
+    
+    
+    // majorityBeliefFusion : SBoolean x SBoolean -> SBoolean
+    MAJORITYBELIEFFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "majorityBeliefFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.majorityBeliefFusion(sboolB);
+        }
+    }),
+    
+    // averageBeliefFusion : SBoolean x SBoolean -> SBoolean
+    AVERAGEBELIEFFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "averageBeliefFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.averageBeliefFusion(sboolB);
+        }
+    }),
+    
+    
+    // cumulativeBeliefFusion : SBoolean x SBoolean -> SBoolean
+    CUMULATIVEBELIEFFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "cumulativeBeliefFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.cumulativeBeliefFusion(sboolB);
+        }
+    }),
+    
+    // epistemicCumulativeBeliefFusion : SBoolean x SBoolean -> SBoolean
+    EPISTEMICCUMULATIVEBELIEFFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "epistemicCumulativeBeliefFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.epistemicCumulativeBeliefFusion(sboolB);
+        }
+    }),
+    
+    // weightedBeliefFusion : SBoolean x SBoolean -> SBoolean
+    WEIGHTEDBELIEFFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "weightedBeliefFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.weightedBeliefFusion(sboolB);
+        }
+    }),
+    
+    ;
 
 
     // Stuff

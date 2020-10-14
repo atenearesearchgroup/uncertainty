@@ -1,9 +1,14 @@
 package org.tzi.use.uml.ocl.value;
 
 import atenearesearchgroup.uncertainty.uDataTypes.SBoolean;
+
+import java.util.LinkedList;
+
 import org.tzi.use.uml.ocl.type.Type;
 import org.tzi.use.uml.ocl.type.TypeFactory;
 import org.tzi.use.util.MathUtil;
+
+import antlr.collections.List;
 
 public final class SBooleanValue extends UncertainBooleanValue {
 
@@ -64,7 +69,6 @@ public final class SBooleanValue extends UncertainBooleanValue {
 
             return ret;
         }
-
     }
 
     public static SBooleanValue valueOf(Value value) {
@@ -177,7 +181,7 @@ public final class SBooleanValue extends UncertainBooleanValue {
 
     public RealValue conjunctiveCertainty(Value value) {
         SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new RealValue(sBoolean.projectiveDistance(sBooleanValue.sBoolean));
+        return new RealValue(sBoolean.conjunctiveCertainty(sBooleanValue.sBoolean));
     }
 
     public RealValue degreeOfConflict(Value value) {
@@ -249,5 +253,110 @@ public final class SBooleanValue extends UncertainBooleanValue {
         return new SBooleanValue(this.sBoolean.implies(sBooleanValue.sBoolean));
     }
 
-}
+    public RealValue getRelativeWeight() {
+    	return new RealValue(sBoolean.getRelativeWeight());
+    }
+ 
+	public BooleanValue isAbsolute() {
+	    return BooleanValue.get(sBoolean.isAbsolute());
+	}
 
+	public BooleanValue isVacuous() {
+	    return BooleanValue.get(sBoolean.isVacuous());
+	}
+
+	public BooleanValue isCertain(Value threshold) {
+		RealValue v = RealValue.valueOf(threshold);
+	    return BooleanValue.get(sBoolean.isCertain(v.value()));
+    }
+
+	public BooleanValue isDogmatic() {
+	    return BooleanValue.get(sBoolean.isDogmatic());
+	}
+
+	public BooleanValue isMaximizedUncertainty() {
+	    return BooleanValue.get(sBoolean.isMaximizedUncertainty());
+	}
+
+	public BooleanValue isUncertain(Value threshold) {
+		RealValue v = RealValue.valueOf(threshold);
+	    return BooleanValue.get(sBoolean.isUncertain(v.value()));
+	}
+	
+	public SBooleanValue uncertainOpinion() {
+	    return new SBooleanValue(sBoolean.uncertaintyMaximized());
+	}
+	
+    public RealValue certainty()
+    {
+        return new RealValue(sBoolean.certainty()); 
+    }
+
+    public static SBooleanValue createDogmaticOpinion(Value projection, Value baseRate) {
+    	RealValue p = RealValue.valueOf(projection);
+    	RealValue br = RealValue.valueOf(baseRate);
+    	return new SBooleanValue(SBoolean.createDogmaticOpinion(p.value(), br.value()));
+    }
+
+    public static SBooleanValue createVacuousOpinion(Value projection) {
+    	RealValue p = RealValue.valueOf(projection);
+    	return new SBooleanValue(SBoolean.createVacuousOpinion(p.value()));
+    }
+    
+    public SBooleanValue minimumBeliefFusion(Value value) {
+        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+        collection.add(this.sBoolean);
+        collection.add(sBooleanValue.sBoolean);
+        return new SBooleanValue(SBoolean.minimumBeliefFusion(collection));
+    }
+    
+    public SBooleanValue majorityBeliefFusion(Value value) {
+        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+        collection.add(this.sBoolean);
+        collection.add(sBooleanValue.sBoolean);
+        return new SBooleanValue(SBoolean.majorityBeliefFusion(collection));
+    }
+    
+    public SBooleanValue averageBeliefFusion(Value value) {
+        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+        collection.add(this.sBoolean);
+        collection.add(sBooleanValue.sBoolean);
+        return new SBooleanValue(SBoolean.averageBeliefFusion(collection));
+    }
+    
+    public SBooleanValue cumulativeBeliefFusion(Value value) {
+        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+        collection.add(this.sBoolean);
+        collection.add(sBooleanValue.sBoolean);
+        return new SBooleanValue(SBoolean.cumulativeBeliefFusion(collection));
+    }
+    
+    public SBooleanValue epistemicCumulativeBeliefFusion(Value value) {
+        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+        collection.add(this.sBoolean);
+        collection.add(sBooleanValue.sBoolean);
+        return new SBooleanValue(SBoolean.epistemicCumulativeBeliefFusion(collection));
+    }
+    
+    public SBooleanValue weightedBeliefFusion(Value value) {
+        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+        collection.add(this.sBoolean);
+        collection.add(sBooleanValue.sBoolean);
+        return new SBooleanValue(SBoolean.weightedBeliefFusion(collection));
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}

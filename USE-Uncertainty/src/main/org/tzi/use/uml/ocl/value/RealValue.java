@@ -86,4 +86,17 @@ public final class RealValue extends Value {
         } else
             return toString().compareTo(o.toString());
     }
+    
+    public static RealValue valueOf(Value value) {
+        RealValue ur1;
+
+        if (value.isReal())
+            ur1 = new RealValue(((RealValue) value).value());
+        else if (value.isInteger()) {
+            ur1 = new RealValue(((IntegerValue) value).value());
+        } else
+            ur1 = null;
+
+        return ur1;
+    }
 }

@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_OVERLAYPeer;
 import junit.framework.TestCase;
 
 import org.tzi.use.api.UseApiException;
