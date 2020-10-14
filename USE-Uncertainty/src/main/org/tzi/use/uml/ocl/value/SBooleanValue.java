@@ -2,6 +2,7 @@ package org.tzi.use.uml.ocl.value;
 
 import atenearesearchgroup.uncertainty.uDataTypes.SBoolean;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.tzi.use.uml.ocl.type.Type;
@@ -12,351 +13,421 @@ import antlr.collections.List;
 
 public final class SBooleanValue extends UncertainBooleanValue {
 
-    public static final SBooleanValue TRUE = new SBooleanValue(1, 0, 0, 1);
-    public static final SBooleanValue FALSE = new SBooleanValue(0, 1, 0, 1);
+	public static final SBooleanValue TRUE = new SBooleanValue(1, 0, 0, 1);
+	public static final SBooleanValue FALSE = new SBooleanValue(0, 1, 0, 1);
 
+	private SBoolean sBoolean;
 
-    private SBoolean sBoolean;
+	SBooleanValue(double b, double d, double u, double a) {
+		super(TypeFactory.mkSBoolean());
+		sBoolean = new SBoolean(b, d, u, a);
+	}
 
+	SBooleanValue(SBoolean sBoolean) {
+		super(TypeFactory.mkSBoolean());
+		this.sBoolean = sBoolean;
+	}
 
-    SBooleanValue(double b, double d,  double u, double a) {
-        super(TypeFactory.mkSBoolean());
-        sBoolean = new SBoolean(b, d, u, a);
-    }
+	public static class Builder {
+		private double belief = 0;
+		private double disbelief = 0;
+		private double uncertainty = 0;
+		private double agent = 0;
 
-    SBooleanValue(SBoolean sBoolean) {
-        super(TypeFactory.mkSBoolean());
-        this.sBoolean = sBoolean;
-    }
+		public Builder() {
+		}
 
-    public static class Builder {
-        private double belief = 0;
-        private double disbelief = 0;
-        private double uncertainty = 0;
-        private double agent = 0;
+		public Builder belief(double b) {
+			this.belief = b;
+			return this;
+		}
 
-        public Builder() {}
+		public Builder disbelief(double d) {
+			this.disbelief = d;
+			return this;
+		}
 
-        public Builder belief(double b) {
-            this.belief = b;
-            return this;
-        }
+		public Builder uncertainty(double u) {
+			this.uncertainty = u;
+			return this;
+		}
 
-        public Builder disbelief(double d) {
-            this.disbelief = d;
-            return this;
-        }
+		public Builder agent(double a) {
+			this.agent = a;
+			return this;
+		}
 
-        public Builder uncertainty(double u) {
-            this.uncertainty = u;
-            return this;
-        }
+		public SBooleanValue build() {
+			SBooleanValue ret;
 
-        public Builder agent(double a) {
-            this.agent = a;
-            return this;
-        }
+			if (belief == 1 && disbelief == 0 && uncertainty == 0 && agent == 1)
+				ret = TRUE;
+			else if (belief == 0 && disbelief == 1 && uncertainty == 0 && agent == 1)
+				ret = FALSE;
+			else
+				ret = new SBooleanValue(belief, disbelief, uncertainty, agent);
 
-        public SBooleanValue build() {
-            SBooleanValue ret;
+			return ret;
+		}
+	}
 
-            if ( belief == 1 && disbelief == 0 && uncertainty == 0 && agent == 1)
-                ret = TRUE;
-            else if (belief == 0 && disbelief == 1 && uncertainty == 0 && agent == 1)
-                ret = FALSE;
-            else
-                ret = new SBooleanValue(belief,disbelief,uncertainty,agent);
+	public static SBooleanValue valueOf(Value value) {
+		SBooleanValue ret = null;
 
-            return ret;
-        }
-    }
+		if (value.isSBoolean()) {
+			ret = (SBooleanValue) value;
+		} else if (value.isUBoolean()) {
+			UBooleanValue ub = (UBooleanValue) value;
+			ret = new SBooleanValue(new SBoolean(ub.getuBoolean()));
+		} else if (value.isBoolean()) {
 
-    public static SBooleanValue valueOf(Value value) {
-        SBooleanValue ret = null;
+			if (((BooleanValue) value).value())
+				ret = TRUE;
+			else
+				ret = FALSE;
+		} 
 
-        if (value.isSBoolean()) {
-            ret = (SBooleanValue) value;
-        } else if (value.isBoolean()) {
+		return ret;
+	}
 
-            if ( ((BooleanValue) value).value() )
-                ret = TRUE;
-            else
-                ret = FALSE;
+	private static SBooleanValue valueOf(SBoolean sBoolean) {
+		return new SBooleanValue(sBoolean);
+	}
 
-        } else if (value.isUBoolean()) {
-            UBooleanValue ub = (UBooleanValue) value;
-            ret = new SBooleanValue(new SBoolean(ub.getuBoolean()));
-        }
+	@Override
+	public boolean isSBoolean() {
+		return true;
+	}
 
-        return ret;
-    }
+	@Override
+	public UncertainBooleanValue uEquals(Value other) {
+		SBooleanValue result = FALSE;
 
-    private static SBooleanValue valueOf(SBoolean sBoolean) {
-        return new SBooleanValue(sBoolean);
-    }
+		if (other.type().isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID)) {
+			SBooleanValue aux = valueOf(other);
+			result = valueOf(sBoolean.equivalent(aux.sBoolean));
+		}
 
+		return result;
+	}
 
-    @Override
-    public boolean isSBoolean() {
-        return true;
-    }
+	@Override
+	public UncertainBooleanValue uDistinct(Value other) {
+		SBooleanValue result = TRUE;
 
-    @Override
-    public UncertainBooleanValue uEquals(Value other) {
-        SBooleanValue result = FALSE;
+		if (other.type().isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID)) {
+			SBooleanValue aux = valueOf(other);
+			result = valueOf(sBoolean.xor(aux.sBoolean));
+		}
 
-        if (other.type().isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID)) {
-            SBooleanValue aux = valueOf(other);
-            result = valueOf(sBoolean.equivalent(aux.sBoolean));
-        }
+		return result;
+	}
 
-        return result;
-    }
+	@Override
+	public StringBuilder toString(StringBuilder sb) {
+		sb.append(type().toString()).append("(").append(MathUtil.round(sBoolean.belief(), 10)).append(", ")
+				.append(MathUtil.round(sBoolean.disbelief(), 10)).append(", ")
+				.append(MathUtil.round(sBoolean.uncertainty(), 10)).append(", ")
+				.append(MathUtil.round(sBoolean.baseRate(), 10)).append(")");
+		return sb;
+	}
 
-    @Override
-    public UncertainBooleanValue uDistinct(Value other) {
-        SBooleanValue result = TRUE;
+	@Override
+	public int hashCode() {
+		return sBoolean.hashCode();
+	}
 
-        if (other.type().isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID)) {
-            SBooleanValue aux = valueOf(other);
-            result = valueOf(sBoolean.xor(aux.sBoolean));
-        }
+	@Override
+	public boolean equals(Object obj) {
 
-        return result;
-    }
+		if (obj == this)
+			return true;
 
-    @Override
-    public StringBuilder toString(StringBuilder sb) {
-        sb.append(type().toString())
-                .append("(")
-                .append(MathUtil.round(sBoolean.belief(), 10))
-                .append(", ")
-                .append(MathUtil.round(sBoolean.disbelief(), 10))
-                .append(", ")
-                .append(MathUtil.round(sBoolean.uncertainty(), 10))
-                .append(", ")
-                .append(MathUtil.round(sBoolean.baseRate(), 10))
-                .append(")");
-        return sb;
-    }
+		if (!(obj instanceof SBooleanValue))
+			return false;
 
-    @Override
-    public int hashCode() {
-        return sBoolean.hashCode();
-    }
+		SBooleanValue that = (SBooleanValue) obj;
+		return that.sBoolean.equals(this.sBoolean);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
+	@Override
+	public int compareTo(Value o) {
+		return 0;
+	}
 
-        if (obj == this)
-            return true;
+	public static SBooleanValue assertKindOfSBoolean(Value value) {
+		SBooleanValue sbool = valueOf(value);
 
-        if (!(obj instanceof SBooleanValue))
-            return false;
+		if (sbool == null)
+			throw new RuntimeException("A value kind of SBoolean expected");
 
-        SBooleanValue that = (SBooleanValue) obj;
-        return that.sBoolean.equals(this.sBoolean);
-    }
+		return sbool;
+	}
 
-    @Override
-    public int compareTo(Value o) {
-        return 0;
-    }
+	// WRAPPED METHODS
 
-    public static SBooleanValue assertKindOfSBoolean(Value value) {
-        SBooleanValue sbool = valueOf(value);
+	public RealValue projectiveDistance(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new RealValue(sBoolean.projectiveDistance(sBooleanValue.sBoolean));
+	}
 
-        if (sbool == null)
-            throw new RuntimeException("A value kind of SBoolean expected");
+	public RealValue conjunctiveCertainty(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new RealValue(sBoolean.conjunctiveCertainty(sBooleanValue.sBoolean));
+	}
 
-        return sbool;
-    }
+	public RealValue degreeOfConflict(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new RealValue(sBoolean.degreeOfConflict(sBooleanValue.sBoolean));
+	}
 
-    // WRAPPED METHODS
+	public SBooleanValue uncertaintyMaximized() {
+		return new SBooleanValue(sBoolean.uncertaintyMaximized());
+	}
 
-    public RealValue projectiveDistance(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new RealValue(sBoolean.projectiveDistance(sBooleanValue.sBoolean));
-    }
+	public SBooleanValue deduceY(Value yGivenX, Value yGivenNotX) {
+		SBooleanValue sboolA = assertKindOfSBoolean(yGivenX);
+		SBooleanValue sboolB = assertKindOfSBoolean(yGivenNotX);
+		return new SBooleanValue(sBoolean.deduceY(sboolA.sBoolean, sboolB.sBoolean));
+	}
 
-    public RealValue conjunctiveCertainty(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new RealValue(sBoolean.conjunctiveCertainty(sBooleanValue.sBoolean));
-    }
+	public UBooleanValue toUBoolean() {
+		return new UBooleanValue(sBoolean.toUBoolean());
+	}
 
-    public RealValue degreeOfConflict(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new RealValue(sBoolean.degreeOfConflict(sBooleanValue.sBoolean));
-    }
+	public RealValue belief() {
+		return new RealValue(sBoolean.belief());
+	}
 
-    public SBooleanValue uncertaintyMaximized() {
-        return new SBooleanValue(sBoolean.uncertaintyMaximized());
-    }
+	public RealValue disbelief() {
+		return new RealValue(sBoolean.disbelief());
+	}
 
-    public SBooleanValue deduceY(Value yGivenX, Value yGivenNotX) {
-        SBooleanValue sboolA = assertKindOfSBoolean(yGivenX);
-        SBooleanValue sboolB = assertKindOfSBoolean(yGivenNotX);
-        return new SBooleanValue(sBoolean.deduceY(sboolA.sBoolean, sboolB.sBoolean));
-    }
+	public RealValue uncertainty() {
+		return new RealValue(sBoolean.uncertainty());
+	}
 
-    public UBooleanValue toUBoolean() {
-        return new UBooleanValue(sBoolean.toUBoolean());
-    }
+	public RealValue baseRate() {
+		return new RealValue(sBoolean.baseRate());
+	}
 
-    public RealValue belief() {
-        return new RealValue(sBoolean.belief());
-    }
+	public RealValue projection() {
+		return new RealValue(sBoolean.projection());
+	}
 
-    public RealValue disbelief() {
-        return new RealValue(sBoolean.disbelief());
-    }
+	public SBooleanValue and(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new SBooleanValue(this.sBoolean.and(sBooleanValue.sBoolean));
+	}
 
-    public RealValue uncertainty() {
-        return new RealValue(sBoolean.uncertainty());
-    }
+	@Override
+	public UncertainBooleanValue not() {
+		return new SBooleanValue(this.sBoolean.not());
+	}
 
-    public RealValue baseRate() {
-        return new RealValue(sBoolean.baseRate());
-    }
+	public SBooleanValue or(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new SBooleanValue(this.sBoolean.or(sBooleanValue.sBoolean));
+	}
 
-    public RealValue projection() {
-        return new RealValue(sBoolean.projection());
-    }
+	public SBooleanValue xor(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new SBooleanValue(this.sBoolean.xor(sBooleanValue.sBoolean));
+	}
 
-    public SBooleanValue and(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new SBooleanValue(this.sBoolean.and(sBooleanValue.sBoolean));
-    }
+	public SBooleanValue equivalent(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new SBooleanValue(this.sBoolean.equivalent(sBooleanValue.sBoolean));
+	}
 
-    @Override
-    public UncertainBooleanValue not() {
-        return new SBooleanValue(this.sBoolean.not());
-    }
+	public SBooleanValue implies(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new SBooleanValue(this.sBoolean.implies(sBooleanValue.sBoolean));
+	}
 
-    public SBooleanValue or(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new SBooleanValue(this.sBoolean.or(sBooleanValue.sBoolean));
-    }
+	public RealValue getRelativeWeight() {
+		return new RealValue(sBoolean.getRelativeWeight());
+	}
 
-    public SBooleanValue xor(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new SBooleanValue(this.sBoolean.xor(sBooleanValue.sBoolean));
-    }
-
-    public SBooleanValue equivalent(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new SBooleanValue(this.sBoolean.equivalent(sBooleanValue.sBoolean));
-    }
-
-    public SBooleanValue implies(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        return new SBooleanValue(this.sBoolean.implies(sBooleanValue.sBoolean));
-    }
-
-    public RealValue getRelativeWeight() {
-    	return new RealValue(sBoolean.getRelativeWeight());
-    }
- 
 	public BooleanValue isAbsolute() {
-	    return BooleanValue.get(sBoolean.isAbsolute());
+		return BooleanValue.get(sBoolean.isAbsolute());
 	}
 
 	public BooleanValue isVacuous() {
-	    return BooleanValue.get(sBoolean.isVacuous());
+		return BooleanValue.get(sBoolean.isVacuous());
 	}
 
 	public BooleanValue isCertain(Value threshold) {
 		RealValue v = RealValue.valueOf(threshold);
-	    return BooleanValue.get(sBoolean.isCertain(v.value()));
-    }
+		return BooleanValue.get(sBoolean.isCertain(v.value()));
+	}
 
 	public BooleanValue isDogmatic() {
-	    return BooleanValue.get(sBoolean.isDogmatic());
+		return BooleanValue.get(sBoolean.isDogmatic());
 	}
 
 	public BooleanValue isMaximizedUncertainty() {
-	    return BooleanValue.get(sBoolean.isMaximizedUncertainty());
+		return BooleanValue.get(sBoolean.isMaximizedUncertainty());
 	}
 
 	public BooleanValue isUncertain(Value threshold) {
 		RealValue v = RealValue.valueOf(threshold);
-	    return BooleanValue.get(sBoolean.isUncertain(v.value()));
+		return BooleanValue.get(sBoolean.isUncertain(v.value()));
 	}
-	
+
 	public SBooleanValue uncertainOpinion() {
-	    return new SBooleanValue(sBoolean.uncertaintyMaximized());
+		return new SBooleanValue(sBoolean.uncertaintyMaximized());
+	}
+
+	public RealValue certainty() {
+		return new RealValue(sBoolean.certainty());
+	}
+
+	public static SBooleanValue createDogmaticOpinion(Value projection, Value baseRate) {
+		RealValue p = RealValue.valueOf(projection);
+		RealValue br = RealValue.valueOf(baseRate);
+		return new SBooleanValue(SBoolean.createDogmaticOpinion(p.value(), br.value()));
+	}
+
+	public static SBooleanValue createVacuousOpinion(Value projection) {
+		RealValue p = RealValue.valueOf(projection);
+		return new SBooleanValue(SBoolean.createVacuousOpinion(p.value()));
+	}
+
+	public SBooleanValue minimumFusion(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		collection.add(this.sBoolean);
+		collection.add(sBooleanValue.sBoolean);
+		return new SBooleanValue(SBoolean.minimumBeliefFusion(collection));
+	}
+
+	public SBooleanValue majorityFusion(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		collection.add(this.sBoolean);
+		collection.add(sBooleanValue.sBoolean);
+		return new SBooleanValue(SBoolean.majorityBeliefFusion(collection));
+	}
+
+	public SBooleanValue averageFusion(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		collection.add(this.sBoolean);
+		collection.add(sBooleanValue.sBoolean);
+		return new SBooleanValue(SBoolean.averageBeliefFusion(collection));
+	}
+
+	public SBooleanValue cumulativeFusion(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		collection.add(this.sBoolean);
+		collection.add(sBooleanValue.sBoolean);
+		return new SBooleanValue(SBoolean.cumulativeBeliefFusion(collection));
+	}
+
+	public SBooleanValue epistemicCumulativeFusion(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		collection.add(this.sBoolean);
+		collection.add(sBooleanValue.sBoolean);
+		return new SBooleanValue(SBoolean.epistemicCumulativeBeliefFusion(collection));
+	}
+
+	public SBooleanValue weightedFusion(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		collection.add(this.sBoolean);
+		collection.add(sBooleanValue.sBoolean);
+		return new SBooleanValue(SBoolean.weightedBeliefFusion(collection));
+	}
+
+	public SBooleanValue minimumBeliefFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(SBoolean.minimumBeliefFusion(collection));
 	}
 	
-    public RealValue certainty()
-    {
-        return new RealValue(sBoolean.certainty()); 
-    }
+	public SBooleanValue majorityBeliefFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(SBoolean.majorityBeliefFusion(collection));
+	}
+	
+	public SBooleanValue averageBeliefFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(SBoolean.averageBeliefFusion(collection));
+	}
+	
+	public SBooleanValue cumulativeBeliefFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(SBoolean.cumulativeBeliefFusion(collection));
+	}
+	
+	public SBooleanValue epistemicCumulativeBeliefFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(SBoolean.epistemicCumulativeBeliefFusion(collection));
+	}
+	
+	public SBooleanValue weightedBeliefFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(SBoolean.weightedBeliefFusion(collection));
+	}
 
-    public static SBooleanValue createDogmaticOpinion(Value projection, Value baseRate) {
-    	RealValue p = RealValue.valueOf(projection);
-    	RealValue br = RealValue.valueOf(baseRate);
-    	return new SBooleanValue(SBoolean.createDogmaticOpinion(p.value(), br.value()));
-    }
+	public SBooleanValue min(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new SBooleanValue(this.sBoolean.min(sBooleanValue.sBoolean));
+	}
 
-    public static SBooleanValue createVacuousOpinion(Value projection) {
-    	RealValue p = RealValue.valueOf(projection);
-    	return new SBooleanValue(SBoolean.createVacuousOpinion(p.value()));
-    }
-    
-    public SBooleanValue minimumBeliefFusion(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
-        collection.add(this.sBoolean);
-        collection.add(sBooleanValue.sBoolean);
-        return new SBooleanValue(SBoolean.minimumBeliefFusion(collection));
-    }
-    
-    public SBooleanValue majorityBeliefFusion(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
-        collection.add(this.sBoolean);
-        collection.add(sBooleanValue.sBoolean);
-        return new SBooleanValue(SBoolean.majorityBeliefFusion(collection));
-    }
-    
-    public SBooleanValue averageBeliefFusion(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
-        collection.add(this.sBoolean);
-        collection.add(sBooleanValue.sBoolean);
-        return new SBooleanValue(SBoolean.averageBeliefFusion(collection));
-    }
-    
-    public SBooleanValue cumulativeBeliefFusion(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
-        collection.add(this.sBoolean);
-        collection.add(sBooleanValue.sBoolean);
-        return new SBooleanValue(SBoolean.cumulativeBeliefFusion(collection));
-    }
-    
-    public SBooleanValue epistemicCumulativeBeliefFusion(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
-        collection.add(this.sBoolean);
-        collection.add(sBooleanValue.sBoolean);
-        return new SBooleanValue(SBoolean.epistemicCumulativeBeliefFusion(collection));
-    }
-    
-    public SBooleanValue weightedBeliefFusion(Value value) {
-        SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
-        LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
-        collection.add(this.sBoolean);
-        collection.add(sBooleanValue.sBoolean);
-        return new SBooleanValue(SBoolean.weightedBeliefFusion(collection));
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
+	public SBooleanValue max(Value value) {
+		SBooleanValue sBooleanValue = assertKindOfSBoolean(value);
+		return new SBooleanValue(this.sBoolean.max(sBooleanValue.sBoolean));
+	}
+
 }

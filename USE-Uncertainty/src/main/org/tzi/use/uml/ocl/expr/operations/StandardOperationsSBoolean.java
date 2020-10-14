@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import org.tzi.use.uml.ocl.expr.EvalContext;
 import org.tzi.use.uml.ocl.type.Type;
 import org.tzi.use.uml.ocl.type.TypeFactory;
+import org.tzi.use.uml.ocl.value.CollectionValue;
 import org.tzi.use.uml.ocl.value.RealValue;
 import org.tzi.use.uml.ocl.value.SBooleanValue;
 import org.tzi.use.uml.ocl.value.StringValue;
@@ -879,7 +880,207 @@ public enum StandardOperationsSBoolean {
         }
     }),
     
-    // minimumBeliefFusion : SBoolean x SBoolean -> SBoolean
+    // minimumFusion : SBoolean x SBoolean -> SBoolean
+    MINIMUMFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "minimumFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.minimumFusion(sboolB);
+        }
+    }),
+    
+    
+    // majorityBeliefFusion : SBoolean x SBoolean -> SBoolean
+    MAJORITYFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "majorityFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.majorityFusion(sboolB);
+        }
+    }),
+    
+    // averageFusion : SBoolean x SBoolean -> SBoolean
+    AVERAGEFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "averageFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.averageFusion(sboolB);
+        }
+    }),
+    
+    
+    // cumulativeBeliefFusion : SBoolean x SBoolean -> SBoolean
+    CUMULATIVEFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "cumulativeFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.cumulativeFusion(sboolB);
+        }
+    }),
+    
+    // epistemicCumulativeBeliefFusion : SBoolean x SBoolean -> SBoolean
+    EPISTEMICCUMULATIVEFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "epistemicCumulativeFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.epistemicCumulativeFusion(sboolB);
+        }
+    }),
+    
+    // weightedFusion : SBoolean x SBoolean -> SBoolean
+    WEIGHTEDFUSION(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "weightedFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.weightedFusion(sboolB);
+        }
+    }),
+    
+    // minimumBeliefFusion : SBoolean x Collection -> SBoolean
     MINIMUMBELIEFFUSION(new OpGeneric() {
 
         @Override
@@ -900,20 +1101,19 @@ public enum StandardOperationsSBoolean {
         @Override
         public Type matches(Type[] params) {
             return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
-                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    params[1].isKindOfCollection(Type.VoidHandling.EXCLUDE_VOID) ?
                     TypeFactory.mkSBoolean() : null;
         }
 
         @Override
         public Value eval(EvalContext ctx, Value[] args, Type resultType) {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
-            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
-            return sboolA.minimumBeliefFusion(sboolB);
+            CollectionValue sboolCol = (CollectionValue) args[1];
+            return sboolA.minimumBeliefFusion(sboolCol);
         }
     }),
     
-    
-    // majorityBeliefFusion : SBoolean x SBoolean -> SBoolean
+ // majorityBeliefFusion : SBoolean x Collection -> SBoolean
     MAJORITYBELIEFFUSION(new OpGeneric() {
 
         @Override
@@ -934,19 +1134,19 @@ public enum StandardOperationsSBoolean {
         @Override
         public Type matches(Type[] params) {
             return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
-                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    params[1].isKindOfCollection(Type.VoidHandling.EXCLUDE_VOID) ?
                     TypeFactory.mkSBoolean() : null;
         }
 
         @Override
         public Value eval(EvalContext ctx, Value[] args, Type resultType) {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
-            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
-            return sboolA.majorityBeliefFusion(sboolB);
+            CollectionValue sboolCol = (CollectionValue) args[1];
+            return sboolA.majorityBeliefFusion(sboolCol);
         }
     }),
     
-    // averageBeliefFusion : SBoolean x SBoolean -> SBoolean
+ // averageBeliefFusion : SBoolean x Collection -> SBoolean
     AVERAGEBELIEFFUSION(new OpGeneric() {
 
         @Override
@@ -967,20 +1167,19 @@ public enum StandardOperationsSBoolean {
         @Override
         public Type matches(Type[] params) {
             return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
-                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    params[1].isKindOfCollection(Type.VoidHandling.EXCLUDE_VOID) ?
                     TypeFactory.mkSBoolean() : null;
         }
 
         @Override
         public Value eval(EvalContext ctx, Value[] args, Type resultType) {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
-            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
-            return sboolA.averageBeliefFusion(sboolB);
+            CollectionValue sboolCol = (CollectionValue) args[1];
+            return sboolA.averageBeliefFusion(sboolCol);
         }
     }),
     
-    
-    // cumulativeBeliefFusion : SBoolean x SBoolean -> SBoolean
+ // cumulativeBeliefFusion : SBoolean x Collection -> SBoolean
     CUMULATIVEBELIEFFUSION(new OpGeneric() {
 
         @Override
@@ -1001,19 +1200,19 @@ public enum StandardOperationsSBoolean {
         @Override
         public Type matches(Type[] params) {
             return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
-                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    params[1].isKindOfCollection(Type.VoidHandling.EXCLUDE_VOID) ?
                     TypeFactory.mkSBoolean() : null;
         }
 
         @Override
         public Value eval(EvalContext ctx, Value[] args, Type resultType) {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
-            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
-            return sboolA.cumulativeBeliefFusion(sboolB);
+            CollectionValue sboolCol = (CollectionValue) args[1];
+            return sboolA.cumulativeBeliefFusion(sboolCol);
         }
     }),
     
-    // epistemicCumulativeBeliefFusion : SBoolean x SBoolean -> SBoolean
+ // epistemicCumulativeBeliefFusion : SBoolean x Collection -> SBoolean
     EPISTEMICCUMULATIVEBELIEFFUSION(new OpGeneric() {
 
         @Override
@@ -1034,24 +1233,57 @@ public enum StandardOperationsSBoolean {
         @Override
         public Type matches(Type[] params) {
             return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
-                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    params[1].isKindOfCollection(Type.VoidHandling.EXCLUDE_VOID) ?
                     TypeFactory.mkSBoolean() : null;
         }
 
         @Override
         public Value eval(EvalContext ctx, Value[] args, Type resultType) {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
-            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
-            return sboolA.epistemicCumulativeBeliefFusion(sboolB);
+            CollectionValue sboolCol = (CollectionValue) args[1];
+            return sboolA.epistemicCumulativeBeliefFusion(sboolCol);
         }
     }),
     
-    // weightedBeliefFusion : SBoolean x SBoolean -> SBoolean
+ // weightedBeliefFusion : SBoolean x Collection -> SBoolean
     WEIGHTEDBELIEFFUSION(new OpGeneric() {
 
         @Override
         public String name() {
             return "weightedBeliefFusion";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfCollection(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            CollectionValue sboolCol = (CollectionValue) args[1];
+            return sboolA.weightedBeliefFusion(sboolCol);
+        }
+    }),
+    
+ // min: SBoolean x SBoolean -> SBoolean
+    MIN(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "min";
         }
 
         @Override
@@ -1075,7 +1307,40 @@ public enum StandardOperationsSBoolean {
         public Value eval(EvalContext ctx, Value[] args, Type resultType) {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
             SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
-            return sboolA.weightedBeliefFusion(sboolB);
+            return sboolA.min(sboolB);
+        }
+    }),
+    
+ // max: SBoolean x SBoolean -> SBoolean
+    MAX(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "max";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
+            return sboolA.max(sboolB);
         }
     }),
     
