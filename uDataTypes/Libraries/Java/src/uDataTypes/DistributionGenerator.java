@@ -1,4 +1,4 @@
-package atenearesearchgroup.uncertainty.uDataTypes;
+package uDataTypes;
 
 import java.util.Random;
 

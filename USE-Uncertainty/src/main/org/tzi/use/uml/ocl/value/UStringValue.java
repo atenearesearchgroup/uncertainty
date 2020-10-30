@@ -1,6 +1,6 @@
 package org.tzi.use.uml.ocl.value;
 
-import atenearesearchgroup.uncertainty.uDataTypes.UString;
+import uDataTypes.UString;
 import org.tzi.use.uml.ocl.type.TypeFactory;
 
 import java.util.List;

@@ -1,7 +1,5 @@
 package org.tzi.use.uml.ocl.value;
 
-import atenearesearchgroup.uncertainty.uDataTypes.SBoolean;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -10,6 +8,7 @@ import org.tzi.use.uml.ocl.type.TypeFactory;
 import org.tzi.use.util.MathUtil;
 
 import antlr.collections.List;
+import uDataTypes.*;
 
 public final class SBooleanValue extends UncertainBooleanValue {
 
@@ -345,7 +344,7 @@ public final class SBooleanValue extends UncertainBooleanValue {
 	public SBooleanValue minimumBeliefFusion(Value value) {
 		CollectionValue cValue = (CollectionValue) value;
 		SequenceValue seq = cValue.asSequence();
-		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();  collection.add(this.sBoolean);
 		Iterator<Value> it = seq.iterator();
 		while (it.hasNext()) {
 			Value v = it.next();
@@ -358,7 +357,7 @@ public final class SBooleanValue extends UncertainBooleanValue {
 	public SBooleanValue majorityBeliefFusion(Value value) {
 		CollectionValue cValue = (CollectionValue) value;
 		SequenceValue seq = cValue.asSequence();
-		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();  collection.add(this.sBoolean);
 		Iterator<Value> it = seq.iterator();
 		while (it.hasNext()) {
 			Value v = it.next();
@@ -368,10 +367,23 @@ public final class SBooleanValue extends UncertainBooleanValue {
 		return new SBooleanValue(SBoolean.majorityBeliefFusion(collection));
 	}
 	
+	public SBooleanValue beliefConstraintFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>(); collection.add(this.sBoolean);
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(uDataTypes.SBoolean.beliefConstraintFusion(collection));
+	}
+	
 	public SBooleanValue averageBeliefFusion(Value value) {
 		CollectionValue cValue = (CollectionValue) value;
 		SequenceValue seq = cValue.asSequence();
-		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>(); collection.add(this.sBoolean);
 		Iterator<Value> it = seq.iterator();
 		while (it.hasNext()) {
 			Value v = it.next();
@@ -381,10 +393,10 @@ public final class SBooleanValue extends UncertainBooleanValue {
 		return new SBooleanValue(SBoolean.averageBeliefFusion(collection));
 	}
 	
-	public SBooleanValue cumulativeBeliefFusion(Value value) {
+	public SBooleanValue aleatoryCumulativeBeliefFusion(Value value) {
 		CollectionValue cValue = (CollectionValue) value;
 		SequenceValue seq = cValue.asSequence();
-		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();  collection.add(this.sBoolean);
 		Iterator<Value> it = seq.iterator();
 		while (it.hasNext()) {
 			Value v = it.next();
@@ -397,7 +409,7 @@ public final class SBooleanValue extends UncertainBooleanValue {
 	public SBooleanValue epistemicCumulativeBeliefFusion(Value value) {
 		CollectionValue cValue = (CollectionValue) value;
 		SequenceValue seq = cValue.asSequence();
-		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();  collection.add(this.sBoolean);
 		Iterator<Value> it = seq.iterator();
 		while (it.hasNext()) {
 			Value v = it.next();
@@ -410,7 +422,7 @@ public final class SBooleanValue extends UncertainBooleanValue {
 	public SBooleanValue weightedBeliefFusion(Value value) {
 		CollectionValue cValue = (CollectionValue) value;
 		SequenceValue seq = cValue.asSequence();
-		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();  collection.add(this.sBoolean);
 		Iterator<Value> it = seq.iterator();
 		while (it.hasNext()) {
 			Value v = it.next();
@@ -418,6 +430,19 @@ public final class SBooleanValue extends UncertainBooleanValue {
 			collection.add(sBooleanValue.sBoolean);
 		}
 		return new SBooleanValue(SBoolean.weightedBeliefFusion(collection));
+	}
+	
+	public SBooleanValue concensusAndCompromiseFusion(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();  collection.add(this.sBoolean);
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+		return new SBooleanValue(SBoolean.concensusAndCompromiseFusion(collection));
 	}
 
 	public SBooleanValue min(Value value) {

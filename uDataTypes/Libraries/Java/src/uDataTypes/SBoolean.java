@@ -1,8 +1,11 @@
-package atenearesearchgroup.uncertainty.uDataTypes;
+package uDataTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 // BINOMIAL OPINIONS
 public class SBoolean implements Cloneable, Comparable<SBoolean> {
@@ -110,11 +113,11 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     }
     
 	public double projectiveDistance(SBoolean s) { // projectiveDistance
-		return adjust(Math.abs(this.projection()-s.projection())/2);
+		return adjust(Math.abs(this.projection()-s.projection())); // /2
 	}
 
 	public double conjunctiveCertainty(SBoolean s) {
-		return adjust((1.0D-this.u)*(1-s.u));
+		return adjust((1.0D-this.u)*(1.0D-s.u));
 	}
 	
 	public double degreeOfConflict(SBoolean s) {
@@ -344,9 +347,31 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	
 	/************************************
 	 *  FUSION OPERATIONS 
-	 *  Implementations are based in those given in https://github.com/vs-uulm/subjective-logic-java
+	 *  These implementations are based in those given in https://github.com/vs-uulm/subjective-logic-java
 	 *  */
 	
+	/**
+	 * This method implements constraint belief fusion (CBF). It uses the binary operation and iterates 
+	 * over the collection of opinions. This operation is associative if the base rate is the same for all 
+	 * opinions, otherwise the fused base rate distribution could be the confidence-weighted
+	 * average base rate (see Josang's book). The neutral element is the vacuous opinion.
+     *
+     * @param opinions a collection of opinions from different sources.
+     * @return a new SBoolean that represents the fused evidence.
+     * @throws IllegalArgumentException
+	 */
+    public static SBoolean beliefConstraintFusion(Collection<SBoolean> opinions) {
+        if (opinions.contains(null) || opinions.size() < 2)
+            throw new IllegalArgumentException("Cannot fuse null opinions, or only one opinion was passed");
+        SBoolean bcf = null;
+        
+        for (SBoolean so : opinions) {
+            if (bcf == null) bcf = so; // first time
+            else bcf = bcf.bcFusion(so);
+        }
+        return bcf;
+    }
+
 	 /**
      * This method implements MIN fusion. This takes the minimum, i.e., returns the opinion with 
      * the lowest probability of being true, meaning the lowest projected probability P(X=x).
@@ -714,11 +739,346 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity,resultRelativeWeight);
        return result;
    }
+   
+   /**
+    * This method implements consensus & compromise fusion (CCF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al. .
+    *
+    * For more details, refer to Chapter 12 of the Subjective Logic book by Jøsang, specifically Section 12.6, which defines CC fusion for the case of two sources.
+    *
+    * @param opinions a collection of opinions from different sources.
+    * @return a new SBoolean that represents the fused evidence.
+    * @throws IllegalArgumentException
+    */
+   public static SBoolean concensusAndCompromiseFusion(Collection<SBoolean> opinions) 
+   {
+       if (opinions == null || opinions.contains(null) || opinions.size() < 2)
+           throw new IllegalArgumentException("Cannot fuse null opinions, or only one opinion was passed");
+ 
+       double baseRate = -1;
+       boolean first = true;
+       for (SBoolean so: opinions) {
+           if(first) {
+               baseRate = so.baseRate();
+               first = false;
+           }else if (baseRate != so.baseRate()) {
+               throw new IllegalArgumentException("Base rates for CC Fusion must be the same");
+           }
+       }
+
+       //Step 1: consensus phase
+       final double consensusBelief = opinions.stream().mapToDouble(o -> o.belief()).min().getAsDouble();
+       final double consensusDisbelief = opinions.stream().mapToDouble(o -> o.disbelief()).min().getAsDouble();
+
+       final double consensusMass = consensusBelief + consensusDisbelief;
+
+       List<Double> residueBeliefs = new ArrayList<>(opinions.size());
+       List<Double> residueDisbeliefs = new ArrayList<>(opinions.size());
+       List<Double> uncertainties = new ArrayList<>(opinions.size());
+       for (SBoolean so : opinions) {
+           //note: this max should not be necessary..
+           residueBeliefs.add(Math.max(so.belief()-consensusBelief,0));
+           residueDisbeliefs.add(Math.max(so.disbelief()-consensusDisbelief,0));
+           uncertainties.add(so.uncertainty());
+       }
+
+       //Step 2: Compromise phase
+
+       double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
+
+       double compromiseBeliefAccumulator = 0;
+       double compromiseDisbeliefAccumulator = 0;
+       double compromiseXAccumulator = 0; //this is what will later become uncertainty
+
+       //this computation consists of 4 sub-sums that will be added independently.
+       for (int i=0; i<opinions.size(); i++) {
+           double bResI = residueBeliefs.get(i);
+           double dResI = residueDisbeliefs.get(i);
+           double uI = uncertainties.get(i);
+           double uWithoutI = productOfUncertainties / uI;
+
+           //sub-sum 1:
+           compromiseBeliefAccumulator = compromiseBeliefAccumulator + bResI * uWithoutI;
+           compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + dResI * uWithoutI;
+           //note: compromiseXAccumulator is unchanged, since b^{ResI}_X() of the entire domain is 0
+       }
+       //sub-sums 2,3,4 are all related to different permutations of possible values
+       for(List<Domain> permutation : tabulateOptions(opinions.size())){
+           Domain intersection = permutation.stream().reduce(Domain.DOMAIN, (acc, p) -> acc.intersect(p));
+           Domain union = permutation.stream().reduce(Domain.NIL, (acc, p) -> acc.union(p));
+
+           //sub-sum 2: intersection of elements in permutation is x
+           if(intersection.equals(Domain.TRUE)) {
+               // --> add to belief
+               double prod = 1;
+               if(permutation.contains(Domain.DOMAIN))
+                   prod = 0;
+               else
+                   for (int j=0; j<permutation.size();j++)
+                       switch (permutation.get(j)){
+                           case DOMAIN:
+                               prod = 0; // multiplication by 0
+                               break;
+                           case TRUE:
+                               prod = prod * residueBeliefs.get(j) * 1;
+                               break;
+                       }
+               compromiseBeliefAccumulator = compromiseBeliefAccumulator + prod;
+           } else if (intersection.equals(Domain.FALSE)) {
+               // --> add to disbelief
+               double prod = 1;
+               if(permutation.contains(Domain.DOMAIN))
+                   prod = 0;
+               else
+                   for (int j=0; j<permutation.size();j++)
+                       switch (permutation.get(j)){
+                           case DOMAIN:
+                               prod = 0; // multiplication by 0
+                               break;
+                           case FALSE:
+                               prod = prod * residueDisbeliefs.get(j) * 1;
+                               break;
+                       }
+               compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + prod;
+           }
+
+           switch (union){
+               case DOMAIN:
+                   if(!intersection.equals(Domain.NIL)) {
+                       //sub-sum 3: union of elements in permutation is x, and intersection of elements in permutation is not NIL
+
+                       //Note: this is always zero for binary domains, as explained by the following:
+                       //double prod = 1;
+                       //for (int j=0; j<permutation.size(); j++) {
+                       //    switch (permutation.get(j)) {
+                       //        case NIL:
+                       //        case DOMAIN:
+                       //            prod = 0; //because residue belief over NIL/DOMAIN is zero here
+                       //            break;
+                       //        case TRUE:
+                       //        case FALSE:
+                       //            prod = 0; //because 1-a(y|x) is zero here, since a(y|x)=1 when x=y, and this must occur, since a(x|!x) occurring implies the intersection is NIL
+                       //            break;
+                       //    }
+                       //}
+
+                   }
+                   else {
+                       //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
+                       double prod = 1;
+                       for (int j=0; j<permutation.size(); j++) {
+                           switch (permutation.get(j)) {
+                               case NIL:
+                               case DOMAIN:
+                                   prod = 0; //because residue belief over NIL/DOMAIN is zero here
+                                   break;
+                               case TRUE:
+                                   prod = prod * residueBeliefs.get(j);
+                                   break;
+                               case FALSE:
+                                   prod = prod * residueDisbeliefs.get(j);
+                                   break;
+                           }
+                       }
+                       compromiseXAccumulator = compromiseXAccumulator + prod;
+                   }
+                   break;
+               case NIL:
+                   //union of NIL means we have nothing to add
+                   //sub-sum 3: union of elements in permutation is x, and intersection of elements in permutation is not NIL
+                   //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
+                   break;
+               case TRUE:
+                   //sub-sum 3: this is always zero for TRUE and FALSE, since 1-a(y_i|y_j)=0 in binary domains, where the relative base rate is either 1 if the union is x
+
+                   //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
+                   if(intersection.equals(Domain.NIL)){
+                       //union is true, intersection is nil --> compute the product
+                       double prod = 1;
+                       for (int j=0; j<permutation.size(); j++) {
+                           switch (permutation.get(j)) { //other cases will not occur
+                               case TRUE:
+                                   prod = prod * residueBeliefs.get(j);
+                                   break;
+                               case FALSE:
+                                   prod = prod * residueDisbeliefs.get(j);
+                                   break;
+                               case NIL:
+                                   prod = 0;
+                                   break;
+                               default:
+                                   throw new RuntimeException();
+                           }
+                       }
+                       compromiseBeliefAccumulator = compromiseBeliefAccumulator + prod;
+                   }
+                   break;
+               case FALSE:
+                   //sub-sum 3: this is always zero for TRUE and FALSE, since 1-a(y_i|y_j)=0 in binary domains, where the relative base rate is either 1 if the union is x
+                   //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
+                   if(intersection.equals(Domain.NIL)){
+                       //union is true, intersection is nil --> compute the product
+                       double prod = 1;
+                       for (int j=0; j<permutation.size(); j++) {
+                           switch (permutation.get(j)) { //other cases will not occur
+                               case TRUE:
+                                   prod = prod * residueBeliefs.get(j);
+                                   break;
+                               case FALSE:
+                                   prod = prod * residueDisbeliefs.get(j);
+                                   break;
+                               case NIL:
+                                   prod = 0;
+                                   break;
+                               default:
+                                   throw new RuntimeException();
+                           }
+                       }
+                       compromiseDisbeliefAccumulator= compromiseDisbeliefAccumulator + prod;
+                   }
+                   break;
+               default:
+                   break;
+
+           }
+       }
+
+       double compromiseBelief = compromiseBeliefAccumulator;
+       double compromiseDisbelief = compromiseDisbeliefAccumulator;
+       double compromiseUncertainty = compromiseXAccumulator;
+
+       double preliminaryUncertainty = productOfUncertainties;
+       double compromiseMass = compromiseBelief + compromiseDisbelief + compromiseUncertainty;
+
+       //Step 3: Normalization phase
+       double normalizationFactor = (1-consensusMass-preliminaryUncertainty)/(compromiseMass);
+
+       double fusedUncertainty = preliminaryUncertainty + normalizationFactor* compromiseUncertainty;
+       //compromiseUncertainty = 0; --> but this variable is never used again anyway.
+
+       double fusedBelief = consensusBelief + normalizationFactor * compromiseBelief;
+       double fusedDisbelief = consensusDisbelief + normalizationFactor * compromiseDisbelief;
+
+       SBoolean res = new SBoolean(fusedBelief, fusedDisbelief, fusedUncertainty, baseRate);
+       return res;
+   }
+
+   public enum Domain {
+       NIL, TRUE, FALSE, DOMAIN;
+
+       public Domain intersect(Domain d){
+           switch(this){
+               case NIL:
+                   return NIL;
+               case TRUE:
+                   switch (d){
+                       case NIL:
+                       case FALSE:
+                           return NIL;
+                       case TRUE:
+                       case DOMAIN:
+                           return TRUE;
+                       default:
+                           throw new RuntimeException("unidentified domain");
+                   }
+               case FALSE:
+                   switch (d){
+                       case NIL:
+                       case TRUE:
+                           return NIL;
+                       case FALSE:
+                       case DOMAIN:
+                           return FALSE;
+                       default:
+                           throw new RuntimeException("unidentified domain");
+                   }
+               case DOMAIN:
+                   return d;
+               default:
+                   throw new RuntimeException("unidentified domain");
+           }
+       }
+
+       public Domain union(Domain d){
+           switch (this) {
+               case DOMAIN:
+                   return DOMAIN;
+               case TRUE:
+                   switch (d){
+                       case TRUE:
+                       case NIL:
+                           return TRUE;
+                       case FALSE:
+                       case DOMAIN:
+                           return DOMAIN;
+                       default:
+                           throw new RuntimeException("unidentified domain");
+                   }
+               case FALSE:
+                   switch (d){
+                       case FALSE:
+                       case NIL:
+                           return FALSE;
+                       case TRUE:
+                       case DOMAIN:
+                           return DOMAIN;
+                       default:
+                           throw new RuntimeException("unidentified domain");
+                   }
+               case NIL:
+                   return d;
+               default:
+                   throw new RuntimeException("unidentified domain");
+           }
+       }
+   }
+
+   private static Set<List<Domain>> tabulateOptions(int size) {
+       if (size == 1) {
+           Set<List<Domain>> result = new HashSet<List<Domain>>();
+           for(Domain item : Domain.values()){
+               List<Domain> l = new ArrayList<Domain>();
+               l.add(item);
+               result.add(l);
+           }
+           return result;
+       }
+       Set<List<Domain>> result = new HashSet();
+       for (List<Domain> tuple : tabulateOptions(size - 1)) {
+           for (Domain d : Domain.values()) {
+               List newList = new ArrayList(tuple);
+               newList.add(d);
+               result.add(newList);
+           }
+       }
+       return result;
+   }
+
 
 	/************************************ 
 	 * BINARY VERSIONS OF FUSING OPERATIONS
 	 * 
 	 */
+  
+   public final SBoolean bcFusion(SBoolean opinion) { //belief constraint fusion
+	   //implemented using equation 12.2 of Josang's book
+	   double harmony = this.belief()*opinion.uncertainty() + this.uncertainty()*opinion.belief() + this.belief()*opinion.belief();
+	   double conflict = this.belief()*opinion.disbelief()+this.disbelief()*opinion.belief(); //this.degreeOfConflict(opinion);// 0.0D; // binomial opinions; 
+       if (conflict == 1.0D) 
+           throw new IllegalArgumentException("Cannot fuse totally conflicting opinions");
+       double b = harmony/(1.0D-conflict);
+	   double u = (this.uncertainty()*opinion.uncertainty())/(1.0D-conflict); 
+	   double a = (this.uncertainty()+opinion.uncertainty()==2.0D)? 
+			(this.baseRate()+opinion.baseRate())/2.0D :
+			(this.baseRate()*(1.0D-this.uncertainty()) + opinion.baseRate()*(1.0D-opinion.uncertainty()))/(2-this.uncertainty()-opinion.uncertainty());
+	   return new SBoolean(b,1.0D-b-u,u,a);
+   }
+   
+   public final SBoolean ccFusion(SBoolean opinion) { //consensus and compromise fusion
+       Collection<SBoolean> opinions = new ArrayList<>();
+       opinions.add(this);
+       opinions.add(opinion);
+       return concensusAndCompromiseFusion(opinions);
+   }
 
    public final SBoolean cumulativeFusion(SBoolean opinion) {
        Collection<SBoolean> opinions = new ArrayList<>();

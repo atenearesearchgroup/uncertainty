@@ -1,4 +1,4 @@
-package atenearesearchgroup.uncertainty.uDataTypes;
+package uDataTypes;
 
 public class UUnlimitedNatural implements Cloneable,Comparable<UUnlimitedNatural> {
 	

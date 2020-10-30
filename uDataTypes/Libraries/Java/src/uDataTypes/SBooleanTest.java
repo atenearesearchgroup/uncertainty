@@ -1,4 +1,4 @@
-package atenearesearchgroup.uncertainty.uDataTypes;
+package uDataTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -110,26 +110,67 @@ public class SBooleanTest {
 	y = x.deduceY(yGivenX, yGivenNotX);
 	System.out.println("y="+y+" p="+y.projection()+" mu="+y.uncertaintyMaximized()+" uBoolean="+y.toUBoolean());
 	
-    SBoolean wcf, majF, minF, CCF, eCCF, ACF;
+    SBoolean wcf, majF, minF, aCCF, eCCF, ACF, CCF, BCF;
     Collection<SBoolean> opinions = new ArrayList<>();
     opinions.add(b1);
     opinions.add(b2);
     opinions.add(b3);
     opinions.add(b4);
     opinions.add(b5);
+
     wcf = SBoolean.weightedBeliefFusion(opinions);
-	System.out.println("WCF="+wcf+" p="+wcf.projection()+" w="+wcf.getRelativeWeight());
+	System.out.println("Wei="+wcf+" p="+wcf.projection()+" w="+wcf.getRelativeWeight());
     majF = SBoolean.majorityBeliefFusion(opinions);
-	System.out.println("MaF="+majF+" p="+majF.projection()+" w="+majF.getRelativeWeight());
+	System.out.println("Maj="+majF+" p="+majF.projection()+" w="+majF.getRelativeWeight());
     minF = SBoolean.minimumBeliefFusion(opinions);
-	System.out.println("MiF="+minF+" p="+minF.projection()+" w="+minF.getRelativeWeight());
+	System.out.println("Min="+minF+" p="+minF.projection()+" w="+minF.getRelativeWeight());
     ACF = SBoolean.averageBeliefFusion(opinions);
-	System.out.println("ACF="+ACF+" p="+ACF.projection()+" w="+ACF.getRelativeWeight());
-    CCF = SBoolean.cumulativeBeliefFusion(opinions);
-	System.out.println("CCF="+CCF+" p="+CCF.projection()+" w="+CCF.getRelativeWeight());
+	System.out.println("Avg="+ACF+" p="+ACF.projection()+" w="+ACF.getRelativeWeight());
+    aCCF = SBoolean.cumulativeBeliefFusion(opinions);
+	System.out.println("aCu="+aCCF+" p="+aCCF.projection()+" w="+aCCF.getRelativeWeight());
     eCCF = SBoolean.epistemicCumulativeBeliefFusion(opinions);
-	System.out.println("eCCF="+eCCF+" p="+eCCF.projection()+" w="+eCCF.getRelativeWeight());
+	System.out.println("eCu="+eCCF+" p="+eCCF.projection()+" w="+eCCF.getRelativeWeight());
+    BCF = SBoolean.beliefConstraintFusion(opinions);
+	System.out.println("CBF="+BCF+" p="+BCF.projection()+" w="+BCF.getRelativeWeight());
+
+	System.out.println("---");
+	
+	Collection<SBoolean> opinions2 = new ArrayList<>();
+    opinions2.add(new SBoolean(0.55,0.3,0.15,0.38));
+    opinions2.add(new SBoolean(0.6,0.3,0.1,0.38));
+    opinions2.add(new SBoolean(0.7,0.2,0.1,0.38));
+    opinions2.add(new SBoolean(0.8,0.1,0.1,0.38));
+    opinions2.add(new SBoolean(0.9,0.05,0.05,0.38));
+    CCF = SBoolean.concensusAndCompromiseFusion(opinions2);
+	System.out.println("C&C="+CCF+" p="+CCF.projection()+" w="+CCF.getRelativeWeight());
+    BCF = SBoolean.beliefConstraintFusion(opinions2);
+	System.out.println("CBF="+BCF+" p="+BCF.projection()+" w="+BCF.getRelativeWeight());
+	System.out.println("---");
+	
+	
+	Collection<SBoolean> opinions3 = new ArrayList<>();
+    opinions3.add(new SBoolean(0.1,0.3,0.6,0.5));
+    opinions3.add(new SBoolean(0.4,0.2,0.4,0.5));
+    opinions3.add(new SBoolean(0.7,0.1,0.2,0.5));
     
+    CCF = SBoolean.concensusAndCompromiseFusion(opinions3);
+	System.out.println("C&C="+CCF+" p="+CCF.projection()+" w="+CCF.getRelativeWeight());
+    BCF = SBoolean.beliefConstraintFusion(opinions3);
+	System.out.println("CBF="+BCF+" p="+BCF.projection()+" w="+BCF.getRelativeWeight());
+	ACF = SBoolean.averageBeliefFusion(opinions3);
+	System.out.println("Avg="+ACF+" p="+ACF.projection()+" w="+ACF.getRelativeWeight());
+	aCCF = SBoolean.cumulativeBeliefFusion(opinions3);
+	System.out.println("aCu="+aCCF+" p="+aCCF.projection()+" w="+aCCF.getRelativeWeight());
+	eCCF = SBoolean.epistemicCumulativeBeliefFusion(opinions3);
+	System.out.println("eCu="+eCCF+" p="+eCCF.projection()+" w="+eCCF.getRelativeWeight());
+    wcf = SBoolean.weightedBeliefFusion(opinions3);
+	System.out.println("Wei="+wcf+" p="+wcf.projection()+" w="+wcf.getRelativeWeight());
+	
+	System.out.println("---");
+	SBoolean uno = new SBoolean(0.9,0.1,0,0.5);
+	SBoolean dos = new SBoolean(0.1,0.9,0,0.5);
+	System.out.println(uno.degreeOfConflict(dos));
+	System.out.println(uno.bcFusion(dos));
 
 
 }

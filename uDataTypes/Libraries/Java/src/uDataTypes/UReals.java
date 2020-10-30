@@ -1,4 +1,4 @@
-package atenearesearchgroup.uncertainty.uDataTypes;
+package uDataTypes;
 
 /** This class contains static versions of the operations for type UReal
  *  It is required because Esper (a CEP language) can only invoke static operations

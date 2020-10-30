@@ -1,4 +1,4 @@
-package atenearesearchgroup.uncertainty.uDataTypes;
+package uDataTypes;
 
 public class UBoolean implements Cloneable, Comparable<UBoolean> {
 	

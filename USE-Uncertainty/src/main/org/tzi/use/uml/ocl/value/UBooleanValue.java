@@ -1,6 +1,6 @@
 package org.tzi.use.uml.ocl.value;
 
-import atenearesearchgroup.uncertainty.uDataTypes.UBoolean;
+import uDataTypes.UBoolean;
 import org.tzi.use.uml.ocl.type.Type;
 import org.tzi.use.uml.ocl.type.TypeFactory;
 import org.tzi.use.util.MathUtil;

@@ -1,6 +1,6 @@
 package org.tzi.use.uml.ocl.expr.operations;
 
-import atenearesearchgroup.uncertainty.uDataTypes.UReal;
+import uDataTypes.UReal;
 import com.google.common.collect.Multimap;
 import org.tzi.use.uml.ocl.expr.EvalContext;
 import org.tzi.use.uml.ocl.type.Type;

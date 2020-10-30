@@ -1,4 +1,4 @@
-package atenearesearchgroup.uncertainty.uDataTypes;
+package uDataTypes;
 
 public class UInteger implements Cloneable,Comparable<UInteger> {
 	
