@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
 // BINOMIAL OPINIONS
 public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	
@@ -426,35 +427,81 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      * @throws IllegalArgumentException
      */
 
-   public static SBoolean averageBeliefFusion(Collection<SBoolean> opinions)
-    {
+   public static SBoolean averageBeliefFusion(Collection<SBoolean> opinions) {
+	   
+	   //implemented using equation (32) of https://folk.uio.no/josang/papers/JWZ2017-FUSION.pdf 
+	   // because the Josang's book has a problem.
+	   
        if (opinions == null || opinions.contains(null) || opinions.isEmpty())
            throw new IllegalArgumentException("Cannot average null opinions");
 
+        double b = 0.0D; double u=0.0D; double a = 0.0D; 
+        double PU = 1.0D; //product of all uncertainties
         int count = 0;
-
+   
+        double oBelief;
+        double oAtomicity;
+        double oUncertainty;
+        double oDisbelief;
+      
+        for (SBoolean o : opinions)  PU *= o.uncertainty(); // product of all uncertainties
+       
+        // case I: all opinions with uncertainty > 0:
+        if (PU!=0) {
+         	for (SBoolean o: opinions) {
+        		u += PU/o.uncertainty();
+        		b += o.belief()*PU/o.uncertainty();
+        		a += o.baseRate();
+        	}
+            oBelief = b / u;
+            oAtomicity = a / opinions.size();
+            oUncertainty = opinions.size()*PU/u;
+            oDisbelief = 1.0D - oBelief - oUncertainty;
+            return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
+        }
+        else { // there is at least one opinion with uncertainty = 0. Then we only consider these opinions
+        	for (SBoolean o: opinions) {
+        		if (o.uncertainty()==0.0D) {
+        			b += o.belief();
+        			a += o.baseRate();
+        			count++;
+        		}
+        	}
+            oBelief = b / count;
+            oAtomicity = a / count;
+            oUncertainty = 0.0D;
+            oDisbelief = 1.0D - oBelief - oUncertainty;
+            return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
+        }
+        
+        /* OLD VERSION
+        int count = 0;
         double b = 0.0D; double a = 0.0D; double p = 0.0D;
-
         for (SBoolean opinion : opinions) {
             if (opinion != null)
             {
+            	SBoolean x = opinion.clone();
                 count++;
-                b += opinion.b;
-                a += opinion.a;
-                p += opinion.projection();
+                b += x.belief();
+                a += x.baseRate();
+                p += x.belief() + x.baseRate() * x.uncertainty();
             }
         }
         if (count == 0) {
             throw new IllegalArgumentException("Opinions must not be empty");
         }
-        double oBelief = b / count;
-        double oAtomicity = a / count;
-        double oUncertainty = (p / count - oBelief) / oAtomicity;
-        double oDisbelief = 1.0D - oBelief - oUncertainty;
+        oBelief = b / count;
+        oAtomicity = a / count;
+        oUncertainty = (p / count - oBelief) / oAtomicity;
+        oDisbelief = 1.0D - oBelief - oUncertainty;
 
         return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
+        */
     }
    
+   
+ 
+
    /**
     * This method implements cumulative belief fusion (CBF) for multiple sources, as discussed in the corrected
     * version of <a href="https://folk.uio.no/josang/papers/JWZ2017-FUSION.pdf">a FUSION 2017 paper by Josang et al.</a>
@@ -1117,7 +1164,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    }
 
    public final SBoolean averageFusion(SBoolean opinion) {
-       Collection<SBoolean> opinions = new ArrayList<>();
+  	   Collection<SBoolean> opinions = new ArrayList<>();
        opinions.add(this);
        opinions.add(opinion);
        return averageBeliefFusion(opinions);
@@ -1133,10 +1180,16 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
 		SBoolean sBoolean = (SBoolean) o;
 
-		return  (Double.compare(sBoolean.b, this.b) == 0) && 
+		/*	return  (Double.compare(sBoolean.b, this.b) == 0) && 
 				(Double.compare(sBoolean.d, this.d) == 0) &&
 				(Double.compare(sBoolean.u, this.u) == 0) &&
 				(Double.compare(sBoolean.a, this.a) == 0);
+		 */
+		return 	Math.abs(this.belief()-sBoolean.belief()) < 0.001D && 
+				Math.abs(this.disbelief()-sBoolean.disbelief()) < 0.001D &&
+				Math.abs(this.uncertainty()-sBoolean.uncertainty()) < 0.001D &&
+				Math.abs(this.baseRate()-sBoolean.baseRate()) < 0.001D ;
+
 	}
 
 	public boolean distinct(SBoolean b) {
@@ -1177,14 +1230,17 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 */
 	@Override
 	public int compareTo(SBoolean other) {
-		double x = Math.abs(this.b-other.b)+Math.abs(this.d-other.d)+Math.abs(this.u-other.u)+Math.abs(this.a-other.a);
-		if (x==0) return 0;
-		if (this.b-other.b < 0) return -1;
+		double x = Math.abs(this.belief()-other.belief()) + 
+				   Math.abs(this.disbelief()-other.disbelief()) + 
+				   Math.abs(this.uncertainty()-other.uncertainty()) +
+				   Math.abs(this.baseRate()-other.baseRate());
+		if (x<0.001D) return 0;
+		if (this.projection()-other.projection() < 0) return -1;
 		return 1;
 	}
 
  	public SBoolean clone() {
-		return new SBoolean(this.b,this.d,this.u,this.a,this.relativeWeight);
+		return new SBoolean(this.belief(),this.disbelief(),this.uncertainty(),this.baseRate(),this.relativeWeight);
 	}
 
 }
