@@ -125,20 +125,17 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 		return adjust(this.projectiveDistance(s)*this.conjunctiveCertainty(s));
 	}
 
-	/* public SBoolean increasedUncertainty() {
-	        if (this.isVacuous()) return this.clone();
-	        
-	    	double sqrt_u = Math.sqrt(this.uncertainty());
-	        double k = 1.0D - (sqrt_u - this.uncertainty()) / (this.belief() + this.disbelief());
-
-	        double brBelief = this.belief() * k;
-	        double brUncertainty = sqrt_u;
-	        double brDisbelief = this.disbelief() * k;
-
-	        return new SBoolean(brBelief, brDisbelief, brUncertainty, this.baseRate());
-	    }
-	*/
-
+	public SBoolean increasedUncertainty() {
+	    if (this.isVacuous()) return this.clone();
+	    
+		double sqrt_u = Math.sqrt(this.uncertainty());
+	    double k = 1.0D - (sqrt_u - this.uncertainty()) / (this.belief() + this.disbelief());
+        double brBelief = this.belief() * k;
+	    double brUncertainty = sqrt_u;
+	    double brDisbelief = this.disbelief() * k;
+        return new SBoolean(brBelief, brDisbelief, brUncertainty, this.baseRate());
+	}
+	
 	public boolean isAbsolute() {
 	    return (this.belief() == 1.0D) || (this.disbelief() == 1.0D);
 	}
@@ -219,10 +216,12 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
 		if (this==s) return this.clone(); // x and x = x
 		
+		double b = this.b*s.b + (this.a*s.a==1.0D? 0.0D: ((1.0D-this.a)*s.a*this.b*s.u+this.a*(1.0D-s.a)*this.u*s.b)/(1.0D-this.a*s.a));
+		double d = this.d + s.d- this.d*s.d;
 		SBoolean result = new SBoolean(
-				this.b*s.b + (this.a*s.a==1.0D? 0: ((1.0D-this.a)*s.a*this.b*s.u+this.a*(1.0D-s.a)*this.u*s.b)/(1.0D-this.a*s.a)),
-				this.d + s.d- this.d*s.d,
-				this.u*s.u + (this.a*s.a==1.0D? 0: ((1.0D-s.a)*this.b*s.u+(1.0D-this.a)*this.u*s.b)/(1.0D-this.a*s.a)),
+				b, //this.b*s.b + (this.a*s.a==1.0D? 0.0D: ((1.0D-this.a)*s.a*this.b*s.u+this.a*(1.0D-s.a)*this.u*s.b)/(1.0D-this.a*s.a)),
+				d, //this.d + s.d- this.d*s.d,
+				1-d-b, //this.u*s.u + (this.a*s.a==1.0D? 0.0D: ((1.0D-s.a)*this.b*s.u+(1.0D-this.a)*this.u*s.b)/(1.0D-this.a*s.a)),
 				this.a*s.a,
 				this.getRelativeWeight() + s.getRelativeWeight()
 		);
@@ -233,10 +232,12 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
 		if (this==s) return this.clone(); // x or x
 		
+		double b = this.b + s.b - this.b*s.b;
+		double d = this.d*s.d + (this.a + s.a == this.a*s.a? 0.0D: (this.a*(1-s.a)*this.d*s.u+s.a*(1-this.a)*this.u*s.d)/(this.a + s.a - this.a*s.a));
 		SBoolean result = new SBoolean(
-				this.b + s.b - this.b*s.b,
-				this.d*s.d + (this.a + s.a == this.a*s.a? 0: (this.a*(1-s.a)*this.d*s.u+s.a*(1-this.a)*this.u*s.d)/(this.a + s.a - this.a*s.a)),
-				this.u*s.u + (this.a + s.a == this.a*s.a? 0: (s.a*this.d*s.u+this.a*this.u*s.d)/(this.a + s.a - this.a*s.a)),
+				b, //this.b + s.b - this.b*s.b,
+				d, //this.d*s.d + (this.a + s.a == this.a*s.a? 0: (this.a*(1-s.a)*this.d*s.u+s.a*(1-this.a)*this.u*s.d)/(this.a + s.a - this.a*s.a)),
+				1-b-d, //this.u*s.u + (this.a + s.a == this.a*s.a? 0: (s.a*this.d*s.u+this.a*this.u*s.d)/(this.a + s.a - this.a*s.a)),
 				this.a + s.a - this.a*s.a,
 				this.getRelativeWeight() + s.getRelativeWeight() 
 		);
@@ -267,8 +268,9 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
 	public SBoolean uncertaintyMaximized() { // Returns the equivalent SBoolean with maximum uncertainty. 
 		 // The dual operation is toUBoolean, which returns the equivalent SBoolean, with u==0
-		// return this.increasedUncertainty();
+		//return this.increasedUncertainty();
 		// Replaced by another version
+		
 		double p = this.projection();
 		// Extreme cases
 		if ((this.a == 1.0D) && (p==1.0D)) return new SBoolean(0.0D,0.0D,1.0D,this.a,this.getRelativeWeight());
@@ -604,29 +606,29 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * @return a new SBoolean that represents the fused evidence based on evidence accumulation.
     * @throws IllegalArgumentException
     */
-   public static SBoolean epistemicCumulativeBeliefFusion(Collection<SBoolean> ops) {
+   public static SBoolean epistemicCumulativeBeliefFusion(Collection<SBoolean> opinions) {
        //handle edge cases
-       if (ops == null || ops.contains(null) || ops.isEmpty())
+       if (opinions == null || opinions.contains(null) || opinions.isEmpty())
            throw new IllegalArgumentException("Cannot average null opinions");
  
-       if (ops.size() == 1){
-           return ops.iterator().next().uncertaintyMaximized();
+       if (opinions.size() == 1){
+           return opinions.iterator().next().clone();
        }
        
        //generate uncertaintyMaximized() versions of opinions
-       Collection<SBoolean> opinions = new ArrayList<>(ops.size());
-       for (SBoolean o:ops) {
-    	   opinions.add(o.uncertaintyMaximized());
-       }
+       //Collection<SBoolean> opinions = new ArrayList<>(ops.size());
+       //for (SBoolean o:ops) {
+       //	   opinions.add(o.uncertaintyMaximized());
+       // }
  
        //fusion as defined by Josang
-       double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0, resultAtomicity = -1;
+       double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0.0D, resultAtomicity = -1.0D;
 
        Collection<SBoolean> dogmatic = new ArrayList<>(opinions.size());
        Iterator<SBoolean> it = opinions.iterator();
        boolean first = true;
        while(it.hasNext()) {
-    	   SBoolean o = it.next().uncertaintyMaximized();
+    	   SBoolean o = it.next(); //.uncertaintyMaximized();
            if(first) {
                resultAtomicity = o.baseRate();
                first = false;
@@ -683,7 +685,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        }
 
        SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity,resultRelativeWeight);
-       return result;
+       return result.uncertaintyMaximized();
    }
 
    /**
@@ -796,7 +798,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * @return a new SBoolean that represents the fused evidence.
     * @throws IllegalArgumentException
     */
-   public static SBoolean concensusAndCompromiseFusion(Collection<SBoolean> opinions) 
+   public static SBoolean consensusAndCompromiseFusion(Collection<SBoolean> opinions) 
    {
        if (opinions == null || opinions.contains(null) || opinions.size() < 2)
            throw new IllegalArgumentException("Cannot fuse null opinions, or only one opinion was passed");
@@ -1124,7 +1126,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        Collection<SBoolean> opinions = new ArrayList<>();
        opinions.add(this);
        opinions.add(opinion);
-       return concensusAndCompromiseFusion(opinions);
+       return consensusAndCompromiseFusion(opinions);
    }
 
    public final SBoolean cumulativeFusion(SBoolean opinion) {

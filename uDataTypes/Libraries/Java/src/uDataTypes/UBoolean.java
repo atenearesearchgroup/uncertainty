@@ -136,7 +136,7 @@ public class UBoolean implements Cloneable, Comparable<UBoolean> {
 		UBoolean uBoolean = (UBoolean) o;
 
 		if (getB() != uBoolean.getB()) return false;
-		return Double.compare(uBoolean.getC(), getC()) == 0;
+		return Math.abs(uBoolean.getC()-getC()) < 0.001D; // Double.compare(uBoolean.getC(), getC()) == 0;
 	}
 
 	public boolean distinct(UBoolean b) {
@@ -184,8 +184,8 @@ public class UBoolean implements Cloneable, Comparable<UBoolean> {
 	 */
 	@Override
 	public int compareTo(UBoolean other) {
-		double x = (this.c-other.c);
-		if (x==0) return 0;
+		double x = (this.getC()-other.getC());
+		if (Math.abs(x)<0.001D) return 0;
 		if (x<0) return -1;
 		return 1;
 		// return (int)(this.c-other.c);
