@@ -442,7 +442,7 @@ public final class SBooleanValue extends UncertainBooleanValue {
 			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
 			collection.add(sBooleanValue.sBoolean);
 		}
-		return new SBooleanValue(SBoolean.concensusAndCompromiseFusion(collection));
+		return new SBooleanValue(SBoolean.consensusAndCompromiseFusion(collection));
 	}
 
 	public SBooleanValue min(Value value) {
