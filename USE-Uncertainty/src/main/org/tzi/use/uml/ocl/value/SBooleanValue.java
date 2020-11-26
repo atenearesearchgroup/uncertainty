@@ -432,7 +432,7 @@ public final class SBooleanValue extends UncertainBooleanValue {
 		return new SBooleanValue(SBoolean.weightedBeliefFusion(collection));
 	}
 	
-	public SBooleanValue concensusAndCompromiseFusion(Value value) {
+	public SBooleanValue consensusAndCompromiseFusion(Value value) {
 		CollectionValue cValue = (CollectionValue) value;
 		SequenceValue seq = cValue.asSequence();
 		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();  collection.add(this.sBoolean);

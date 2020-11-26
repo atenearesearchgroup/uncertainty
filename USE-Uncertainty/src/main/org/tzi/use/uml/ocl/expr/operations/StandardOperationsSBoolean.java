@@ -1111,12 +1111,12 @@ public enum StandardOperationsSBoolean {
         }
     }),
     
-    // concensusAndCompromiseFusion : SBoolean x Collection -> SBoolean
-    CONCENSUSANDCOMPROMISEFUSION(new OpGeneric() {
+    // consensusAndCompromiseFusion : SBoolean x Collection -> SBoolean
+    CONSENSUSANDCOMPROMISEFUSION(new OpGeneric() {
 
         @Override
         public String name() {
-            return "concensusAndCompromiseFusion";
+            return "consensusAndCompromiseFusion";
         }
 
         @Override
@@ -1140,7 +1140,7 @@ public enum StandardOperationsSBoolean {
         public Value eval(EvalContext ctx, Value[] args, Type resultType) {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
             CollectionValue sboolCol = (CollectionValue) args[1];
-            return sboolA.concensusAndCompromiseFusion(sboolCol);
+            return sboolA.consensusAndCompromiseFusion(sboolCol);
         }
     }),
     
