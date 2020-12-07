@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class Test {
 	
-	boolean testAdjustBaseRate = false; 
+	boolean testAdjustBaseRate = true; 
 	
 	void test0(SBoolean x) {
 		assertEquals(x.uncertaintyMaximized().projection(),x.projection(),"projection of uncertainty maximized");
