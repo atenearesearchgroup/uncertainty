@@ -37,7 +37,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     }
     
     private double adjust(double value) {
-    	return (double)Math.round(value * 1000000d) / 1000000d;
+    	return (double)Math.round(value * 1000000.0D) / 1000000.0D;
     }
 
     public SBoolean(double b, double d, double u, double a) {
@@ -49,7 +49,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     	if (Math.abs(this.b+this.d+this.u-1.0D)>0.001D ||
     		this.b<0.0D || this.d<0.0D || this.u<0.0D || this.a<0.0D || 
     		this.b>1.0D || this.d>1.0D || this.u>1.0D || this.a>1.0D ) 
-    		throw new IllegalArgumentException("Invalid parameters");
+    		throw new IllegalArgumentException("SBoolean constructor: Invalid parameters. b:"+this.b+",d:"+this.d+",u:"+this.u+",a:"+this.a);
     }
 	
     private SBoolean(double b, double d, double u, double a, double relativeWeight) {
@@ -61,7 +61,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     	if (Math.abs(this.b+this.d+this.u-1.0)>0.001 ||
         		this.b<0.0D || this.d<0.0D || this.u<0.0D || this.a<0.0D || 
         		this.b>1.0D || this.d>1.0D || this.u>1.0D || this.a>1.0D ) 
-    		throw new IllegalArgumentException("Invalid parameters");
+    		throw new IllegalArgumentException("SBoolean constructor with relative weight: Invalid parameters. b:"+this.b+",d:"+this.d+",u:"+this.u+",a:"+this.a);
     }
 	
     public SBoolean(String b, String d, String u, String a) { //creates an UBoolean from two strings representing (x,u).
@@ -74,7 +74,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     	if (Math.abs(this.b+this.d+this.u-1.0)>0.001 ||
         		this.b<0.0D || this.d<0.0D || this.u<0.0D || this.a<0.0D || 
         		this.b>1.0D || this.d>1.0D || this.u>1.0D || this.a>1.0D ) 
-    		throw new IllegalArgumentException("Invalid parameters");
+    		throw new IllegalArgumentException("SBoolean constructor with strings: Invalid parameters. b:"+this.b+",d:"+this.d+",u:"+this.u+",a:"+this.a);
     }
     
     public SBoolean(UBoolean b) { // type embedding -- without uncertainty
@@ -170,6 +170,56 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
         return 1.0D - this.uncertainty();
     }
 
+    
+	/**
+	 * Returns the subjective opinion that results from adjusting the base rate to be the one given in the
+	 * parameter. This operation is useful when we need to apply an opinion on a UBoolean value, whose
+	 * confidence will become the new base rate of the resulting opinion. 
+	 * @param baseRate
+	 * @return A SBoolean value whose base rate is the one given in the parameter, the uncertainty is 
+	 * maintained, and the degree of belief is adjusted proportionally to the ratio (b/a) of the 
+	 * original SBoolean. If the new base rate is the same, the SBoolean does not change. If the new 
+	 * baseRate is 0 (false), the degree of belief of the new SBoolean is 0 too, and the previous belief is 
+	 * transferred to the degree of disbelief.
+	 */
+	public SBoolean adjustBaseRate(double baseRate) {
+	   if ((baseRate < 0.0D) || (baseRate > 1.0D)) {
+	       throw new IllegalArgumentException("applyOnBaseRate(): baseRate must be between 0 and 1");
+	   }
+	   if (this.baseRate()==baseRate) return this.clone();
+	   double uT = this.uncertainty();
+	   if (uT==1.0D) return new SBoolean(0.0,0.0,1.0D,baseRate); // we only change the base rate...
+	   
+	   double bT;
+	   if (this.baseRate()==0.0D) { //then baseRate != 0.0D
+           bT  = this.belief() + this.disbelief()*baseRate; //OK
+       } else { //this.baseRate() != 0.0D
+    	   bT  = Math.min(baseRate*this.belief()/this.baseRate(),(1.0D-uT));
+       }
+	   /*
+	   if (this.baseRate()==0.0D) { //then baseRate != 0.0D
+           bT  = Math.min(baseRate*this.belief(),1.0D-uT);
+       } else {
+    	   if (baseRate==0.0D) { //this.baseRate() != 0.0D 
+           	   bT = Math.min(Math.max((this.belief()-this.baseRate())/this.baseRate(), 0.0D),1.0D-uT);
+    	   }
+    	   else { // otherwise both baseRates are != 0.0D
+    		   bT  = Math.min(baseRate*this.belief()/this.baseRate(),1.0D-uT);
+    	   }
+       } 
+       */
+       return new SBoolean(bT,1.0D-bT-uT,uT,baseRate);
+	}
+
+	/**
+	 * Returns the subjective opinion that results from adjusting the base rate to be the confidence of the
+	 * UBoolean value given in the parameter.  
+	 * @param  UBoolean x
+	 * @return this.adjustBaseRate(x.getC()). 
+	 */
+	public SBoolean adjustBaseRate(UBoolean x) {
+       return this.adjustBaseRate(x.getC());
+	}
 	/**
 	 * Dogmatic opinions are opinions with complete certainty (i.e., uncertainty = 0).
 	 *
@@ -179,7 +229,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 */
 	public static SBoolean createDogmaticOpinion(double projection, double baseRate) {
 	   if ((projection < 0.0D) || (projection > 1.0D) || (baseRate < 0.0D) || (baseRate > 1.0D)) {
-	       throw new IllegalArgumentException("Expectation e, must be 0 <= e <= 1");
+	       throw new IllegalArgumentException("Create Dogmatic Opinion: Expectation e, must be 0 <= e <= 1");
 	   }
 	   return new SBoolean(projection, 1.0D - projection, 0.0D, baseRate);
 	}
@@ -191,13 +241,12 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 */
 	public static SBoolean createVacuousOpinion(double projection) {
 	   if ((projection < 0.0D) || (projection > 1.0D)) {
-	       throw new IllegalArgumentException("Projection must be between 0 and 1");
+	       throw new IllegalArgumentException("CreateVacuousOpinion: Projection must be between 0 and 1. p="+projection);
 	   }
 	   return new SBoolean(0.0D, 0.0D, 1.0D, projection);
 	}
-
-
-
+	
+	
     /*********
      * Type Operations
      */
@@ -365,7 +414,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 */
     public static SBoolean beliefConstraintFusion(Collection<SBoolean> opinions) {
         if (opinions.contains(null) || opinions.size() < 2)
-            throw new IllegalArgumentException("Cannot fuse null opinions, or only one opinion was passed");
+            throw new IllegalArgumentException("BCF: Cannot fuse null opinions, or only one opinion was passed");
         SBoolean bcf = null;
         
         for (SBoolean so : opinions) {
@@ -385,7 +434,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      */
     public static SBoolean minimumBeliefFusion(Collection<SBoolean> opinions) {
         if (opinions.contains(null) || opinions.size() < 2)
-            throw new IllegalArgumentException("Cannot fuse null opinions, or only one opinion was passed");
+            throw new IllegalArgumentException("MBF: Cannot fuse null opinions, or only one opinion was passed");
 
         SBoolean min = null;
         for (SBoolean so : opinions) {
@@ -408,7 +457,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      */
     public static SBoolean majorityBeliefFusion(Collection<SBoolean> opinions) {
         if (opinions.contains(null) || opinions.size() < 2)
-            throw new IllegalArgumentException("Cannot fuse null opinions, or only one opinion was passed");
+            throw new IllegalArgumentException("MajBF: Cannot fuse null opinions, or only one opinion was passed");
         int pos=0,neg=0;
         for (SBoolean so: opinions) {
             if(so.projection() < so.a)
@@ -435,7 +484,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	   // because the Josang's book has a problem.
 	   
        if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("Cannot average null opinions");
+           throw new IllegalArgumentException("AVF: Cannot average null opinions");
 
         double b = 0.0D; double u=0.0D; double a = 0.0D; 
         double PU = 1.0D; //product of all uncertainties
@@ -519,7 +568,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    public static SBoolean cumulativeBeliefFusion(Collection<SBoolean> opinions) {
        //handle edge cases
        if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("Cannot average null opinions");
+           throw new IllegalArgumentException("aCBF: Cannot average null opinions");
  
        if (opinions.size() == 1){
            return opinions.iterator().next().clone();
@@ -609,7 +658,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    public static SBoolean epistemicCumulativeBeliefFusion(Collection<SBoolean> opinions) {
        //handle edge cases
        if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("Cannot average null opinions");
+           throw new IllegalArgumentException("eCBF: Cannot average null opinions");
  
        if (opinions.size() == 1){
            return opinions.iterator().next().clone();
@@ -701,7 +750,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     */
    public static SBoolean weightedBeliefFusion(Collection<SBoolean> opinions) {
        if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("Cannot average null opinions");
+           throw new IllegalArgumentException("WBF: Cannot average null opinions");
 
        if (opinions.size() == 1) {
            return opinions.iterator().next().clone();
@@ -801,7 +850,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    public static SBoolean consensusAndCompromiseFusion(Collection<SBoolean> opinions) 
    {
        if (opinions == null || opinions.contains(null) || opinions.size() < 2)
-           throw new IllegalArgumentException("Cannot fuse null opinions, or only one opinion was passed");
+           throw new IllegalArgumentException("CCF: Cannot fuse null opinions, or only one opinion was passed");
  
        double baseRate = -1;
        boolean first = true;
@@ -810,7 +859,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
                baseRate = so.baseRate();
                first = false;
            }else if (baseRate != so.baseRate()) {
-               throw new IllegalArgumentException("Base rates for CC Fusion must be the same");
+               throw new IllegalArgumentException("CCF: Base rates for CC Fusion must be the same");
            }
        }
 
@@ -1113,7 +1162,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	   double harmony = this.belief()*opinion.uncertainty() + this.uncertainty()*opinion.belief() + this.belief()*opinion.belief();
 	   double conflict = this.belief()*opinion.disbelief()+this.disbelief()*opinion.belief(); //this.degreeOfConflict(opinion);// 0.0D; // binomial opinions; 
        if (conflict == 1.0D) 
-           throw new IllegalArgumentException("Cannot fuse totally conflicting opinions");
+           throw new IllegalArgumentException("BCF: Cannot fuse totally conflicting opinions");
        double b = harmony/(1.0D-conflict);
 	   double u = (this.uncertainty()*opinion.uncertainty())/(1.0D-conflict); 
 	   double a = (this.uncertainty()+opinion.uncertainty()==2.0D)? 
@@ -1220,7 +1269,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 */
 	
 	public String toString() {
-		return String.format("(%5.3f, %5.3f, %5.3f, %5.3f)", this.b, this.d, this.u, this.a);
+		return String.format("SBoolean(%5.3f, %5.3f, %5.3f, %5.3f)", this.b, this.d, this.u, this.a);
 	}
 
 	public UBoolean toUBoolean(){ // returns the projected probability

@@ -50,7 +50,7 @@ public class UString {
 
     @Override
     public String toString() {
-        return String.format("{%s, %6.4f}", string, sConf);
+        return String.format("UString(%s, %5.3f)", string, sConf);
     }
 
     public static int levenshteinDist(String a, String b) {

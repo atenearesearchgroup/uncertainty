@@ -640,7 +640,9 @@ public class UReal implements Cloneable,Comparable<UReal> {
 	 */
 	
 	public String toString() {
-		return "(" + x + "," + u + ")";
+		//return "(" + x + "," + u + ")";
+		return String.format("UReal(%5.3f, %5.3f)", this.getX(), this.getU());
+
 	}
 	
 	public int toInteger(){ //
@@ -653,29 +655,29 @@ public class UReal implements Cloneable,Comparable<UReal> {
 	
 	public UInteger toUInteger() {
 		UInteger r = new UInteger();
-		r.x=(int)Math.floor(this.getX());
-		r.u=Math.sqrt((this.u*this.u)+(this.x-r.x)*(this.x-r.x));
+		r.setX((int)Math.floor(this.getX()));
+		r.setU(Math.sqrt((this.getU()*this.getU())+(this.getX()-r.getX())*(this.getX()-r.getX())));
 		return r;
 	}
 
 	public UInteger toBestUInteger() {
 		UInteger r = new UInteger();
-		r.x=(int)Math.round(this.getX());
-		r.u=Math.sqrt((this.u*this.u)+(this.x-r.x)*(this.x-r.x));
+		r.setX((int)Math.round(this.getX()));
+		r.setU(Math.sqrt((this.getU()*this.getU())+(this.getX()-r.getX())*(this.getX()-r.getX())));
 		return r;		
 	}
 
 	public UUnlimitedNatural toUUnlimitedNatural() {
 		UUnlimitedNatural r = new UUnlimitedNatural();
-		r.x=(int)Math.floor(this.getX());
-		r.u=Math.sqrt((this.u*this.u)+(this.x-r.x)*(this.x-r.x));
+		r.setX((int)Math.floor(this.getX()));
+		r.setU(Math.sqrt((this.getU()*this.getU())+(this.getX()-r.getX())*(this.getX()-r.getX())));
 		return r;
 	}
 
 	public UUnlimitedNatural toBestUUnlimitedNatural() {
 		UUnlimitedNatural r = new UUnlimitedNatural();
-		r.x=(int)Math.round(this.getX());
-		r.u=Math.sqrt((this.u*this.u)+(this.x-r.x)*(this.x-r.x));
+		r.setX((int)Math.round(this.getX()));
+		r.setU(Math.sqrt((this.getU()*this.getU())+(this.getX()-r.getX())*(this.getX()-r.getX())));
 		return r;
 	}
 

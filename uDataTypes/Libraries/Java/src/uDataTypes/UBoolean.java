@@ -171,7 +171,7 @@ public class UBoolean implements Cloneable, Comparable<UBoolean> {
 		    val = !val;
 		    conf = 1 - conf;
         }
-		return String.format("(%b, %5.3f)", val, conf);
+		return String.format("UBoolean(%b, %5.3f)", val, conf);
 	}
 
 	public boolean toBoolean(){ //

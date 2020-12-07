@@ -436,7 +436,8 @@ public class UUnlimitedNatural implements Cloneable,Comparable<UUnlimitedNatural
 	 */
 	
 	public String toString() {
-		return "(" + x + "," + u + ")";
+		//return "(" + x + "," + u + ")";
+		return String.format("UUnlimitedNatural(%d, %5.3f)", this.getX(), this.getU());
 	}
 	
 	public int toInteger(){ //

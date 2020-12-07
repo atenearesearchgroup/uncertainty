@@ -512,7 +512,8 @@ public class UInteger implements Cloneable,Comparable<UInteger> {
 	 */
 	
 	public String toString() {
-		return "(" + x + "," + u + ")";
+		//return "(" + x + "," + u + ")";
+		return String.format("UInteger(%d, %5.3f)", this.getX(), this.getU());
 	}
 	
 	

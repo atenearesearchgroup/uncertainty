@@ -9,9 +9,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class Test {
 	
+	boolean testAdjustBaseRate = false; 
+	
 	void test0(SBoolean x) {
 		assertEquals(x.uncertaintyMaximized().projection(),x.projection(),"projection of uncertainty maximized");
 		assertEquals(true,x.uncertaintyMaximized().isMaximizedUncertainty(),"uncertaintymaximized works");
+		
+		if (testAdjustBaseRate) {// displays the results of the adjustBaserate() operation to observe its behaviour on different SBooleans
+			for (double i=0;i<=1;i+=0.1) {
+				System.out.println("x="+x+" p="+x.projection()+" i="+((double)Math.round(i*100)/100)+" x.adjusted="+x.adjustBaseRate(i)+" p="+x.adjustBaseRate(i).projection());
+			};
+			System.out.println("---");
+		}
 	}
 	
 	void test1() {
@@ -317,7 +326,15 @@ public class SBooleanTest {
 		t.test1();
 		t.test2();
 		t.testAverageFusion();
-
+		
+/*
+ 		System.out.println("r="+new UReal(345.09,12343.4));
+		System.out.println("i="+new UInteger(345,12343.4));
+		System.out.println("b="+new UBoolean(true,0.75));
+		System.out.println("b="+new UBoolean(true,0.25));
+		System.out.println("s="+new UString("Hola",0.99));
+		System.out.println("o="+new SBoolean(0.7,0.2,0.1,0.5));
+ */
 }
 	
 
