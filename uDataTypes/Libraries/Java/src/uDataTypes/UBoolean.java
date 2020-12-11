@@ -23,7 +23,15 @@ public class UBoolean implements Cloneable, Comparable<UBoolean> {
 		this.b = b; this.c = 1.0;
 		setNormalForm();
 	}
-  
+
+    public UBoolean(double c) {
+    	if ((c < 0.0) || (c > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
+    	this.b=true;
+    	this.c=c;
+		setNormalForm();
+    }
+	
+
     public UBoolean(boolean b, double c) {
     	if ((c < 0.0) || (c > 1.0) ) throw new IllegalArgumentException("Invalid parameters");
     	this.b=b;

@@ -17,7 +17,12 @@ class Test {
 		
 		if (testAdjustBaseRate) {// displays the results of the adjustBaserate() operation to observe its behaviour on different SBooleans
 			for (double i=0;i<=1;i+=0.1) {
-				System.out.println("x="+x+" p="+x.projection()+" i="+((double)Math.round(i*100)/100)+" x.adjusted="+x.adjustBaseRate(i)+" p="+x.adjustBaseRate(i).projection());
+				System.out.println(
+						"x="+x+
+						" p="+x.projection()+
+						" i="+((double)Math.round(i*100)/100)+
+						" x.adjusted="+x.applyOn(new UBoolean(i))+
+						" p="+x.applyOn(new UBoolean(i)).projection());
 			};
 			System.out.println("---");
 		}
@@ -317,6 +322,16 @@ class Test {
 		assertEquals(res, uno.averageFusion(dos));
 		
 	}
+	void otherTests() {
+		System.out.println("other tests");
+		for(double u=0;u<=10;u++) {
+			for(double i=0;i<=10;i++) {
+				for(double b=0;b<=10;b++)
+					if (u/10+i/10 <= 1) test0(new SBoolean(i/10,1-u/10-i/10,u/10,b/10));
+			}
+		}
+		
+	}
 }
 public class SBooleanTest {
 	
@@ -326,6 +341,7 @@ public class SBooleanTest {
 		t.test1();
 		t.test2();
 		t.testAverageFusion();
+		t.otherTests();
 		
 /*
  		System.out.println("r="+new UReal(345.09,12343.4));

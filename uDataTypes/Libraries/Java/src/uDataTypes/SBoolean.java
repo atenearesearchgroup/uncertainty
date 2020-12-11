@@ -175,16 +175,17 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 * Returns the subjective opinion that results from adjusting the base rate to be the one given in the
 	 * parameter. This operation is useful when we need to apply an opinion on a UBoolean value, whose
 	 * confidence will become the new base rate of the resulting opinion. 
-	 * @param baseRate
+	 * @param UBoolean x, whose confidence specifies the new baseRate
 	 * @return A SBoolean value whose base rate is the one given in the parameter, the uncertainty is 
 	 * maintained, and the degree of belief is adjusted proportionally to the ratio (b/a) of the 
 	 * original SBoolean. If the new base rate is the same, the SBoolean does not change. If the new 
 	 * baseRate is 0 (false), the degree of belief of the new SBoolean is 0 too, and the previous belief is 
 	 * transferred to the degree of disbelief.
 	 */
-	public SBoolean adjustBaseRate(double baseRate) {
+	public SBoolean applyOn(UBoolean x) {
+	   double baseRate = x.getC();
 	   if ((baseRate < 0.0D) || (baseRate > 1.0D)) {
-	       throw new IllegalArgumentException("applyOnBaseRate(): baseRate must be between 0 and 1");
+	       throw new IllegalArgumentException("applyOn(): baseRate must be between 0 and 1");
 	   }
 	   if (this.baseRate()==baseRate) return this.clone();
 	   double uT = this.uncertainty();
@@ -211,15 +212,6 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        return new SBoolean(bT,1.0D-bT-uT,uT,baseRate);
 	}
 
-	/**
-	 * Returns the subjective opinion that results from adjusting the base rate to be the confidence of the
-	 * UBoolean value given in the parameter.  
-	 * @param  UBoolean x
-	 * @return this.adjustBaseRate(x.getC()). 
-	 */
-	public SBoolean adjustBaseRate(UBoolean x) {
-       return this.adjustBaseRate(x.getC());
-	}
 	/**
 	 * Dogmatic opinions are opinions with complete certainty (i.e., uncertainty = 0).
 	 *
