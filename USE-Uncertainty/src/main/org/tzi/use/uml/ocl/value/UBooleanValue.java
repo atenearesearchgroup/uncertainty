@@ -194,7 +194,7 @@ public class UBooleanValue extends UncertainBooleanValue {
                 .append("(")
                 .append(value())
                 .append(", ")
-                .append(MathUtil.round(probability(), 10))
+                .append(MathUtil.round(probability(), 3))
                 .append(")");
     }
 

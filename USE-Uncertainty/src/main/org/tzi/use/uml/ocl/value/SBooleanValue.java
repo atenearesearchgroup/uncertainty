@@ -124,10 +124,10 @@ public final class SBooleanValue extends UncertainBooleanValue {
 
 	@Override
 	public StringBuilder toString(StringBuilder sb) {
-		sb.append(type().toString()).append("(").append(MathUtil.round(sBoolean.belief(), 10)).append(", ")
-				.append(MathUtil.round(sBoolean.disbelief(), 10)).append(", ")
-				.append(MathUtil.round(sBoolean.uncertainty(), 10)).append(", ")
-				.append(MathUtil.round(sBoolean.baseRate(), 10)).append(")");
+		sb.append(type().toString()).append("(").append(MathUtil.round(sBoolean.belief(), 3)).append(", ")
+				.append(MathUtil.round(sBoolean.disbelief(), 3)).append(", ")
+				.append(MathUtil.round(sBoolean.uncertainty(), 3)).append(", ")
+				.append(MathUtil.round(sBoolean.baseRate(), 3)).append(")");
 		return sb;
 	}
 
@@ -443,6 +443,11 @@ public final class SBooleanValue extends UncertainBooleanValue {
 			collection.add(sBooleanValue.sBoolean);
 		}
 		return new SBooleanValue(SBoolean.consensusAndCompromiseFusion(collection));
+	}
+	
+	public SBooleanValue applyOn(Value value) {
+		UBooleanValue ubool = (UBooleanValue) value;
+		return new SBooleanValue(sBoolean.applyOn(ubool.getuBoolean()));
 	}
 
 	public SBooleanValue min(Value value) {

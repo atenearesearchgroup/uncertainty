@@ -1,6 +1,5 @@
 package org.tzi.use.uml.ocl.expr.operations;
 
-import com.google.common.collect.Multimap;
 import org.tzi.use.uml.ocl.expr.EvalContext;
 import org.tzi.use.uml.ocl.type.Type;
 import org.tzi.use.uml.ocl.type.TypeFactory;
@@ -8,7 +7,10 @@ import org.tzi.use.uml.ocl.value.CollectionValue;
 import org.tzi.use.uml.ocl.value.RealValue;
 import org.tzi.use.uml.ocl.value.SBooleanValue;
 import org.tzi.use.uml.ocl.value.StringValue;
+import org.tzi.use.uml.ocl.value.UBooleanValue;
 import org.tzi.use.uml.ocl.value.Value;
+
+import com.google.common.collect.Multimap;
 
 public enum StandardOperationsSBoolean {
 
@@ -1207,6 +1209,39 @@ public enum StandardOperationsSBoolean {
             SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
             SBooleanValue sboolB = SBooleanValue.valueOf(args[1]);
             return sboolA.max(sboolB);
+        }
+    }),
+    
+    // applyOn : SBoolean x UBoolean -> SBoolean
+    APPLYON(new OpGeneric() {
+
+    	@Override
+        public String name() {
+            return "applyOn";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfUBoolean(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            UBooleanValue uboolB = UBooleanValue.valueOf(args[1]);
+            return sboolA.applyOn(uboolB);
         }
     }),
     
