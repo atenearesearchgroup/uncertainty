@@ -197,18 +197,6 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        } else { //this.baseRate() != 0.0D
     	   bT  = Math.min(baseRate*this.belief()/this.baseRate(),(1.0D-uT));
        }
-	   /*
-	   if (this.baseRate()==0.0D) { //then baseRate != 0.0D
-           bT  = Math.min(baseRate*this.belief(),1.0D-uT);
-       } else {
-    	   if (baseRate==0.0D) { //this.baseRate() != 0.0D 
-           	   bT = Math.min(Math.max((this.belief()-this.baseRate())/this.baseRate(), 0.0D),1.0D-uT);
-    	   }
-    	   else { // otherwise both baseRates are != 0.0D
-    		   bT  = Math.min(baseRate*this.belief()/this.baseRate(),1.0D-uT);
-    	   }
-       } 
-       */
        return new SBoolean(bT,1.0D-bT-uT,uT,baseRate);
 	}
 
@@ -221,7 +209,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 */
 	public static SBoolean createDogmaticOpinion(double projection, double baseRate) {
 	   if ((projection < 0.0D) || (projection > 1.0D) || (baseRate < 0.0D) || (baseRate > 1.0D)) {
-	       throw new IllegalArgumentException("Create Dogmatic Opinion: Expectation e, must be 0 <= e <= 1");
+	       throw new IllegalArgumentException("Create Dogmatic Opinion: Projections and baseRates should be between 0 and 1");
 	   }
 	   return new SBoolean(projection, 1.0D - projection, 0.0D, baseRate);
 	}
@@ -1212,7 +1200,94 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        opinions.add(opinion);
        return averageBeliefFusion(opinions);
    }
+   
+   /****
+    * DISCOUNTING OPERATIONS
+    */
+   
+   /**
+    * Binary version
+    */
+   
+   /**
+    * This method implements the "probability-sensitive trust discounting operator", 
+    * which causes the uncertainty in A’s derived opinion about X to increase as a 
+    * function of the projected distrust in the source/advisor B. 
+    * 
+    * For more details, refer to Chapter 14 of the Subjective Logic book by Josang, 
+    * specifically Section 14.3.2 that defines Trust Discounting with Two-Edge Paths.
+    * 
+    * we assume that "this" represents the opinion (functional trust) of an agent B 
+    * on statement X, i.e., [B:X]
+    *
+    * @param The trust referral that Agent A has on B. [A;B]
+    * @return a new SBoolean that represents the opinion of A about X, [A:X]=[A;B]x[B:X]
+    * @throws IllegalArgumentException
+    */
 
+   public final SBoolean discount(SBoolean AtrustOnB) {
+       if (AtrustOnB==null) throw new IllegalArgumentException("Discountion operator parameter cannot be null");
+
+       /* This version is from the Trustyfeer 2018 paper bu Kurdi et al.
+       double b = this.belief()*AtrustOnB.belief();
+       double d = this.disbelief()*AtrustOnB.belief();
+       double u = 1-b-d; // = AtrustOnB.disbelief() + AtrustOnB.uncertainty() + AtrustOnB.belief()*this.uncertainty();
+       double a = this.baseRate();
+		*/
+       // THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK 
+       double p = AtrustOnB.projection();
+       double b = p * this.belief();
+       double d = p * this.disbelief();
+       double u = 1 - p * (this.disbelief() + this.belief());
+       double a = this.baseRate();
+       return new SBoolean(b,d,u,a);
+   }
+   
+   /**
+    * Multi-edge path version
+    */
+   
+   /**
+    * This method implements the discounting operator on multi-edge paths, 
+    * using the "probability-sensitive trust discounting operator"
+    * which causes the uncertainty in A’s derived opinion about X to increase as a 
+    * function of the projected distrust in the source/advisor B. 
+    * 
+    * For more details, refer to Chapter 14 of the Subjective Logic book by Josang, 
+    * specifically Section 14.3.4 that defines Trust Discounting with Multi-Edge Paths.
+    * 
+    * we assume that "this" represents the opinion (functional trust) of an agent An 
+    * on statement X, i.e., [An:X]
+    *
+    * @param A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
+    * @return a new SBoolean that represents the resulting opinion of A1 on X. 
+    * [A1:X]=[A1;A2;...;An]x[An:X]
+    * @throws IllegalArgumentException
+    */
+   	public final SBoolean discount(Collection <SBoolean> agentsTrusts) {
+       if (agentsTrusts==null) throw 
+       		new IllegalArgumentException("Discountion operator parameter cannot be null");
+
+       // THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK 
+       double p = agentsTrusts.stream(). // we multiply the projections of all trust opinions
+    		   mapToDouble( o -> o.projection()).
+    		   reduce(1.0,(acc,value) -> acc * value);
+       /* alternative implementation, using imperative programming
+       double p1 = 1.0;
+       for (SBoolean so : agentsTrusts) {
+           p1 *= so.projection();
+       }
+       assert(p==p1);
+       */
+
+       double b = p * this.belief();
+       double d = p * this.disbelief();
+       double u = 1 - p * (this.disbelief() + this.belief());
+       double a = this.baseRate();
+       return new SBoolean(b,d,u,a);
+   }
+ 
+   
 	/***
 	 * comparison operations
 	 */

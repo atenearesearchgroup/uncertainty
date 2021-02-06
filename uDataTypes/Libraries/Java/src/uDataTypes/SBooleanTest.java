@@ -10,22 +10,31 @@ import static org.junit.jupiter.api.Assertions.*;
 class Test {
 	
 	boolean testAdjustBaseRate = true; 
+	boolean print = true;
 	
-	void test0(SBoolean x) {
+	void test0(String s, SBoolean x) {
 		assertEquals(x.uncertaintyMaximized().projection(),x.projection(),"projection of uncertainty maximized");
 		assertEquals(true,x.uncertaintyMaximized().isMaximizedUncertainty(),"uncertaintymaximized works");
+		
+		if (print) System.out.println(s + "="+x+" p="+x.projection());
 		
 		if (testAdjustBaseRate) {// displays the results of the adjustBaserate() operation to observe its behaviour on different SBooleans
 			for (double i=0;i<=1;i+=0.1) {
 				System.out.println(
-						"x="+x+
+						s+"="+x+
 						" p="+x.projection()+
 						" i="+((double)Math.round(i*100)/100)+
-						" x.adjusted="+x.applyOn(new UBoolean(i))+
+						" "+s+".adjusted="+x.applyOn(new UBoolean(i))+
 						" p="+x.applyOn(new UBoolean(i)).projection());
 			};
 			System.out.println("---");
 		}
+
+		
+	}
+	
+	void test0(SBoolean x) {
+		test0("x",x);
 	}
 	
 	void test1() {
@@ -323,13 +332,64 @@ class Test {
 		
 	}
 	void otherTests() {
-		System.out.println("other tests");
+		// System.out.println("other tests");
 		for(double u=0;u<=10;u++) {
 			for(double i=0;i<=10;i++) {
 				for(double b=0;b<=10;b++)
 					if (u/10+i/10 <= 1) test0(new SBoolean(i/10,1-u/10-i/10,u/10,b/10));
 			}
-		}
+		}	
+	}
+	
+	void discountTest() {
+		SBoolean AonB = new SBoolean(0.0,0.0,1,0.9); test0("[A;B]",AonB); 
+		SBoolean BonX = new SBoolean(0.95,0,0.05,0.20); test0("[B:X]",BonX);
+		SBoolean AonX = new SBoolean(0.855,0,0.145,0.2); 
+		assertEquals(AonX,BonX.discount(AonB)); test0("[A;B:X]",BonX.discount(AonB));
+		//System.out.println(AonX);
+		//System.out.println(BonX.discount2(AonB));
+		
+		AonB = new SBoolean(0.2,0.4,0.4,0.75);  test0("[A;B]",AonB); 
+		BonX = new SBoolean(0.45,0.35,0.20,0.25); test0("[B:X]",BonX);
+		AonX = new SBoolean(0.225,0.175,0.6,0.25); test0("[A;B:X]",BonX.discount(AonB));
+		assertEquals(AonX,BonX.discount(AonB));
+		//System.out.println(AonX);
+		//System.out.println(BonX.discount2(AonB));
+		
+		//MULTI-EDGE PATH DISCOUNT
+		
+		SBoolean A2onA1 = new SBoolean(0.95,0,0.05,0.5); test0("[A2;A1]",BonX.discount(A2onA1));
+		SBoolean A3onA2 = new SBoolean(0.95,0,0.05,0.5); test0("[A3;A2]",BonX.discount(A3onA2));
+		SBoolean A4onA3 = new SBoolean(0.95,0,0.05,0.5); test0("[A4;A3]",BonX.discount(A4onA3));
+		SBoolean A1onX = new SBoolean(0.45,0.35,0.20,0.25); test0("[A1:X]",BonX.discount(A1onX));
+		SBoolean A2onX = new SBoolean(0.439,0.341,0.22,0.25); 
+		SBoolean A3onX = new SBoolean(0.428,0.333,0.24,0.25); 
+		SBoolean A4onX = new SBoolean(0.417,0.324,0.259,0.25); 
+		
+	    Collection<SBoolean> opinions = new ArrayList<>();
+	    opinions.add(A2onA1);
+	    assertEquals(A2onX,A1onX.discount(opinions));
+	    opinions.add(A3onA2);
+	    assertEquals(A3onX,A1onX.discount(opinions));
+	    opinions.add(A4onA3);
+		assertEquals(A4onX,A1onX.discount(opinions));
+
+		// Example from Josang, page 261
+		A2onA1 = new SBoolean(0.2,0.1,0.7,0.8); 
+		A3onA2 = new SBoolean(0.2,0.1,0.7,0.8); 
+		A4onA3 = new SBoolean(0.2,0.1,0.7,0.8); 
+		A1onX = new SBoolean(0.8,0.2,0.0,0.1); 
+		A2onX = new SBoolean(0.608,0.152,0.240,0.1); 
+		A3onX = new SBoolean(0.462,0.116,0.422,0.1); 
+		A4onX = new SBoolean(0.351,0.088,0.561,0.1); 
+	    opinions = new ArrayList<>();
+	    opinions.add(A2onA1);
+	    assertEquals(A2onX,A1onX.discount(opinions));
+	    opinions.add(A3onA2);
+	    assertEquals(A3onX,A1onX.discount(opinions));
+	    opinions.add(A4onA3);
+		assertEquals(A4onX,A1onX.discount(opinions));
+
 		
 	}
 }
@@ -337,11 +397,16 @@ public class SBooleanTest {
 	
 	public static void main(final String[] args) {
 
+
 		Test t = new Test();
+		t.testAdjustBaseRate = false; // enables/disables display of base adjustments
+		t.print = false; // displays results
 		t.test1();
 		t.test2();
 		t.testAverageFusion();
 		t.otherTests();
+		//t.print = true; // displays results
+		t.discountTest();
 		
 /*
  		System.out.println("r="+new UReal(345.09,12343.4));
