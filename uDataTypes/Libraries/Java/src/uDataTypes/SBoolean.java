@@ -1243,6 +1243,17 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        return new SBoolean(b,d,u,a);
    }
    
+   public final SBoolean discountB(SBoolean AtrustOnB) {
+       if (AtrustOnB==null) throw new IllegalArgumentException("Discountion operator parameter cannot be null");
+
+       double b = this.belief()*AtrustOnB.belief();
+       double d = this.disbelief()*AtrustOnB.belief();
+       double u = 1-b-d; // = AtrustOnB.disbelief() + AtrustOnB.uncertainty() + AtrustOnB.belief()*this.uncertainty();
+       double a = this.baseRate();
+       return new SBoolean(b,d,u,a);
+   }
+
+   
    /**
     * Multi-edge path version
     */
