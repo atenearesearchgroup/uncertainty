@@ -341,20 +341,21 @@ class Test {
 		}	
 	}
 	
-	void discountTest() {
+	void discountTest(boolean print) {
 		SBoolean AonB = new SBoolean(0.0,0.0,1,0.9); test0("[A;B]",AonB); 
 		SBoolean BonX = new SBoolean(0.95,0,0.05,0.20); test0("[B:X]",BonX);
 		SBoolean AonX = new SBoolean(0.855,0,0.145,0.2); 
 		assertEquals(AonX,BonX.discount(AonB)); test0("[A;B:X]",BonX.discount(AonB));
-		//System.out.println(AonX);
-		//System.out.println(BonX.discount2(AonB));
+		if (print) System.out.println(BonX.discount(AonB)+ ", p="+BonX.discount(AonB).projection());
+		if (print) System.out.println(BonX.discountB(AonB)+ ", p="+BonX.discountB(AonB).projection());
+		
 		
 		AonB = new SBoolean(0.2,0.4,0.4,0.75);  test0("[A;B]",AonB); 
 		BonX = new SBoolean(0.45,0.35,0.20,0.25); test0("[B:X]",BonX);
 		AonX = new SBoolean(0.225,0.175,0.6,0.25); test0("[A;B:X]",BonX.discount(AonB));
 		assertEquals(AonX,BonX.discount(AonB));
-		//System.out.println(AonX);
-		//System.out.println(BonX.discount2(AonB));
+		if (print) System.out.println(BonX.discount(AonB)+ ", p="+BonX.discount(AonB).projection());
+		if (print) System.out.println(BonX.discountB(AonB)+ ", p="+BonX.discountB(AonB).projection());
 		
 		//MULTI-EDGE PATH DISCOUNT
 		
@@ -369,10 +370,16 @@ class Test {
 	    Collection<SBoolean> opinions = new ArrayList<>();
 	    opinions.add(A2onA1);
 	    assertEquals(A2onX,A1onX.discount(opinions));
+	    if (print) System.out.println(BonX.discount(opinions)+ ", p="+BonX.discount(opinions).projection());
+	    if (print) System.out.println(BonX.discountB(opinions)+ ", p="+BonX.discountB(opinions).projection());
 	    opinions.add(A3onA2);
 	    assertEquals(A3onX,A1onX.discount(opinions));
+	    if (print) System.out.println(BonX.discount(opinions)+ ", p="+BonX.discount(opinions).projection());
+	    if (print) System.out.println(BonX.discountB(opinions)+ ", p="+BonX.discountB(opinions).projection());
 	    opinions.add(A4onA3);
 		assertEquals(A4onX,A1onX.discount(opinions));
+		if (print) System.out.println(BonX.discount(opinions)+ ", p="+BonX.discount(opinions).projection());
+		if (print) System.out.println(BonX.discountB(opinions)+ ", p="+BonX.discountB(opinions).projection());
 
 		// Example from Josang, page 261
 		A2onA1 = new SBoolean(0.2,0.1,0.7,0.8); 
@@ -385,10 +392,18 @@ class Test {
 	    opinions = new ArrayList<>();
 	    opinions.add(A2onA1);
 	    assertEquals(A2onX,A1onX.discount(opinions));
+	    if (print) System.out.println(BonX.discount(opinions)+ ", p="+BonX.discount(opinions).projection());
+	    if (print) System.out.println(BonX.discountB(opinions)+ ", p="+BonX.discountB(opinions).projection());
 	    opinions.add(A3onA2);
 	    assertEquals(A3onX,A1onX.discount(opinions));
+	    if (print) System.out.println(BonX.discount(opinions)+ ", p="+BonX.discount(opinions).projection());
+	    if (print) System.out.println(BonX.discountB(opinions)+ ", p="+BonX.discountB(opinions).projection());
 	    opinions.add(A4onA3);
 		assertEquals(A4onX,A1onX.discount(opinions));
+		if (print) System.out.println(BonX.discount(opinions)+ ", p="+BonX.discount(opinions).projection());
+		if (print) System.out.println(BonX.discountB(opinions)+ ", p="+BonX.discountB(opinions).projection());
+		
+		
 
 		
 	}
@@ -406,7 +421,7 @@ public class SBooleanTest {
 		t.testAverageFusion();
 		t.otherTests();
 		//t.print = true; // displays results
-		t.discountTest();
+		t.discountTest(false);
 		
 /*
  		System.out.println("r="+new UReal(345.09,12343.4));

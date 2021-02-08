@@ -1206,7 +1206,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     */
    
    /**
-    * Binary version
+    * Binary versions
     */
    
    /**
@@ -1228,7 +1228,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    public final SBoolean discount(SBoolean AtrustOnB) {
        if (AtrustOnB==null) throw new IllegalArgumentException("Discountion operator parameter cannot be null");
 
-       /* This version is from the Trustyfeer 2018 paper bu Kurdi et al.
+       /* This version is 
        double b = this.belief()*AtrustOnB.belief();
        double d = this.disbelief()*AtrustOnB.belief();
        double u = 1-b-d; // = AtrustOnB.disbelief() + AtrustOnB.uncertainty() + AtrustOnB.belief()*this.uncertainty();
@@ -1243,11 +1243,31 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        return new SBoolean(b,d,u,a);
    }
    
+   /**
+    * This method implements the discounting operator from the Trustyfeer 2018 
+    * paper bu Kurdi et al., which uses the belief() of the trust of A on B, instead of 
+    * the projection() of the trust of A on B, that was originally used by Josang. 
+    * 
+    * Heba Kurdi, Bushra Alshayban, Lina Altoaimy, and Shada Alsalamah
+    * "TrustyFeer: A Subjective Logic Trust Model for Smart City Peer-to-Peer Federated Clouds"
+    * Wireless Communications and Mobile Computing, Volume 2018, Article ID 1073216, 13 pages
+    * https://doi.org/10.1155/2018/1073216
+    * 
+    * We assume that "this" represents the opinion (functional trust) of an agent B 
+    * on statement X, i.e., [B:X]
+    *
+    * @param The trust referral that Agent A has on B. [A;B]
+    * @return a new SBoolean that represents the opinion of A about X, [A:X]=[A;B]x[B:X]
+    * @throws IllegalArgumentException
+    */
+
+   
    public final SBoolean discountB(SBoolean AtrustOnB) {
        if (AtrustOnB==null) throw new IllegalArgumentException("Discountion operator parameter cannot be null");
 
-       double b = this.belief()*AtrustOnB.belief();
-       double d = this.disbelief()*AtrustOnB.belief();
+       double p = AtrustOnB.belief(); // instead of AtrustOnB.projection();
+       double b = p * this.belief();
+       double d = p * this.disbelief();
        double u = 1-b-d; // = AtrustOnB.disbelief() + AtrustOnB.uncertainty() + AtrustOnB.belief()*this.uncertainty();
        double a = this.baseRate();
        return new SBoolean(b,d,u,a);
@@ -1255,7 +1275,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
    
    /**
-    * Multi-edge path version
+    * Multi-edge path versions
     */
    
    /**
@@ -1298,6 +1318,40 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        return new SBoolean(b,d,u,a);
    }
  
+   	
+    /**
+     * This method implements the discounting operator on multi-edge paths, 
+     * using the "discounting operator" discountB() defined by Kurdi et al in 
+     * their 2018 paper 
+     * 
+     * Heba Kurdi, Bushra Alshayban, Lina Altoaimy, and Shada Alsalamah
+     * "TrustyFeer: A Subjective Logic Trust Model for Smart City Peer-to-Peer Federated Clouds"
+     * Wireless Communications and Mobile Computing, Volume 2018, Article ID 1073216, 13 pages
+     * https://doi.org/10.1155/2018/1073216
+     * 
+     * we assume that "this" represents the opinion (functional trust) of an agent An 
+     * on statement X, i.e., [An:X]
+     *
+     * @param A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
+     * @return a new SBoolean that represents the resulting opinion of A1 on X. 
+     * [A1:X]=[A1;A2;...;An]x[An:X]
+     * @throws IllegalArgumentException
+     */
+    	public final SBoolean discountB(Collection <SBoolean> agentsTrusts) {
+        if (agentsTrusts==null) throw 
+        		new IllegalArgumentException("Discountion operator parameter cannot be null");
+
+        // THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK 
+        double p = agentsTrusts.stream(). // we multiply the projections of all trust opinions
+     		   mapToDouble( o -> o.belief()).
+     		   reduce(1.0,(acc,value) -> acc * value);
+        double b = p * this.belief();
+        double d = p * this.disbelief();
+        double u = 1 - p * (this.disbelief() + this.belief());
+        double a = this.baseRate();
+        return new SBoolean(b,d,u,a);
+    }
+
    
 	/***
 	 * comparison operations
