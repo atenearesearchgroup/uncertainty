@@ -175,7 +175,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 	 * Returns the subjective opinion that results from adjusting the base rate to be the one given in the
 	 * parameter. This operation is useful when we need to apply an opinion on a UBoolean value, whose
 	 * confidence will become the new base rate of the resulting opinion. 
-	 * @param UBoolean x, whose confidence specifies the new baseRate
+	 * @param x UBoolean, whose confidence specifies the new baseRate
 	 * @return A SBoolean value whose base rate is the one given in the parameter, the uncertainty is 
 	 * maintained, and the degree of belief is adjusted proportionally to the ratio (b/a) of the 
 	 * original SBoolean. If the new base rate is the same, the SBoolean does not change. If the new 
@@ -726,7 +726,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     *
     * @param opinions a collection of opinions from different sources.
     * @return a new SubjectiveOpinion that represents the fused evidence based on confidence-weighted averaging of evidence.
-    * @throws OpinionArithmeticException
+    * @throws IllegalArgumentException - OpinionArithmeticException
     */
    public static SBoolean weightedBeliefFusion(Collection<SBoolean> opinions) {
        if (opinions == null || opinions.contains(null) || opinions.isEmpty())
@@ -1220,7 +1220,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * we assume that "this" represents the opinion (functional trust) of an agent B 
     * on statement X, i.e., [B:X]
     *
-    * @param The trust referral that Agent A has on B. [A;B]
+    * @param AtrustOnB The trust referral that Agent A has on B. [A;B]
     * @return a new SBoolean that represents the opinion of A about X, [A:X]=[A;B]x[B:X]
     * @throws IllegalArgumentException
     */
@@ -1256,12 +1256,10 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * We assume that "this" represents the opinion (functional trust) of an agent B 
     * on statement X, i.e., [B:X]
     *
-    * @param The trust referral that Agent A has on B. [A;B]
+    * @param AtrustOnB The trust referral that Agent A has on B. [A;B]
     * @return a new SBoolean that represents the opinion of A about X, [A:X]=[A;B]x[B:X]
     * @throws IllegalArgumentException
     */
-
-   
    public final SBoolean discountB(SBoolean AtrustOnB) {
        if (AtrustOnB==null) throw new IllegalArgumentException("Discountion operator parameter cannot be null");
 
@@ -1290,7 +1288,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * we assume that "this" represents the opinion (functional trust) of an agent An 
     * on statement X, i.e., [An:X]
     *
-    * @param A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
+    * @param agentsTrusts A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
     * @return a new SBoolean that represents the resulting opinion of A1 on X. 
     * [A1:X]=[A1;A2;...;An]x[An:X]
     * @throws IllegalArgumentException
@@ -1332,12 +1330,12 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      * we assume that "this" represents the opinion (functional trust) of an agent An 
      * on statement X, i.e., [An:X]
      *
-     * @param A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
+     * @param agentsTrusts A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
      * @return a new SBoolean that represents the resulting opinion of A1 on X. 
      * [A1:X]=[A1;A2;...;An]x[An:X]
      * @throws IllegalArgumentException
      */
-    	public final SBoolean discountB(Collection <SBoolean> agentsTrusts) {
+    public final SBoolean discountB(Collection <SBoolean> agentsTrusts) {
         if (agentsTrusts==null) throw 
         		new IllegalArgumentException("Discountion operator parameter cannot be null");
 

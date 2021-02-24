@@ -1145,6 +1145,39 @@ public enum StandardOperationsSBoolean {
             return sboolA.consensusAndCompromiseFusion(sboolCol);
         }
     }),
+
+    // discount : SBoolean x Collection -> SBoolean
+    DISCOUNT(new OpGeneric() {
+
+        @Override
+        public String name() {
+            return "discount";
+        }
+
+        @Override
+        public int kind() {
+            return OPERATION;
+        }
+
+        @Override
+        public boolean isInfixOrPrefix() {
+            return false;
+        }
+
+        @Override
+        public Type matches(Type[] params) {
+            return params.length == 2 && params[0].isKindOfSBoolean(Type.VoidHandling.EXCLUDE_VOID) &&
+                    params[1].isKindOfCollection(Type.VoidHandling.EXCLUDE_VOID) ?
+                    TypeFactory.mkSBoolean() : null;
+        }
+
+        @Override
+        public Value eval(EvalContext ctx, Value[] args, Type resultType) {
+            SBooleanValue sboolA = SBooleanValue.valueOf(args[0]);
+            CollectionValue sboolCol = (CollectionValue) args[1];
+            return sboolA.discount(sboolCol);
+        }
+    }),
     
  // min: SBoolean x SBoolean -> SBoolean
     MIN(new OpGeneric() {
