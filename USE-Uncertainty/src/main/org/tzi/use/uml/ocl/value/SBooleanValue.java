@@ -1,14 +1,12 @@
 package org.tzi.use.uml.ocl.value;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import org.tzi.use.uml.ocl.type.Type;
 import org.tzi.use.uml.ocl.type.TypeFactory;
 import org.tzi.use.util.MathUtil;
+import uDataTypes.SBoolean;
 
-import antlr.collections.List;
-import uDataTypes.*;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public final class SBooleanValue extends UncertainBooleanValue {
 
@@ -444,6 +442,21 @@ public final class SBooleanValue extends UncertainBooleanValue {
 		}
 		return new SBooleanValue(SBoolean.consensusAndCompromiseFusion(collection));
 	}
+
+	public SBooleanValue discount(Value value) {
+		CollectionValue cValue = (CollectionValue) value;
+		SequenceValue seq = cValue.asSequence();
+		LinkedList<SBoolean> collection = new LinkedList<SBoolean>();
+		Iterator<Value> it = seq.iterator();
+		while (it.hasNext()) {
+			Value v = it.next();
+			SBooleanValue sBooleanValue = assertKindOfSBoolean(v);
+			collection.add(sBooleanValue.sBoolean);
+		}
+
+		return new SBooleanValue(this.sBoolean.discount(collection));
+	}
+
 	
 	public SBooleanValue applyOn(Value value) {
 		UBooleanValue ubool = (UBooleanValue) value;
