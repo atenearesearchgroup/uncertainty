@@ -718,7 +718,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    }
 
    /**
-    * This method implements weighted belief fusion (WBF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al. that is currently under review.
+    * This method implements weighted belief fusion (WBF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al.
     *
     * As discussed in the book, WBF is intended to represent the confidence-weighted averaging of evidence.
     * Similar to AverageBF, it is useful when dependence between sources is assumed. However, WBF introduces 
@@ -726,7 +726,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     *
     * @param opinions a collection of opinions from different sources.
     * @return a new SubjectiveOpinion that represents the fused evidence based on confidence-weighted averaging of evidence.
-    * @throws OpinionArithmeticException
+    * @throws IllegalArgumentException
     */
    public static SBoolean weightedBeliefFusion(Collection<SBoolean> opinions) {
        if (opinions == null || opinions.contains(null) || opinions.isEmpty())
@@ -819,7 +819,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    }
    
    /**
-    * This method implements consensus & compromise fusion (CCF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al. .
+    * This method implements consensus & compromise fusion (CCF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al.
     *
     * For more details, refer to Chapter 12 of the Subjective Logic book by JÃ¸sang, specifically Section 12.6, which defines CC fusion for the case of two sources.
     *
@@ -1211,7 +1211,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    
    /**
     * This method implements the "probability-sensitive trust discounting operator", 
-    * which causes the uncertainty in A’s derived opinion about X to increase as a 
+    * which causes the uncertainty in Aï¿½s derived opinion about X to increase as a 
     * function of the projected distrust in the source/advisor B. 
     * 
     * For more details, refer to Chapter 14 of the Subjective Logic book by Josang, 
@@ -1281,7 +1281,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    /**
     * This method implements the discounting operator on multi-edge paths, 
     * using the "probability-sensitive trust discounting operator"
-    * which causes the uncertainty in A’s derived opinion about X to increase as a 
+    * which causes the uncertainty in Aï¿½s derived opinion about X to increase as a 
     * function of the projected distrust in the source/advisor B. 
     * 
     * For more details, refer to Chapter 14 of the Subjective Logic book by Josang, 
