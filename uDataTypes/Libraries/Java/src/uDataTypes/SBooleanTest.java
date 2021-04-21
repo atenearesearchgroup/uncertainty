@@ -228,12 +228,50 @@ class Test {
 		// System.out.println("CBF="+BCF+" p="+BCF.projection()+" w="+BCF.getRelativeWeight());
 		// System.out.println("---");
 		
+		SBoolean T = new SBoolean(1,0,0,0.5); //true but with 0.5 mass
+		SBoolean F = new SBoolean(0,1,0,0.5); //false but with 0.5 mass
+		SBoolean U = new SBoolean(0,0,1,0.5); //the Vacuous opinion
+	    SBoolean I = new SBoolean(0.5, 0.5, 0, 0.5); //Dogmatic ignorance
+
+		Collection<SBoolean> TF = new ArrayList<>();
+	    TF.add(F);
+	    TF.add(T);
+	    CCF = SBoolean.consensusAndCompromiseFusion(TF);test0(CCF);
+		assertEquals(U,CCF);
+	    // BCF = SBoolean.beliefConstraintFusion(TF);test0(BCF); // cannot be used with totally conflicting opinions
+		ACF = SBoolean.averageBeliefFusion(TF);test0(ACF);
+		assertEquals(I,ACF);
+		aCCF = SBoolean.cumulativeBeliefFusion(TF);test0(aCCF);
+		assertEquals(I,aCCF);
+		eCCF = SBoolean.epistemicCumulativeBeliefFusion(TF);test0(eCCF);
+		assertEquals(U,eCCF);
+	    wcf = SBoolean.weightedBeliefFusion(TF);test0(wcf);
+		assertEquals(I,wcf);
 		
+		assertEquals(T.ccFusion(U),U);
+		assertEquals(F.ccFusion(U),U);
+		assertEquals(T.ccFusion(T),T);
+		assertEquals(F.ccFusion(F),F);
+		assertEquals(U.ccFusion(U),U);
+		assertEquals(U.ccFusion(T),U);
+		assertEquals(U.ccFusion(F),U);
+		assertEquals(U.ccFusion(I),U);
+		assertEquals(I.ccFusion(I),I);
+		assertEquals(I.ccFusion(U),U);
+		assertEquals(I.ccFusion(T),new SBoolean(0.5,0.0,0.5,0.5));
+		assertEquals(I.ccFusion(F),new SBoolean(0.0,0.5,0.5,0.5));
+		
+	    res = new SBoolean(0.25, 0.15, 0.6, 0.5); test0(res);
+
+		assertEquals(res.ccFusion(U),res);
+		assertEquals(U.ccFusion(res),res);
+		assertEquals(res.ccFusion(res),res);
+
 		Collection<SBoolean> opinions3 = new ArrayList<>();
 	    opinions3.add(new SBoolean(0.1,0.3,0.6,0.5));
 	    opinions3.add(new SBoolean(0.4,0.2,0.4,0.5));
 	    opinions3.add(new SBoolean(0.7,0.1,0.2,0.5));
-	    
+	    	    
 	    CCF = SBoolean.consensusAndCompromiseFusion(opinions3);test0(CCF);
 	    res = new SBoolean(0.629, 0.182, 0.189, 0.5); test0(res);
 		assertEquals(res,CCF);

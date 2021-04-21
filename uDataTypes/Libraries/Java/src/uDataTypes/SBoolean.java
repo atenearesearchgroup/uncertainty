@@ -821,7 +821,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    /**
     * This method implements consensus & compromise fusion (CCF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al.
     *
-    * For more details, refer to Chapter 12 of the Subjective Logic book by Jøsang, specifically Section 12.6, which defines CC fusion for the case of two sources.
+    * For more details, refer to Chapter 12 of the Subjective Logic book by Josang, specifically Section 12.6, which defines CC fusion for the case of two sources.
     *
     * @param opinions a collection of opinions from different sources.
     * @return a new SBoolean that represents the fused evidence.
@@ -859,6 +859,10 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
            uncertainties.add(so.uncertainty());
        }
 
+       // System.out.println("consensusBelief="+consensusBelief);
+       // System.out.println("consensusDisbelief="+consensusDisbelief);
+       // System.out.println("consensusMass="+consensusMass);
+
        //Step 2: Compromise phase
 
        double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
@@ -872,13 +876,15 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
            double bResI = residueBeliefs.get(i);
            double dResI = residueDisbeliefs.get(i);
            double uI = uncertainties.get(i);
-           double uWithoutI = productOfUncertainties / uI;
+           // double uWithoutI = productOfUncertainties / uI;
+           double uWithoutI = uI==0.0?0.0:productOfUncertainties / uI;
 
            //sub-sum 1:
            compromiseBeliefAccumulator = compromiseBeliefAccumulator + bResI * uWithoutI;
            compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + dResI * uWithoutI;
            //note: compromiseXAccumulator is unchanged, since b^{ResI}_X() of the entire domain is 0
        }
+       
        //sub-sums 2,3,4 are all related to different permutations of possible values
        for(List<Domain> permutation : tabulateOptions(opinions.size())){
            Domain intersection = permutation.stream().reduce(Domain.DOMAIN, (acc, p) -> acc.intersect(p));
@@ -1026,17 +1032,27 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 
        double preliminaryUncertainty = productOfUncertainties;
        double compromiseMass = compromiseBelief + compromiseDisbelief + compromiseUncertainty;
+       
+       //System.out.println("compromiseBelief="+compromiseBelief);
+       //System.out.println("compromiseDisbelief="+compromiseDisbelief);
+       //System.out.println("compromiseUncertainty="+compromiseUncertainty);
+       //System.out.println("compromiseMass="+compromiseMass);
 
        //Step 3: Normalization phase
-       double normalizationFactor = (1-consensusMass-preliminaryUncertainty)/(compromiseMass);
+       //double normalizationFactor = (1-consensusMass-preliminaryUncertainty)/(compromiseMass);
+       double normalizationFactor = compromiseMass==0.0?1.0:(1-consensusMass-preliminaryUncertainty)/(compromiseMass);
 
-       double fusedUncertainty = preliminaryUncertainty + normalizationFactor* compromiseUncertainty;
-       //compromiseUncertainty = 0; --> but this variable is never used again anyway.
 
        double fusedBelief = consensusBelief + normalizationFactor * compromiseBelief;
        double fusedDisbelief = consensusDisbelief + normalizationFactor * compromiseDisbelief;
+       
+       //double fusedUncertainty = preliminaryUncertainty + normalizationFactor* compromiseUncertainty;
+       //compromiseUncertainty = 0; --> but this variable is never used again anyway.
+        double fusedUncertainty = 1.0 - fusedBelief - fusedDisbelief;
+       
 
        SBoolean res = new SBoolean(fusedBelief, fusedDisbelief, fusedUncertainty, baseRate);
+
        return res;
    }
 
@@ -1211,7 +1227,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
    
    /**
     * This method implements the "probability-sensitive trust discounting operator", 
-    * which causes the uncertainty in A�s derived opinion about X to increase as a 
+    * which causes the uncertainty in A's derived opinion about X to increase as a 
     * function of the projected distrust in the source/advisor B. 
     * 
     * For more details, refer to Chapter 14 of the Subjective Logic book by Josang, 
