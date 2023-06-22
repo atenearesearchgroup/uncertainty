@@ -400,11 +400,10 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 				this.b + s.b, 
 				(this.a*(this.d-s.b)+s.a*(s.d-this.b))/(this.a+s.a),
 				this.a*this.u + s.a*s.u,
-				this.a + s.a, // this.a*(1.0-s.a)+(1.0-this.a)*s.a 
+				this.a + s.a, 
 				this.getRelativeWeight() + s.getRelativeWeight()
 		);
 		 return result;
-		//return this.equivalent(b).not();
 	}
 
     /**
