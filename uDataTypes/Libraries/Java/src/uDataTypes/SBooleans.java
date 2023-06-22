@@ -61,7 +61,11 @@ public class SBooleans {
 	   return b1.equals(b2);
    }
 
-	public static double projectiveDistance(SBoolean b1, SBoolean b2) { // projectiveDistance
+    public static SBoolean union(SBoolean b1, SBoolean b2) {
+	   return b1.union(b2);
+    }
+
+   public static double projectiveDistance(SBoolean b1, SBoolean b2) { // projectiveDistance
 		return b1.projectiveDistance(b2);
 	}
 
@@ -76,7 +80,6 @@ public class SBooleans {
 	public SBoolean deduceY(SBoolean x, SBoolean yGivenX, SBoolean yGivenNotX) { // DEDUCTION
 		return x.deduceY(yGivenX,yGivenNotX);
 	}
-
 
 	/******
 	 * STATIC Conversions

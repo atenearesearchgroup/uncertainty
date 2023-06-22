@@ -376,6 +376,74 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
         y.setRelativeWeight(yGivenX.getRelativeWeight() + yGivenNotX.getRelativeWeight());
 		return y;
 	}
+
+    /************************************
+     * UNION AND WEIGHTED UNION OPERATIONS
+     */
+
+    /**
+     * This method implements Union of two opinions, according to Josang's book (Section 6.1)
+     *
+     * @param opinion to unite.
+     * @return a new SBoolean that represents the union of the two opinions (this + s).
+     * @throws IllegalArgumentException if the two opinions have beliefs that cover the full space
+     *          (according to the definition of this operation, the opinions are about two
+     *           mutually exclusive values (i.e. two disjoint subsets of the same domain)  
+     *           whose union does not represent a complete partition of the space)
+     */
+
+     public SBoolean union(SBoolean s) {
+        if (s==null || this.a + s.a >1.0D || this.b+s.b > 1.0D )
+            throw new IllegalArgumentException("union: invalid argument");
+
+        SBoolean result = new SBoolean(
+				this.b + s.b, 
+				(this.a*(this.d-s.b)+s.a*(s.d-this.b))/(this.a+s.a),
+				this.a*this.u + s.a*s.u,
+				this.a + s.a, // this.a*(1.0-s.a)+(1.0-this.a)*s.a 
+				this.getRelativeWeight() + s.getRelativeWeight()
+		);
+		 return result;
+		//return this.equivalent(b).not();
+	}
+
+    /**
+     * This method implements the Weighted Union of a collection of opinions. 
+     * Note that the weighted union of two operations is different from their union. 
+     *
+     * @param opinions a collection of opinions from different sources.
+     * @return a new SBoolean that represents the weigthed union, assuming the same weight for all opinions.
+     * @throws IllegalArgumentException
+     */
+
+    public static SBoolean weightedUnion(Collection<SBoolean> opinions) {
+        if (opinions.contains(null) || opinions.size() < 2)
+            throw new IllegalArgumentException("weightedUnion: Cannot make the union of null opinions, or only one opinion was passed");
+        double b = 0.0D;
+        double a = 0.0D;
+        double u = 0.0D;
+        int n = opinions.size();
+        for (SBoolean so : opinions) {
+            b+=so.b;
+            a+=so.a;
+            u+=so.a*so.u;
+        }
+        return new SBoolean(b/n,1-b/n-u/a,u/a,a/n);
+    }
+ 
+    /************************************ 
+	 * Binary ver
+	 * 
+	 */
+  
+  
+    public final SBoolean weightedUnion(SBoolean opinion) { //consensus and compromise fusion
+       Collection<SBoolean> opinions = new ArrayList<>();
+       opinions.add(this);
+       opinions.add(opinion);
+       return consensusAndCompromiseFusion(opinions);
+   }
+
 	
 	/************************************
 	 *  FUSION OPERATIONS 
