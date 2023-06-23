@@ -423,21 +423,21 @@ class Test3 {
 		l1.add(new SBoolean(1,0,0,0.5));
 		l1.add(new SBoolean(1,0,0,0.5));
 		l1.add(new SBoolean(0,1,0,0.5));
-		System.out.println(SBoolean.weightedBeliefFusion(l1));
+		System.out.println(SBoolean.weightedUnion(l1));
 		l1 = new ArrayList<SBoolean>();
 		l1.add(new SBoolean(0.5,0.5,0,0.5));
 		l1.add(new SBoolean(1,0,0,0.5));
 		l1.add(new SBoolean(1,0,0,0.5));
 		l1.add(new SBoolean(1,0,0,0.5));
 		l1.add(new SBoolean(0,1,0,0.5));
-		System.out.println(SBoolean.weightedBeliefFusion(l1));
+		System.out.println(SBoolean.weightedUnion(l1));
 		l1 = new ArrayList<SBoolean>();
 		l1.add(new SBoolean(0.5,0,0.5,0.5));
 		l1.add(new SBoolean(0.5,0,0.5,0.5));
 		l1.add(new SBoolean(0.3,0.5,0.2,0.5));
 		l1.add(new SBoolean(0.7,0.1,0.2,0.5));
 		l1.add(new SBoolean(0,1,0,0.5));
-		System.out.println(SBoolean.weightedBeliefFusion(l1));
+		System.out.println(SBoolean.weightedUnion(l1));
 	
 		
 		
