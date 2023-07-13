@@ -108,12 +108,12 @@ public class UUnlimitedNatural implements Cloneable,Comparable<UUnlimitedNatural
 		}
 		if (r.getU()==0.0) { // r is a scalar
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()); // "this" may be a scalar, too
+			result.setU(this.getU() / r.getX()); // "this" may be a scalar, too
 			return result;
 		}
 		if (this.getU()==0.0) { // "this is a scalar, r is not
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()/(this.getX()*this.getX()));
+			result.setU(r.getU()/(r.getX()*r.getX()));
 			return result;
 		}
 		// both variables have associated uncertainty
@@ -144,15 +144,16 @@ public class UUnlimitedNatural implements Cloneable,Comparable<UUnlimitedNatural
 		}
 		if (r.getU()==0.0) { // r is a scalar
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()); // "this" may be a scalar, too
+			result.setU(this.getU() / r.getX()); // "this" may be a scalar, too
 			return result;
 		}
 		if (this.getU()==0.0) { // "this is a scalar, r is not
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()/(this.getX()*this.getX()));
+			result.setU(r.getU()/(r.getX()*r.getX()));
 			return result;
 		}
 		// both variables have associated uncertainty
+		
 		double a = this.getX() / r.getX();
 //		double b = (this.getX()*r.getU()*r.getU())/(Math.pow(r.getX(), 3));
 		double b = (this.getX()*r.getU()*r.getU())/(r.getX()*r.getX()*r.getX());
@@ -214,15 +215,15 @@ public class UUnlimitedNatural implements Cloneable,Comparable<UUnlimitedNatural
 		}
 		if (r.getU()==0.0) { // r is a scalar
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()); // "this" may be a scalar, too
+			result.setU(this.getU() / r.getX()); // "this" may be a scalar, too
 			return result;
 		}
 		if (this.getU()==0.0) { // "this is a scalar, r is not
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()/(this.getX()*this.getX()));
+			result.setU(r.getU()/(r.getX()*r.getX()));
 			return result;
 		}
-		// both variables have associated uncertainty
+		// both variables have associated uncertainty		
 		
 		double a = this.getX() / r.getX();
 //		double b = (this.getX()*r.getU()*r.getU())/(Math.pow(r.getX(), 3));
@@ -252,15 +253,16 @@ public class UUnlimitedNatural implements Cloneable,Comparable<UUnlimitedNatural
 		}
 		if (r.getU()==0.0) { // r is a scalar
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()); // "this" may be a scalar, too
+			result.setU(this.getU() / r.getX()); // "this" may be a scalar, too
 			return result;
 		}
 		if (this.getU()==0.0) { // "this is a scalar, r is not
 			result.setX(this.getX() / r.getX());
-			result.setU(this.getU()/(this.getX()*this.getX()));
+			result.setU(r.getU()/(r.getX()*r.getX()));
 			return result;
 		}
 		// both variables have associated uncertainty
+		
 		double a = this.getX() / r.getX();
 //		double b = (this.getX()*r.getU()*r.getU())/(Math.pow(r.getX(), 3));
 		double b = (this.getX()*r.getU()*r.getU())/(r.getX()*r.getX()*r.getX());
