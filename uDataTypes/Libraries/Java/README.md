@@ -19,7 +19,212 @@ Type ``SBoolean`` provides an extension of ``UBoolean`` to represent binomial *o
 
 These values are all real numbers in the range [0,1] and satisfy that *b+d+u=1*. The "*projected*" probability of a binomial opinion is defined as *P=b+au*. 
 
-All related operations and Mathematical functions on these datatypes are supported. 
+### Supported operations
+
+All most common operations and Mathematical functions on these datatypes are supported.
+
+More precisely,
+
+    TYPE UReal 
+    -- Constructor 
+    UReal(x:Real,u:Real)
+    -- Getters and setters
+    UReal.value() : Real
+    UReal.uncertainty() : Real
+    -- OPERATIONS
+    UReal.abs() : UReal
+    UReal.neg() : UReal
+    UReal + Number (Integer | Real | UReal) : UReal
+    UReal - Number : UReal
+    UReal * Number : UReal
+    UReal / Number : UReal
+    UReal.power(n : Number) : UReal
+    UReal.sqrt() : UReal
+    UReal.floor() : UReal
+    UReal.round() : UReal
+    UReal.inv() : UReal
+    UReal.sin() : UReal
+    UReal.cos() : UReal
+    UReal.tan() : UReal
+    UReal.asin() : UReal
+    UReal.acos() : UReal
+    UReal.atan() : UReal
+    UReal.min(n : Number) : UReal
+    UReal.max(n : Number) : UReal
+    -- COMPARISONS
+    UReal = Number : UBoolean
+    UReal <> Number : UBoolean
+    UReal < Number : UBoolean
+    UReal > Number : UBoolean
+    UReal <= Number : UBoolean
+    UReal >= Number : UBoolean
+    UReal.equals() : Boolean
+    -- CONVERSIONS
+    UReal.toInteger() : Integer
+    UReal.toReal() : Real
+    UReal.toString() : String
+
+
+    TYPE UInteger
+    --constructor
+    UInteger(n:Integer, u:Real)
+    -- Getters and setters
+    UInteger.value() : Integer
+    UInteger.uncertainty() : Real
+    -- OPERATIONS
+    UInteger .abs() : UInteger
+    UInteger .neg() : UInteger
+    UInteger + Number : UInteger | UReal (it depends on the common supertype)
+    UInteger - Number : UInteger | UReal (it depends on the common supertype)
+    UInteger * Number : UInteger | UReal (it depends on the common supertype)
+    UInteger / Number : UReal
+    UInteger.div(Number) : UInteger
+    UInteger.mod(Number) : UInteger
+    UInteger.power(n : Number) : UReal
+    UInteger.sqrt() : UReal
+    -- COMPARISONS
+    UInteger = Number : UBoolean
+    UInteger <> Number : UBoolean
+    UInteger < Number : UBoolean
+    UInteger > Number : UBoolean
+    UInteger <= Number : UBoolean
+    UInteger >= Number : UBoolean
+    UReal.equals(OclAny) : Boolean
+    -- CONVERSIONS
+    UInteger.toUReal() : UReal
+    UInteger.toString() : String
+    UInteger.toInteger() : Integer
+    UInteger.toReal() : Real
+
+    TYPE UBoolean
+    -- constructor, 0<=c<=1 -> Otherwise it is "Undefined"
+    UBoolean(b:Boolean, c:Real) 
+    -- Getters and setters
+    UBoolean.value() : Boolean
+    UBoolean.confidence() : Real
+    UBoolean.uncertainty() : Real -- same as "confidence()", for consistency
+    -- OPERATIONS
+    UBoolean.and(UBoolean) : UBoolean
+    UBoolean.or(UBoolean) : UBoolean
+    UBoolean.not(UBoolean) : UBoolean
+    UBoolean.implies(UBoolean) : UBoolean
+    UBoolean.xor(UBoolean) : UBoolean
+    UBoolean.equivalent(UBoolean) : UBoolean
+    -- COMPARISONS
+    UBoolean.equalsC(UBoolean, c:Real) : Boolean -- provide the threshold confidence
+    UBoolean.equals(OclAny) : Boolean
+    UBoolean = (UBoolean | Boolean) : UBoolean
+    UBoolean <> (UBoolean | Boolean) : UBoolean
+    -- CONVERSIONS
+    UBoolean.toBoolean() : Boolean
+    UBoolean.toBooleanC(c:Real) : Boolean -- provide the threshold confidence
+    UBoolean.toString() : String
+
+
+    TYPE SBoolean
+    -- constructors, b+d+u=1, 0<=b<=1, 0<=d<=1, 0<=u<=1, 0<=a<=1 
+    SBoolean(b:Boolean) -- same as SBoolean(1,0,0,1) or SBoolean(0,1,0,0) -- "Absolute" opinions
+    SBoolean(b:UBoolean) -- "Dogmatic" opinions, with u==0
+    SBoolean(b:Real, d:Real, u:Real, a:Real) 
+    -- Getters (no setters allowed for this type)
+    SBoolean.belief() : Real
+    SBoolean.disbelief() : Real
+    SBoolean.uncertainty() : Real
+    SBoolean.baseRate() : Real
+    -- Queries
+    SBoolean.isAbsolute() : Boolean     -- belief = 1 or disbelief = 1
+    SBoolean.isVacuous () : Boolean   -- uncertainty = 1
+    SBoolean.isDogmatic () : Boolean -- uncertainty = 0
+    SBoolean.isMaximizedUncertainty () : Boolean     -- belief = 0 or disbelief = 0
+    SBoolean.certainty() : Boolean     -- 1.0-uncertainty (== belief+disbelief)
+    SBoolean.isUncertain(th:Real) : Boolean     -- self.certainty() < th
+
+    -- OPERATIONS
+    SBoolean.projection() : Real
+    SBoolean.projectiveDistance() : Real
+    SBoolean.conjunctiveCertainty() : Real
+    SBoolean.degreeOfConflict() : Real
+    SBoolean.not() : SBoolean
+    SBoolean.uncertaintyMaximized() : SBoolean -- result.isMaximizedUncertainty()
+    SBoolean.and(SBoolean) : SBoolean
+    SBoolean.or(SBoolean) : SBoolean
+    SBoolean.implies(SBoolean) : SBoolean
+    SBoolean.xor(SBoolean) : SBoolean
+    SBoolean.equivalent(SBoolean) : SBoolean
+    SBoolean.deduceY(yGivenX:SBoolean, yGivenNotX:SBoolean)
+
+    -- COMPARISONS
+    SBoolean.equals(OclAny) : Boolean
+    SBoolean = (SBoolean | UBoolean | Boolean) : SBoolean -- same as equivalent
+    SBoolean <> (SBoolean | UBoolean | Boolean) : SBoolean -- same as xor
+    SBoolean.min(SBoolean):SBoolean
+    SBoolean.max(SBoolean):SBoolean
+    -- CONVERSIONS
+    SBoolean.toUBoolean() : UBoolean
+    SBoolean.toString() : String
+    -- "Type" (static) operations:
+    ?SBoolean.minimumBeliefFusion(sb1,sb2,sb3)
+    ?SBoolean.majorityBeliefFusion(sb1,sb2,sb3)
+    ?SBoolean.beliefConstraintFusion(sb1,sb2,sb3)
+    ?SBoolean.averageBeliefFusion(sb1,sb2,sb3)
+    ?SBoolean.aleatoryCumulativeBeliefFusion(sb1,sb2,sb3)
+    ?SBoolean.epistemicCumulativeBeliefFusion(sb1,sb2,sb3)
+    ?SBoolean.weightedBeliefFusion(sb1,sb2,sb3)
+    ?SBoolean.consensusAndCompromiseFusion(sb1,sb2,sb3)
+
+    -- BINARY FUSION OPERATORS
+    ?sb1.minimumFusion(sb2)                -- minimumBeliefFusion(sb1,sb2)
+    ?sb1.majorityFusion(sb2)               -- majorityBeliefFusion(sb1,sb2)
+    ?sb1.beliefConstraintFusion(sb2)       -- beliefConstraintBeliefFusion(sb1,sb2)
+    ?sb1.averageBeliefFusion(sb2)                -- averageBeliefFusion(sb1,sb2)
+    ?sb1.aleatoryCumulativeFusion(sb2)     -- aleatoryCumulativeBeliefFusion(sb1,sb2)
+    ?sb1.epistemicCumulativeFusion(sb2)    -- epistemicCumulativeBeliefFusion(sb1,sb2)
+    ?sb1.weightedBeliefFusion(sb2)               -- weightedBeliefFusion(sb1,sb2)
+    ?sb1.consensusAndCompromiseFusion(sb2) -- consensusAndCompromiseBeliefFusion(sb1,sb2)
+
+    -- COLLECTION FUSION OPERATIONS 
+    ?sb1.minimumBeliefFusion(Sequence{sb2, sb3})               -- minimumBeliefFusion(sb1,sb2,sb3)
+    ?sb1.majorityBeliefFusion(Sequence{sb2, sb3})              -- majorityBeliefFusion(sb1,sb2,sb3)
+    ?sb1.beliefConstraintFusion(Sequence{sb2, sb3})            -- beliefConstraintFusion(sb1,sb2,sb3)
+    ?sb1.averageBeliefFusion(Sequence{sb2, sb3})               -- averageBeliefFusion(sb1,sb2,sb3)
+    ?sb1.aleatoryCumulativeBeliefFusion(Sequence{sb2, sb3})    -- aleatoryCumulativeBeliefFusion(sb1,sb2,sb3)
+    ?sb1.epistemicCumulativeBeliefFusion(Sequence{sb2, sb3})   -- epistemicCumulativeBeliefFusion(sb1,sb2,sb3)
+    ?sb1.weightedBeliefFusion(Sequence{sb2, sb3})              -- weightedBeliefFusion(sb1,sb2,sb3)
+    ?sb1.consensusAndCompromiseFusion(Sequence{sb2, sb3})      -- consensusAndCompromiseFusion(sb1,sb2,sb3)
+
+
+    TYPE UString
+    -- constructor, 0<=c<=1 
+    UString(s:String, c:Real) 
+    -- Getters and setters
+    UString.value() : String
+    UString.confidence() : Real
+    UString.setValue(String) : UString
+    UString.setConfidence(Real) : UString
+    -- OPERATIONS
+    UString.at(Integer) : UString
+    UString.character() : Sequence(UString)
+    UString + (UString | String) : UString
+    UString.size() : UInteger
+    UString.indexOf(String) : UString
+    UString.substring(Integer, Integer) : UString
+    UString.toLowerCase() : UString
+    UString.toUpperCase() : UString
+    -- COMPARISONS
+    UString == Value : UBoolean
+    UString <> Value : UBoolean
+    UString > Value : UBoolean
+    UString >= Value : UBoolean
+    UString < Value : UBoolean
+    UString <= Value : UBoolean
+    UString.equals(Value) : Boolean
+    -- CONVERSIONS
+    UString.toReal() : Real
+    UString.toInteger() : Integer
+    UString.toBoolean() : Boolean
+    UString.toUBoolean() : UBoolean
+    UString.toString() : String
+
 
 ## Main features
 
