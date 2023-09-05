@@ -312,70 +312,81 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
 		
 		}
 
-	public SBoolean deduceY(SBoolean yGivenX, SBoolean yGivenNotX) { // DEDUCTION: returns Y, acting "this" as X
-		SBoolean y = new SBoolean();
-		double px = this.projection();
-		double K;
-		y.a = (yGivenX.u+yGivenNotX.u < 2.0D)? (this.a*yGivenX.b+(1.0D-this.a)*yGivenNotX.b)/(1.0D-this.a*yGivenX.u-(1.0D-this.a)*yGivenNotX.u) : yGivenX.a;
-		double pyxhat = yGivenX.b*this.a + yGivenNotX.b*(1-this.a)+ y.a*(yGivenX.u*this.a+yGivenNotX.u*(1-this.a));
-		double bIy = this.b*yGivenX.b+this.d*yGivenNotX.b+this.u*(yGivenX.b*this.a+yGivenNotX.b*(1.0D-this.a));
-		double dIy = this.b*yGivenX.d+this.d*yGivenNotX.d+this.u*(yGivenX.d*this.a+yGivenNotX.d*(1.0D-this.a));
-		double uIy = this.b*yGivenX.u+this.d*yGivenNotX.u+this.u*(yGivenX.u*this.a+yGivenNotX.u*(1.0D-this.a));
-		// case I
-		//if (((yGivenX.b>yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d))||((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d))) 
-		K=0.0D;
+		public SBoolean deduceY(SBoolean yGivenX, SBoolean yGivenNotX) { // DEDUCTION: returns Y, acting "this" as X
+			SBoolean y = new SBoolean();
+			double px = this.projection();
+			double K;
+			y.a = (yGivenX.u + yGivenNotX.u < 2.0D) ? (this.a * yGivenX.b + (1.0D - this.a) * yGivenNotX.b)
+					/ (1.0D - this.a * yGivenX.u - (1.0D - this.a) * yGivenNotX.u) : yGivenX.a;
+			double pyxhat = yGivenX.b * this.a + yGivenNotX.b * (1 - this.a)
+					+ y.a * (yGivenX.u * this.a + yGivenNotX.u * (1 - this.a));
+			double bIy = this.b * yGivenX.b + this.d * yGivenNotX.b
+					+ this.u * (yGivenX.b * this.a + yGivenNotX.b * (1.0D - this.a));
+			double dIy = this.b * yGivenX.d + this.d * yGivenNotX.d
+					+ this.u * (yGivenX.d * this.a + yGivenNotX.d * (1.0D - this.a));
+			double uIy = this.b * yGivenX.u + this.d * yGivenNotX.u
+					+ this.u * (yGivenX.u * this.a + yGivenNotX.u * (1.0D - this.a));
+			// case I
+			// if
+			// (((yGivenX.b>yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d))||((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)))
+			K = 0.0D;
 
-		// case II.A.1
-		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
-				(pyxhat <= (yGivenNotX.b+y.a*(1.0D-yGivenNotX.b-yGivenX.d))) &&
-				(px<=this.a) ) 
-			{K=(this.a*this.u*(bIy-yGivenNotX.b))/((this.b+this.a*this.u)*y.a);}
-		// case II.A.2
-		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
-				(pyxhat <= (yGivenNotX.b+y.a*(1.0D-yGivenNotX.b-yGivenX.d))) &&
-				(px>this.a) ) 
-			{K=(this.a*this.u*(dIy-yGivenX.d)*(yGivenX.b-yGivenNotX.b))/((this.d+(1.0D-this.a)*this.u)*y.a*(yGivenNotX.d-yGivenX.d));}
-		// case II.B.1
-		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
-				(pyxhat > (yGivenNotX.b+y.a*(1.0D-yGivenNotX.b-yGivenX.d))) &&
-				(px<=this.a) ) 
-			{K=((1.0D-this.a)*this.u*(bIy-yGivenNotX.b)*(yGivenNotX.d-yGivenX.d))/((this.b+this.a*this.u)*(1.0D-y.a)*(yGivenX.b-yGivenNotX.b));}
-		// case II.B.2
-		if ((yGivenX.b>yGivenNotX.b)&&(yGivenX.d<=yGivenNotX.d)&&
-				(pyxhat > (yGivenNotX.b+y.a*(1.0D-yGivenNotX.b-yGivenX.d))) &&
-				(px>this.a) ) 
-			{K=((1.0D-this.a)*this.u*(dIy-yGivenX.d))/((this.d+(1.0D-this.a)*this.u)*(1.0D-y.a));}
+			// case II.A.1
+			if ((yGivenX.b > yGivenNotX.b) && (yGivenX.d <= yGivenNotX.d)
+					&& (pyxhat <= (yGivenNotX.b + y.a * (1.0D - yGivenNotX.b - yGivenX.d))) && (px <= this.a)) {
+				K = (this.a * this.u * (bIy - yGivenNotX.b)) / ((this.b + this.a * this.u) * y.a);
+			}
+			// case II.A.2
+			if ((yGivenX.b > yGivenNotX.b) && (yGivenX.d <= yGivenNotX.d)
+					&& (pyxhat <= (yGivenNotX.b + y.a * (1.0D - yGivenNotX.b - yGivenX.d))) && (px > this.a)) {
+				K = (this.a * this.u * (dIy - yGivenX.d) * (yGivenX.b - yGivenNotX.b))
+						/ ((this.d + (1.0D - this.a) * this.u) * y.a * (yGivenNotX.d - yGivenX.d));
+			}
+			// case II.B.1
+			if ((yGivenX.b > yGivenNotX.b) && (yGivenX.d <= yGivenNotX.d)
+					&& (pyxhat > (yGivenNotX.b + y.a * (1.0D - yGivenNotX.b - yGivenX.d))) && (px <= this.a)) {
+				K = ((1.0D - this.a) * this.u * (bIy - yGivenNotX.b) * (yGivenNotX.d - yGivenX.d))
+						/ ((this.b + this.a * this.u) * (1.0D - y.a) * (yGivenX.b - yGivenNotX.b));
+			}
+			// case II.B.2
+			if ((yGivenX.b > yGivenNotX.b) && (yGivenX.d <= yGivenNotX.d)
+					&& (pyxhat > (yGivenNotX.b + y.a * (1.0D - yGivenNotX.b - yGivenX.d))) && (px > this.a)) {
+				K = ((1.0D - this.a) * this.u * (dIy - yGivenX.d))
+						/ ((this.d + (1.0D - this.a) * this.u) * (1.0D - y.a));
+			}
 
-		// case III.A.1
-		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
-				(pyxhat <= (yGivenX.b+y.a*(1.0D-yGivenNotX.b-yGivenX.d))) &&
-				(px<=this.a) ) 
-			{K=((1.0D-this.a)*this.u*(dIy-yGivenNotX.d)*(yGivenNotX.b-yGivenX.b))/((this.b+this.a*this.u)*y.a*(yGivenX.d-yGivenNotX.d));}
-		
-		// case III.A.2
-		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
-				(pyxhat <= (yGivenX.b+y.a*(1.0D-yGivenX.b-yGivenNotX.d))) &&
-				(px>this.a) ) 
-			{K=((1.0D-this.a)*this.u*(bIy-yGivenX.d))/((this.d+(1.0D-this.a)*this.u)*y.a);}
+			// case III.A.1
+			if ((yGivenX.b <= yGivenNotX.b) && (yGivenX.d > yGivenNotX.d)
+					&& (pyxhat <= (yGivenX.b + y.a * (1.0D - yGivenNotX.b - yGivenX.d))) && (px <= this.a)) {
+				K = ((1.0D - this.a) * this.u * (dIy - yGivenNotX.d) * (yGivenNotX.b - yGivenX.b))
+						/ ((this.b + this.a * this.u) * y.a * (yGivenX.d - yGivenNotX.d));
+			}
 
-		// case III.B.1
-		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
-				(pyxhat > (yGivenX.b+y.a*(1.0D-yGivenX.b-yGivenNotX.d))) &&
-				(px<=this.a) ) 
-			{K=(this.a*this.u*(dIy-yGivenNotX.b))/((this.b+this.a*this.u)*(1.0D-y.a));}
+			// case III.A.2
+			if ((yGivenX.b <= yGivenNotX.b) && (yGivenX.d > yGivenNotX.d)
+					&& (pyxhat <= (yGivenX.b + y.a * (1.0D - yGivenX.b - yGivenNotX.d))) && (px > this.a)) {
+				K = ((1.0D - this.a) * this.u * (bIy - yGivenX.d)) / ((this.d + (1.0D - this.a) * this.u) * y.a);
+			}
 
-		// case III.B.2
-		if ((yGivenX.b<=yGivenNotX.b)&&(yGivenX.d>yGivenNotX.d)&&
-				(pyxhat > (yGivenX.b+y.a*(1.0D-yGivenX.b-yGivenNotX.d))) &&
-				(px>this.a) ) 
-			{K=(this.a*this.u*(bIy-yGivenX.b)*(yGivenX.d-yGivenNotX.d))/((this.d+(1.0D-this.a)*this.u)*(1.0D-y.a)*(yGivenNotX.b-yGivenX.b));}
-		
-		y.b = adjust(bIy - y.a*K);
-		y.d = adjust(dIy - (1.0D-y.a)*K);
-		y.u = adjust(uIy + K);
-        y.setRelativeWeight(yGivenX.getRelativeWeight() + yGivenNotX.getRelativeWeight());
-		return y;
-	}
+			// case III.B.1
+			if ((yGivenX.b <= yGivenNotX.b) && (yGivenX.d > yGivenNotX.d)
+					&& (pyxhat > (yGivenX.b + y.a * (1.0D - yGivenX.b - yGivenNotX.d))) && (px <= this.a)) {
+				K = (this.a * this.u * (dIy - yGivenNotX.b)) / ((this.b + this.a * this.u) * (1.0D - y.a));
+			}
+
+			// case III.B.2
+			if ((yGivenX.b <= yGivenNotX.b) && (yGivenX.d > yGivenNotX.d)
+					&& (pyxhat > (yGivenX.b + y.a * (1.0D - yGivenX.b - yGivenNotX.d))) && (px > this.a)) {
+				K = (this.a * this.u * (bIy - yGivenX.b) * (yGivenX.d - yGivenNotX.d))
+						/ ((this.d + (1.0D - this.a) * this.u) * (1.0D - y.a) * (yGivenNotX.b - yGivenX.b));
+			}
+
+			y.b = adjust(bIy - y.a * K);
+			y.d = adjust(dIy - (1.0D - y.a) * K);
+			y.u = adjust(uIy + K);
+			y.setRelativeWeight(yGivenX.getRelativeWeight() + yGivenNotX.getRelativeWeight());
+			return y;
+		}
 
     /************************************
      * UNION AND WEIGHTED UNION OPERATIONS
@@ -415,20 +426,20 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      * @throws IllegalArgumentException
      */
 
-    public static SBoolean weightedUnion(Collection<SBoolean> opinions) {
-        if (opinions.contains(null) || opinions.size() < 2)
-            throw new IllegalArgumentException("weightedUnion: Cannot make the union of null opinions, or only one opinion was passed");
-        double b = 0.0D;
-        double a = 0.0D;
-        double u = 0.0D;
-        int n = opinions.size();
-        for (SBoolean so : opinions) {
-            b+=so.b;
-            a+=so.a;
-            u+=so.a*so.u;
-        }
-        return new SBoolean(b/n,1-b/n-u/a,u/a,a/n);
-    }
+	public static SBoolean weightedUnion(Collection<SBoolean> opinions) {
+		if (opinions.contains(null) || opinions.size() < 2)
+			throw new IllegalArgumentException("weightedUnion: Cannot make the union of null opinions, or only one opinion was passed");
+		double b = 0.0D;
+		double a = 0.0D;
+		double u = 0.0D;
+		int n = opinions.size();
+		for (SBoolean so : opinions) {
+			b += so.b;
+			a += so.a;
+			u += so.a * so.u;
+		}
+		return new SBoolean(b / n, 1 - b / n - u / a, u / a, a / n);
+	}
  
     /************************************ 
 	 * Binary ver
@@ -440,7 +451,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
        Collection<SBoolean> opinions = new ArrayList<>();
        opinions.add(this);
        opinions.add(opinion);
-       return consensusAndCompromiseFusion(opinions);
+       return ccFusion(opinions);
    }
 
 	
@@ -459,7 +470,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      * @return a new SBoolean that represents the fused evidence.
      * @throws IllegalArgumentException
 	 */
-    public static SBoolean beliefConstraintFusion(Collection<SBoolean> opinions) {
+    public static SBoolean cbFusion(Collection<SBoolean> opinions) {
         if (opinions.contains(null) || opinions.size() < 2)
             throw new IllegalArgumentException("BCF: Cannot fuse null opinions, or only one opinion was passed");
         SBoolean bcf = null;
@@ -471,6 +482,11 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
         return bcf;
     }
 
+    @Deprecated
+    public static SBoolean beliefConstraintFusion(Collection<SBoolean> opinions) {
+        return cbFusion(opinions);
+    }
+
 	 /**
      * This method implements MIN fusion. This takes the minimum, i.e., returns the opinion with 
      * the lowest probability of being true, meaning the lowest projected probability P(X=x).
@@ -479,7 +495,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      * @return a new SBoolean that represents the fused evidence.
      * @throws IllegalArgumentException
      */
-    public static SBoolean minimumBeliefFusion(Collection<SBoolean> opinions) {
+    public static SBoolean minimumFusion(Collection<SBoolean> opinions) {
         if (opinions.contains(null) || opinions.size() < 2)
             throw new IllegalArgumentException("MBF: Cannot fuse null opinions, or only one opinion was passed");
 
@@ -489,6 +505,11 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
             min = min.min(so);
         }
         return min.clone();
+    }
+    
+    @Deprecated
+    public static SBoolean minimumBeliefFusion(Collection<SBoolean> opinions) {
+        return minimumFusion(opinions);
     }
 
     /**
@@ -502,7 +523,7 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      * @return a new SBoolean that represents the fused evidence.
      * @throws IllegalArgumentException
      */
-    public static SBoolean majorityBeliefFusion(Collection<SBoolean> opinions) {
+    public static SBoolean majorityFusion(Collection<SBoolean> opinions) {
         if (opinions.contains(null) || opinions.size() < 2)
             throw new IllegalArgumentException("MajBF: Cannot fuse null opinions, or only one opinion was passed");
         int pos=0,neg=0;
@@ -517,6 +538,11 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
         else return new SBoolean(0D,0D,1D,0.5D); 				// uncertain
     }
     
+    @Deprecated
+    public static SBoolean majorityBeliefFusion(Collection<SBoolean> opinions) {
+        return majorityFusion(opinions);
+    }
+    
     /** 
      * This method implements AVERAGE fusion.
      *
@@ -525,81 +551,89 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
      * @throws IllegalArgumentException
      */
 
-   public static SBoolean averageBeliefFusion(Collection<SBoolean> opinions) {
-	   
-	   //implemented using equation (32) of https://folk.uio.no/josang/papers/JWZ2017-FUSION.pdf 
-	   // because the Josang's book has a problem.
-	   
-       if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("AVF: Cannot average null opinions");
+    public static SBoolean averagingFusion(Collection<SBoolean> opinions) {
 
-        double b = 0.0D; double u=0.0D; double a = 0.0D; 
-        double PU = 1.0D; //product of all uncertainties
-        int count = 0;
-   
-        double oBelief;
-        double oAtomicity;
-        double oUncertainty;
-        double oDisbelief;
-      
-        for (SBoolean o : opinions)  PU *= o.uncertainty(); // product of all uncertainties
-       
-        // case I: all opinions with uncertainty > 0:
-        if (PU!=0) {
-         	for (SBoolean o: opinions) {
-        		u += PU/o.uncertainty();
-        		b += o.belief()*PU/o.uncertainty();
-        		a += o.baseRate();
-        	}
-            oBelief = b / u;
-            oAtomicity = a / opinions.size();
-            oUncertainty = opinions.size()*PU/u;
-            oDisbelief = 1.0D - oBelief - oUncertainty;
-            return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
-        }
-        else { // there is at least one opinion with uncertainty = 0. Then we only consider these opinions
-        	for (SBoolean o: opinions) {
-        		if (o.uncertainty()==0.0D) {
-        			b += o.belief();
-        			a += o.baseRate();
-        			count++;
-        		}
-        	}
-            oBelief = b / count;
-            oAtomicity = a / count;
-            oUncertainty = 0.0D;
-            oDisbelief = 1.0D - oBelief - oUncertainty;
-            return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
-        }
-        
-        /* OLD VERSION
-        int count = 0;
-        double b = 0.0D; double a = 0.0D; double p = 0.0D;
-        for (SBoolean opinion : opinions) {
-            if (opinion != null)
-            {
-            	SBoolean x = opinion.clone();
-                count++;
-                b += x.belief();
-                a += x.baseRate();
-                p += x.belief() + x.baseRate() * x.uncertainty();
-            }
-        }
-        if (count == 0) {
-            throw new IllegalArgumentException("Opinions must not be empty");
-        }
-        oBelief = b / count;
-        oAtomicity = a / count;
-        oUncertainty = (p / count - oBelief) / oAtomicity;
-        oDisbelief = 1.0D - oBelief - oUncertainty;
+		// implemented using equation (32) of
+		// https://folk.uio.no/josang/papers/JWZ2017-FUSION.pdf
+		// because the Josang's book has a problem.
 
-        return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
-        */
-    }
-   
-   
- 
+		if (opinions == null || opinions.contains(null) || opinions.isEmpty())
+			throw new IllegalArgumentException("AVF: Cannot average null opinions");
 
+		double b = 0.0D;
+		double u = 0.0D;
+		double a = 0.0D;
+		double PU = 1.0D; // product of all uncertainties
+		int count = 0;
+
+		double oBelief;
+		double oAtomicity;
+		double oUncertainty;
+		double oDisbelief;
+
+		for (SBoolean o : opinions)
+			PU *= o.uncertainty(); // product of all uncertainties
+
+		// case I: all opinions with uncertainty > 0:
+		if (PU != 0) {
+			for (SBoolean o : opinions) {
+				u += PU / o.uncertainty();
+				b += o.belief() * PU / o.uncertainty();
+				a += o.baseRate();
+			}
+			oBelief = b / u;
+			oAtomicity = a / opinions.size();
+			oUncertainty = opinions.size() * PU / u;
+			oDisbelief = 1.0D - oBelief - oUncertainty;
+			return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
+		} else { // there is at least one opinion with uncertainty = 0. Then we only consider
+					// these opinions
+			for (SBoolean o : opinions) {
+				if (o.uncertainty() == 0.0D) {
+					b += o.belief();
+					a += o.baseRate();
+					count++;
+				}
+			}
+			oBelief = b / count;
+			oAtomicity = a / count;
+			oUncertainty = 0.0D;
+			oDisbelief = 1.0D - oBelief - oUncertainty;
+
+			return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
+		}
+		 
+		 /* OLD VERSION
+		 int count = 0;
+		 double b = 0.0D; double a = 0.0D; double p = 0.0D;
+		 for (SBoolean opinion : opinions) {
+		     if (opinion != null)
+		     {
+		     	SBoolean x = opinion.clone();
+		         count++;
+		         b += x.belief();
+		         a += x.baseRate();
+		         p += x.belief() + x.baseRate() * x.uncertainty();
+		     }
+		 }
+		 if (count == 0) {
+		     throw new IllegalArgumentException("Opinions must not be empty");
+		 }
+		 oBelief = b / count;
+		 oAtomicity = a / count;
+		 oUncertainty = (p / count - oBelief) / oAtomicity;
+		 oDisbelief = 1.0D - oBelief - oUncertainty;
+		
+		 return new SBoolean(oBelief, oDisbelief, oUncertainty, oAtomicity);
+		 */
+     }
+    
+    @Deprecated
+    public static SBoolean averageBeliefFusion(Collection<SBoolean> opinions) {
+    	return averagingFusion(opinions);
+     }
+   
+   
    /**
     * This method implements cumulative belief fusion (CBF) for multiple sources, as discussed in the corrected
     * version of <a href="https://folk.uio.no/josang/papers/JWZ2017-FUSION.pdf">a FUSION 2017 paper by Josang et al.</a>
@@ -612,177 +646,194 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * @return a new SBoolean that represents the fused evidence based on evidence accumulation.
     * @throws IllegalArgumentException
     */
+   public static SBoolean aleatoryCumulativeFusion(Collection<SBoolean> opinions) {
+		// handle edge cases
+		if (opinions == null || opinions.contains(null) || opinions.isEmpty())
+			throw new IllegalArgumentException("aCBF: Cannot average null opinions");
+
+		if (opinions.size() == 1) {
+			return opinions.iterator().next().clone();
+		}
+
+		// fusion as defined by Josang
+		double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0, resultAtomicity = -1;
+
+		Collection<SBoolean> dogmatic = new ArrayList<>(opinions.size());
+		Iterator<SBoolean> it = opinions.iterator();
+		boolean first = true;
+		while (it.hasNext()) {
+			SBoolean o = it.next();
+			if (first) {
+				resultAtomicity = o.baseRate();
+				first = false;
+			}
+			// dogmatic iff uncertainty is zero.
+			if (o.uncertainty() == 0.0D)
+				dogmatic.add(o);
+		}
+
+		if (dogmatic.isEmpty()) {
+			// there are no dogmatic opinions -- case I/Eq16 of 10.23919/ICIF.2017.8009820
+			double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
+
+			double numerator = 0.0D;
+			double beliefAccumulator = 0.0D;
+			double disbeliefAccumulator = 0.0D;
+
+			// this computes the top and bottom sums in Eq16, but ignores the - (N-1) *
+			// productOfUncertainties in the numerator (see below)
+			for (SBoolean o : opinions) {
+				// productWithoutO = product of uncertainties without o's uncertainty
+				// this can be rewritten:
+				// prod {C_j != C } u^{C_j} = (u^C)^-1 * prod{C_j} u^{C_j} = 1/(u^C) * prod{C_j}
+				// u^{C_j}
+				// so instead of n-1 multiplications, we only need a division
+				double productWithoutO = productOfUncertainties / o.uncertainty();
+
+				beliefAccumulator = beliefAccumulator + productWithoutO * o.belief();
+				disbeliefAccumulator = disbeliefAccumulator + productWithoutO * o.disbelief();
+				numerator = numerator + productWithoutO;
+			}
+
+			// this completes the numerator:
+			numerator = numerator - (opinions.size() - 1) * productOfUncertainties;
+
+			resultBelief = beliefAccumulator / numerator;
+			resultDisbelief = disbeliefAccumulator / numerator;
+			resultUncertainty = productOfUncertainties / numerator;
+
+			resultRelativeWeight = 0.0D;
+		} else {
+			// at least 1 dogmatic opinion
+			// note: this computation assumes that the relative weight represents how many
+			// opinions have been fused into that opinion.
+			// for a normal multi-source fusion operation, this should be 1, in which case
+			// the gamma's in Eq17 are 1/N as noted in the text (i.e., all opinions count
+			// equally)
+			// however, this formulation also allows partial fusion beforehand, by
+			// "remembering" the amount of dogmatic (!) opinions in o.relativeWeight.
+
+			double totalWeight = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight()).sum();
+			resultBelief = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight() / totalWeight * (o).belief()).sum();
+			resultDisbelief = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight() / totalWeight * (o).disbelief()).sum();
+			resultUncertainty = 0.0D;
+			resultRelativeWeight = totalWeight;
+		}
+
+		SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity, resultRelativeWeight);
+		return result;
+   }
+   
+   @Deprecated
    public static SBoolean cumulativeBeliefFusion(Collection<SBoolean> opinions) {
-       //handle edge cases
-       if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("aCBF: Cannot average null opinions");
- 
-       if (opinions.size() == 1){
-           return opinions.iterator().next().clone();
-       }
-
-       //fusion as defined by Josang
-       double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0, resultAtomicity = -1;
-
-       Collection<SBoolean> dogmatic = new ArrayList<>(opinions.size());
-       Iterator<SBoolean> it = opinions.iterator();
-       boolean first = true;
-       while(it.hasNext()) {
-    	   SBoolean o = it.next();
-           if(first) {
-               resultAtomicity = o.baseRate();
-               first = false;
-           }
-           //dogmatic iff uncertainty is zero.
-           if (o.uncertainty() == 0.0D)
-               dogmatic.add(o);
-       }
-
-       if(dogmatic.isEmpty()){
-           //there are no dogmatic opinions -- case I/Eq16 of 10.23919/ICIF.2017.8009820
-           double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
-
-           double numerator = 0.0D;
-           double beliefAccumulator = 0.0D;
-           double disbeliefAccumulator = 0.0D;
-
-           //this computes the top and bottom sums in Eq16, but ignores the - (N-1) * productOfUncertainties in the numerator (see below)
-           for (SBoolean o : opinions) {
-               //productWithoutO = product of uncertainties without o's uncertainty
-               //this can be rewritten:
-               //prod {C_j != C } u^{C_j} = (u^C)^-1 * prod{C_j} u^{C_j} = 1/(u^C) * prod{C_j} u^{C_j}
-               //so instead of n-1 multiplications, we only need a division
-               double productWithoutO = productOfUncertainties / o.uncertainty();
-
-               beliefAccumulator = beliefAccumulator + productWithoutO * o.belief();
-               disbeliefAccumulator = disbeliefAccumulator + productWithoutO * o.disbelief();
-               numerator = numerator + productWithoutO;
-           }
-
-           //this completes the numerator:
-           numerator = numerator - (opinions.size() - 1) * productOfUncertainties;
-
-           resultBelief = beliefAccumulator / numerator;
-           resultDisbelief = disbeliefAccumulator / numerator;
-           resultUncertainty = productOfUncertainties / numerator;
-
-           resultRelativeWeight = 0.0D;
-       } else {
-           //at least 1 dogmatic opinion
-           //note: this computation assumes that the relative weight represents how many opinions have been fused into that opinion.
-           //for a normal multi-source fusion operation, this should be 1, in which case the gamma's in Eq17 are 1/N as noted in the text (i.e., all opinions count equally)
-           //however, this formulation also allows partial fusion beforehand, by "remembering" the amount of dogmatic (!) opinions in o.relativeWeight.
-
-           double totalWeight = dogmatic.stream().mapToDouble( o -> o.getRelativeWeight()).sum();
-
-           resultBelief = dogmatic.stream().mapToDouble(o-> o.getRelativeWeight()/totalWeight * (o).belief()).sum();
-
-           resultDisbelief = dogmatic.stream().mapToDouble(o-> o.getRelativeWeight()/totalWeight * (o).disbelief()).sum();
-
-           resultUncertainty = 0.0D;
-
-           resultRelativeWeight = totalWeight;
-       }
-
-       SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity,resultRelativeWeight);
-       return result;
+	   return aleatoryCumulativeFusion(opinions);
    }
 
-   /**
-    * This method implements epistemic cumulative belief fusion (eCBF) for multiple sources, 
-    * as discussed in the corrected
-    * version of <a href="https://folk.uio.no/josang/papers/JWZ2017-FUSION.pdf">a FUSION 2017 paper by Josang et al.</a>
-    *
-    * eCBF is useful when the opinions represent knowledge, and not observations, and therefore they are
-    * uncertainty maximized. As in the CBF, each source is supposed to be relying on independent 
-    * (in the statistical sense) evidence (in this case, knowledge).
-    * 
-    * 
-    * @param opinions a collection of opinions from different sources.
-    * @return a new SBoolean that represents the fused evidence based on evidence accumulation.
-    * @throws IllegalArgumentException
-    */
-   public static SBoolean epistemicCumulativeBeliefFusion(Collection<SBoolean> opinions) {
-       //handle edge cases
-       if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("eCBF: Cannot average null opinions");
- 
-       if (opinions.size() == 1){
-           return opinions.iterator().next().clone();
-       }
-       
-       //generate uncertaintyMaximized() versions of opinions
-       //Collection<SBoolean> opinions = new ArrayList<>(ops.size());
-       //for (SBoolean o:ops) {
-       //	   opinions.add(o.uncertaintyMaximized());
-       // }
- 
-       //fusion as defined by Josang
-       double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0.0D, resultAtomicity = -1.0D;
+	/**
+	 * This method implements epistemic cumulative belief fusion (eCBF) for multiple
+	 * sources, as discussed in the corrected version of
+	 * <a href="https://folk.uio.no/josang/papers/JWZ2017-FUSION.pdf">a FUSION 2017
+	 * paper by Josang et al.</a>
+	 *
+	 * eCBF is useful when the opinions represent knowledge, and not observations,
+	 * and therefore they are uncertainty maximized. As in the CBF, each source is
+	 * supposed to be relying on independent (in the statistical sense) evidence (in
+	 * this case, knowledge).
+	 * 
+	 * 
+	 * @param opinions a collection of opinions from different sources.
+	 * @return a new SBoolean that represents the fused evidence based on evidence
+	 *         accumulation.
+	 * @throws IllegalArgumentException
+	 */
+	public static SBoolean epistemicCumulativeFusion(Collection<SBoolean> opinions) {
+		// handle edge cases
+		if (opinions == null || opinions.contains(null) || opinions.isEmpty())
+			throw new IllegalArgumentException("eCBF: Cannot average null opinions");
 
-       Collection<SBoolean> dogmatic = new ArrayList<>(opinions.size());
-       Iterator<SBoolean> it = opinions.iterator();
-       boolean first = true;
-       while(it.hasNext()) {
-    	   SBoolean o = it.next(); //.uncertaintyMaximized();
-           if(first) {
-               resultAtomicity = o.baseRate();
-               first = false;
-           }
-           //dogmatic iff uncertainty is zero.
-           if (o.uncertainty() == 0.0D)
-               dogmatic.add(o);
-       }
+		if (opinions.size() == 1) {
+			return opinions.iterator().next().clone();
+		}
 
-       if(dogmatic.isEmpty()){
-           //there are no dogmatic opinions -- case I/Eq16 of 10.23919/ICIF.2017.8009820
-           double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
+		// generate uncertaintyMaximized() versions of opinions
+		// Collection<SBoolean> opinions = new ArrayList<>(ops.size());
+		// for (SBoolean o:ops) {
+		// opinions.add(o.uncertaintyMaximized());
+		// }
 
-           double numerator = 0.0D;
-           double beliefAccumulator = 0.0D;
-           double disbeliefAccumulator = 0.0D;
+		// fusion as defined by Josang
+		double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0.0D, resultAtomicity = -1.0D;
 
-           //this computes the top and bottom sums in Eq16, but ignores the - (N-1) * productOfUncertainties in the numerator (see below)
-           for (SBoolean o : opinions) {
-               //productWithoutO = product of uncertainties without o's uncertainty
-               //this can be rewritten:
-               //prod {C_j != C } u^{C_j} = (u^C)^-1 * prod{C_j} u^{C_j} = 1/(u^C) * prod{C_j} u^{C_j}
-               //so instead of n-1 multiplications, we only need a division
-               double productWithoutO = productOfUncertainties / o.uncertainty();
+		Collection<SBoolean> dogmatic = new ArrayList<>(opinions.size());
+		Iterator<SBoolean> it = opinions.iterator();
+		boolean first = true;
+		while (it.hasNext()) {
+			SBoolean o = it.next(); // .uncertaintyMaximized();
+			if (first) {
+				resultAtomicity = o.baseRate();
+				first = false;
+			}
+			// dogmatic iff uncertainty is zero.
+			if (o.uncertainty() == 0.0D)
+				dogmatic.add(o);
+		}
 
-               beliefAccumulator = beliefAccumulator + productWithoutO * o.belief();
-               disbeliefAccumulator = disbeliefAccumulator + productWithoutO * o.disbelief();
-               numerator = numerator + productWithoutO;
-           }
+		if (dogmatic.isEmpty()) {
+			// there are no dogmatic opinions -- case I/Eq16 of 10.23919/ICIF.2017.8009820
+			double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
 
-           //this completes the numerator:
-           numerator = numerator - (opinions.size() - 1) * productOfUncertainties;
+			double numerator = 0.0D;
+			double beliefAccumulator = 0.0D;
+			double disbeliefAccumulator = 0.0D;
 
-           resultBelief = beliefAccumulator / numerator;
-           resultDisbelief = disbeliefAccumulator / numerator;
-           resultUncertainty = productOfUncertainties / numerator;
+			// this computes the top and bottom sums in Eq16, but ignores the - (N-1) *
+			// productOfUncertainties in the numerator (see below)
+			for (SBoolean o : opinions) {
+				// productWithoutO = product of uncertainties without o's uncertainty
+				// this can be rewritten:
+				// prod {C_j != C } u^{C_j} = (u^C)^-1 * prod{C_j} u^{C_j} = 1/(u^C) * prod{C_j}
+				// u^{C_j}
+				// so instead of n-1 multiplications, we only need a division
+				double productWithoutO = productOfUncertainties / o.uncertainty();
 
-           resultRelativeWeight = 0.0D;
-       } else {
-           //at least 1 dogmatic opinion
-           //note: this computation assumes that the relative weight represents how many opinions have been fused into that opinion.
-           //for a normal multi-source fusion operation, this should be 1, in which case the gamma's in Eq17 are 1/N as noted in the text (i.e., all opinions count equally)
-           //however, this formulation also allows partial fusion beforehand, by "remembering" the amount of dogmatic (!) opinions in o.relativeWeight.
+				beliefAccumulator = beliefAccumulator + productWithoutO * o.belief();
+				disbeliefAccumulator = disbeliefAccumulator + productWithoutO * o.disbelief();
+				numerator = numerator + productWithoutO;
+			}
 
-           double totalWeight = dogmatic.stream().mapToDouble( o -> o.getRelativeWeight()).sum();
+			// this completes the numerator:
+			numerator = numerator - (opinions.size() - 1) * productOfUncertainties;
 
-           resultBelief = dogmatic.stream().mapToDouble(o-> o.getRelativeWeight()/totalWeight * (o).belief()).sum();
+			resultBelief = beliefAccumulator / numerator;
+			resultDisbelief = disbeliefAccumulator / numerator;
+			resultUncertainty = productOfUncertainties / numerator;
 
-           resultDisbelief = dogmatic.stream().mapToDouble(o-> o.getRelativeWeight()/totalWeight * (o).disbelief()).sum();
+			resultRelativeWeight = 0.0D;
+		} else {
+			// at least 1 dogmatic opinion
+			// note: this computation assumes that the relative weight represents how many
+			// opinions have been fused into that opinion.
+			// for a normal multi-source fusion operation, this should be 1, in which case
+			// the gamma's in Eq17 are 1/N as noted in the text (i.e., all opinions count
+			// equally)
+			// however, this formulation also allows partial fusion beforehand, by
+			// "remembering" the amount of dogmatic (!) opinions in o.relativeWeight.
 
-           resultUncertainty = 0.0D;
+			double totalWeight = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight()).sum();
+			resultBelief = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight() / totalWeight * (o).belief()).sum();
+			resultDisbelief = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight() / totalWeight * (o).disbelief()).sum();
+			resultUncertainty = 0.0D;
+			resultRelativeWeight = totalWeight;
+		}
 
-           resultRelativeWeight = totalWeight;
-       }
+		SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity, resultRelativeWeight);
+		return result.uncertaintyMaximized();
+	}
 
-       SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity,resultRelativeWeight);
-       return result.uncertaintyMaximized();
-   }
+	@Deprecated
+	public static SBoolean epistemicCumulativeBeliefFusion(Collection<SBoolean> opinions) {
+		return epistemicCumulativeFusion(opinions);
+	}
 
    /**
     * This method implements weighted belief fusion (WBF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al.
@@ -795,95 +846,98 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * @return a new SubjectiveOpinion that represents the fused evidence based on confidence-weighted averaging of evidence.
     * @throws IllegalArgumentException
     */
-   public static SBoolean weightedBeliefFusion(Collection<SBoolean> opinions) {
-       if (opinions == null || opinions.contains(null) || opinions.isEmpty())
-           throw new IllegalArgumentException("WBF: Cannot average null opinions");
+	public static SBoolean weightedFusion(Collection<SBoolean> opinions) {
+		if (opinions == null || opinions.contains(null) || opinions.isEmpty())
+			throw new IllegalArgumentException("WBF: Cannot average null opinions");
 
-       if (opinions.size() == 1) {
-           return opinions.iterator().next().clone();
-       }
+		if (opinions.size() == 1) {
+			return opinions.iterator().next().clone();
+		}
 
-       double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0, resultAtomicity;
+		double resultBelief, resultDisbelief, resultUncertainty, resultRelativeWeight = 0, resultAtomicity;
 
-       Collection<SBoolean> dogmatic = new ArrayList<>(opinions.size());
-       Iterator<SBoolean> it = opinions.iterator();
-       while(it.hasNext()) {
-    	   SBoolean o = it.next();
-           //dogmatic iff uncertainty is zero.
-           if (o.uncertainty() == 0) 
-               dogmatic.add(o);
-       }
+		Collection<SBoolean> dogmatic = new ArrayList<>(opinions.size());
+		Iterator<SBoolean> it = opinions.iterator();
+		while (it.hasNext()) {
+			SBoolean o = it.next();
+			// dogmatic iff uncertainty is zero.
+			if (o.uncertainty() == 0)
+				dogmatic.add(o);
+		}
 
-       if (dogmatic.isEmpty() && opinions.stream().anyMatch(o -> o.certainty() > 0)) {
-           //Case 1: no dogmatic opinions, at least one non-vacuous opinion
-           double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
-           double sumOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).sum();
+		if (dogmatic.isEmpty() && opinions.stream().anyMatch(o -> o.certainty() > 0)) {
+			// Case 1: no dogmatic opinions, at least one non-vacuous opinion
+			double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
+			double sumOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).sum();
 
-           double numerator = 0.0D;
-           double beliefAccumulator = 0.0D;
-           double disbeliefAccumulator = 0.0D;
-           double atomicityAccumulator = 0.0D;
+			double numerator = 0.0D;
+			double beliefAccumulator = 0.0D;
+			double disbeliefAccumulator = 0.0D;
+			double atomicityAccumulator = 0.0D;
 
-           for (SBoolean o : opinions) {
-               //prod = product of uncertainties without o's uncertainty
-               double prod = productOfUncertainties / o.uncertainty();
+			for (SBoolean o : opinions) {
+				// prod = product of uncertainties without o's uncertainty
+				double prod = productOfUncertainties / o.uncertainty();
 
-               //recall certainty = 1 - uncertainty
-               beliefAccumulator = beliefAccumulator + prod * o.belief() * o.certainty();
-               disbeliefAccumulator = disbeliefAccumulator + prod * o.disbelief() * o.certainty();
-               atomicityAccumulator = atomicityAccumulator + o.baseRate() * o.certainty();
-               numerator = numerator + prod;
-           }
+				// recall certainty = 1 - uncertainty
+				beliefAccumulator = beliefAccumulator + prod * o.belief() * o.certainty();
+				disbeliefAccumulator = disbeliefAccumulator + prod * o.disbelief() * o.certainty();
+				atomicityAccumulator = atomicityAccumulator + o.baseRate() * o.certainty();
+				numerator = numerator + prod;
+			}
 
-           numerator = numerator - opinions.size() * productOfUncertainties;
+			numerator = numerator - opinions.size() * productOfUncertainties;
 
-           resultBelief = beliefAccumulator / numerator;
-           resultDisbelief = disbeliefAccumulator / numerator;
-           resultUncertainty = (opinions.size() - sumOfUncertainties) * productOfUncertainties / numerator;
-           resultAtomicity = atomicityAccumulator / (opinions.size() - sumOfUncertainties);
-       } else if (opinions.stream().allMatch(o -> o.uncertainty() == 1)) {
-           //Case 3 -- everything is vacuous
-           resultBelief = 0;
-           resultDisbelief = 0;
-           resultUncertainty = 1;
-           boolean first = true;
+			resultBelief = beliefAccumulator / numerator;
+			resultDisbelief = disbeliefAccumulator / numerator;
+			resultUncertainty = (opinions.size() - sumOfUncertainties) * productOfUncertainties / numerator;
+			resultAtomicity = atomicityAccumulator / (opinions.size() - sumOfUncertainties);
+		} else if (opinions.stream().allMatch(o -> o.uncertainty() == 1)) {
+			// Case 3 -- everything is vacuous
+			resultBelief = 0;
+			resultDisbelief = 0;
+			resultUncertainty = 1;
+			boolean first = true;
 
-           //all confidences are zero, so the weight for each opinion is the same -> use a plain average for the resultAtomicity
-           resultAtomicity = 0;
-           for (SBoolean o : opinions) {
-               if (first) {
-                   resultAtomicity = resultAtomicity + o.baseRate();
-                   first = false;
-               }
-           }
-           resultAtomicity = resultAtomicity / ((double)opinions.size());
+			// all confidences are zero, so the weight for each opinion is the same -> use a
+			// plain average for the resultAtomicity
+			resultAtomicity = 0;
+			for (SBoolean o : opinions) {
+				if (first) {
+					resultAtomicity = resultAtomicity + o.baseRate();
+					first = false;
+				}
+			}
+			resultAtomicity = resultAtomicity / ((double) opinions.size());
 
-       } else {
-           //Case 2 -- dogmatic opinions are involved
-           double totalWeight = dogmatic.stream().mapToDouble( o -> o.getRelativeWeight()).sum();
+		} else {
+			// Case 2 -- dogmatic opinions are involved
+			double totalWeight = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight()).sum();
+			resultBelief = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight() / totalWeight * o.belief()).sum();
+			resultDisbelief = dogmatic.stream().mapToDouble(o -> o.getRelativeWeight() / totalWeight * o.disbelief()).sum();
+			resultUncertainty = 0.0D;
+			resultRelativeWeight = totalWeight;
 
-           resultBelief = dogmatic.stream().mapToDouble(o-> o.getRelativeWeight()/totalWeight * o.belief()).sum();
+			// note: the for loop below will always set resultAtomicity correctly.
+			resultAtomicity = -1;
+			boolean first = true;
+			for (SBoolean o : opinions) {
+				if (first) {
+					resultAtomicity = o.baseRate();
+					first = false;
+				}
+			}
+		}
 
-           resultDisbelief = dogmatic.stream().mapToDouble(o-> o.getRelativeWeight()/totalWeight * o.disbelief()).sum();
+		SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity,
+				resultRelativeWeight);
+		return result;
+	}
 
-           resultUncertainty = 0.0D;
-
-           resultRelativeWeight = totalWeight;
-
-           //note: the for loop below will always set resultAtomicity correctly.
-           resultAtomicity = -1;
-           boolean first = true;
-           for(SBoolean o : opinions){
-               if (first) {
-                   resultAtomicity = o.baseRate();
-                   first = false;
-               }
-           }
-       }
-
-       SBoolean result = new SBoolean(resultBelief, resultDisbelief, resultUncertainty, resultAtomicity,resultRelativeWeight);
-       return result;
-   }
+	@Deprecated
+	public static SBoolean weightedBeliefFusion(Collection<SBoolean> opinions) {
+		return weightedFusion(opinions);
+	}
    
    /**
     * This method implements consensus & compromise fusion (CCF) for multiple sources, as discussed in a FUSION 2018 paper by van der Heijden et al.
@@ -894,107 +948,108 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
     * @return a new SBoolean that represents the fused evidence.
     * @throws IllegalArgumentException
     */
-   public static SBoolean consensusAndCompromiseFusion(Collection<SBoolean> opinions) 
-   {
-       if (opinions == null || opinions.contains(null) || opinions.size() < 2)
-           throw new IllegalArgumentException("CCF: Cannot fuse null opinions, or only one opinion was passed");
- 
-       double baseRate = -1;
-       boolean first = true;
-       for (SBoolean so: opinions) {
-           if(first) {
-               baseRate = so.baseRate();
-               first = false;
-           }else if (baseRate != so.baseRate()) {
-               throw new IllegalArgumentException("CCF: Base rates for CC Fusion must be the same");
-           }
-       }
+	public static SBoolean ccFusion(Collection<SBoolean> opinions) {
+		if (opinions == null || opinions.contains(null) || opinions.size() < 2)
+			throw new IllegalArgumentException("CCF: Cannot fuse null opinions, or only one opinion was passed");
 
-       //Step 1: consensus phase
-       final double consensusBelief = opinions.stream().mapToDouble(o -> o.belief()).min().getAsDouble();
-       final double consensusDisbelief = opinions.stream().mapToDouble(o -> o.disbelief()).min().getAsDouble();
+		double baseRate = -1;
+		boolean first = true;
+		for (SBoolean so : opinions) {
+			if (first) {
+				baseRate = so.baseRate();
+				first = false;
+			} else if (baseRate != so.baseRate()) {
+				throw new IllegalArgumentException("CCF: Base rates for CC Fusion must be the same");
+			}
+		}
 
-       final double consensusMass = consensusBelief + consensusDisbelief;
+		// Step 1: consensus phase
+		final double consensusBelief = opinions.stream().mapToDouble(o -> o.belief()).min().getAsDouble();
+		final double consensusDisbelief = opinions.stream().mapToDouble(o -> o.disbelief()).min().getAsDouble();
 
-       List<Double> residueBeliefs = new ArrayList<>(opinions.size());
-       List<Double> residueDisbeliefs = new ArrayList<>(opinions.size());
-       List<Double> uncertainties = new ArrayList<>(opinions.size());
-       for (SBoolean so : opinions) {
-           //note: this max should not be necessary..
-           residueBeliefs.add(Math.max(so.belief()-consensusBelief,0));
-           residueDisbeliefs.add(Math.max(so.disbelief()-consensusDisbelief,0));
-           uncertainties.add(so.uncertainty());
-       }
+		final double consensusMass = consensusBelief + consensusDisbelief;
 
-       // System.out.println("consensusBelief="+consensusBelief);
-       // System.out.println("consensusDisbelief="+consensusDisbelief);
-       // System.out.println("consensusMass="+consensusMass);
+		List<Double> residueBeliefs = new ArrayList<>(opinions.size());
+		List<Double> residueDisbeliefs = new ArrayList<>(opinions.size());
+		List<Double> uncertainties = new ArrayList<>(opinions.size());
+		for (SBoolean so : opinions) {
+			// note: this max should not be necessary..
+			residueBeliefs.add(Math.max(so.belief() - consensusBelief, 0));
+			residueDisbeliefs.add(Math.max(so.disbelief() - consensusDisbelief, 0));
+			uncertainties.add(so.uncertainty());
+		}
 
-       //Step 2: Compromise phase
+		// System.out.println("consensusBelief="+consensusBelief);
+		// System.out.println("consensusDisbelief="+consensusDisbelief);
+		// System.out.println("consensusMass="+consensusMass);
 
-       double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D, (acc, u) -> acc * u);
+		// Step 2: Compromise phase
 
-       double compromiseBeliefAccumulator = 0;
-       double compromiseDisbeliefAccumulator = 0;
-       double compromiseXAccumulator = 0; //this is what will later become uncertainty
+		double productOfUncertainties = opinions.stream().mapToDouble(o -> o.uncertainty()).reduce(1.0D,
+				(acc, u) -> acc * u);
 
-       //this computation consists of 4 sub-sums that will be added independently.
-       for (int i=0; i<opinions.size(); i++) {
-           double bResI = residueBeliefs.get(i);
-           double dResI = residueDisbeliefs.get(i);
-           double uI = uncertainties.get(i);
-           // double uWithoutI = productOfUncertainties / uI;
-           double uWithoutI = uI==0.0?0.0:productOfUncertainties / uI;
+		double compromiseBeliefAccumulator = 0;
+		double compromiseDisbeliefAccumulator = 0;
+		double compromiseXAccumulator = 0; // this is what will later become uncertainty
 
-           //sub-sum 1:
-           compromiseBeliefAccumulator = compromiseBeliefAccumulator + bResI * uWithoutI;
-           compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + dResI * uWithoutI;
-           //note: compromiseXAccumulator is unchanged, since b^{ResI}_X() of the entire domain is 0
-       }
-       
-       //sub-sums 2,3,4 are all related to different permutations of possible values
-       for(List<Domain> permutation : tabulateOptions(opinions.size())){
-           Domain intersection = permutation.stream().reduce(Domain.DOMAIN, (acc, p) -> acc.intersect(p));
-           Domain union = permutation.stream().reduce(Domain.NIL, (acc, p) -> acc.union(p));
+		// this computation consists of 4 sub-sums that will be added independently.
+		for (int i = 0; i < opinions.size(); i++) {
+			double bResI = residueBeliefs.get(i);
+			double dResI = residueDisbeliefs.get(i);
+			double uI = uncertainties.get(i);
+			// double uWithoutI = productOfUncertainties / uI;
+			double uWithoutI = uI == 0.0 ? 0.0 : productOfUncertainties / uI;
 
-           //sub-sum 2: intersection of elements in permutation is x
-           if(intersection.equals(Domain.TRUE)) {
-               // --> add to belief
-               double prod = 1;
-               if(permutation.contains(Domain.DOMAIN))
-                   prod = 0;
-               else
-                   for (int j=0; j<permutation.size();j++)
-                       switch (permutation.get(j)){
-                           case DOMAIN:
-                               prod = 0; // multiplication by 0
-                               break;
-                           case TRUE:
-                               prod = prod * residueBeliefs.get(j) * 1;
-                               break;
-                       }
-               compromiseBeliefAccumulator = compromiseBeliefAccumulator + prod;
-           } else if (intersection.equals(Domain.FALSE)) {
-               // --> add to disbelief
-               double prod = 1;
-               if(permutation.contains(Domain.DOMAIN))
-                   prod = 0;
-               else
-                   for (int j=0; j<permutation.size();j++)
-                       switch (permutation.get(j)){
-                           case DOMAIN:
-                               prod = 0; // multiplication by 0
-                               break;
-                           case FALSE:
-                               prod = prod * residueDisbeliefs.get(j) * 1;
-                               break;
-                       }
-               compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + prod;
-           }
+			// sub-sum 1:
+			compromiseBeliefAccumulator = compromiseBeliefAccumulator + bResI * uWithoutI;
+			compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + dResI * uWithoutI;
+			// note: compromiseXAccumulator is unchanged, since b^{ResI}_X() of the entire
+			// domain is 0
+		}
 
-           switch (union){
-               case DOMAIN:
-                   if(!intersection.equals(Domain.NIL)) {
+		// sub-sums 2,3,4 are all related to different permutations of possible values
+		for (List<Domain> permutation : tabulateOptions(opinions.size())) {
+			Domain intersection = permutation.stream().reduce(Domain.DOMAIN, (acc, p) -> acc.intersect(p));
+			Domain union = permutation.stream().reduce(Domain.NIL, (acc, p) -> acc.union(p));
+
+			// sub-sum 2: intersection of elements in permutation is x
+			if (intersection.equals(Domain.TRUE)) {
+				// --> add to belief
+				double prod = 1;
+				if (permutation.contains(Domain.DOMAIN))
+					prod = 0;
+				else
+					for (int j = 0; j < permutation.size(); j++)
+						switch (permutation.get(j)) {
+						case DOMAIN:
+							prod = 0; // multiplication by 0
+							break;
+						case TRUE:
+							prod = prod * residueBeliefs.get(j) * 1;
+							break;
+						}
+				compromiseBeliefAccumulator = compromiseBeliefAccumulator + prod;
+			} else if (intersection.equals(Domain.FALSE)) {
+				// --> add to disbelief
+				double prod = 1;
+				if (permutation.contains(Domain.DOMAIN))
+					prod = 0;
+				else
+					for (int j = 0; j < permutation.size(); j++)
+						switch (permutation.get(j)) {
+						case DOMAIN:
+							prod = 0; // multiplication by 0
+							break;
+						case FALSE:
+							prod = prod * residueDisbeliefs.get(j) * 1;
+							break;
+						}
+				compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + prod;
+			}
+
+			switch (union) {
+			case DOMAIN:
+				if (!intersection.equals(Domain.NIL)) {
                        //sub-sum 3: union of elements in permutation is x, and intersection of elements in permutation is not NIL
 
                        //Note: this is always zero for binary domains, as explained by the following:
@@ -1012,499 +1067,518 @@ public class SBoolean implements Cloneable, Comparable<SBoolean> {
                        //    }
                        //}
 
-                   }
-                   else {
-                       //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
-                       double prod = 1;
-                       for (int j=0; j<permutation.size(); j++) {
-                           switch (permutation.get(j)) {
-                               case NIL:
-                               case DOMAIN:
-                                   prod = 0; //because residue belief over NIL/DOMAIN is zero here
-                                   break;
-                               case TRUE:
-                                   prod = prod * residueBeliefs.get(j);
-                                   break;
-                               case FALSE:
-                                   prod = prod * residueDisbeliefs.get(j);
-                                   break;
-                           }
-                       }
-                       compromiseXAccumulator = compromiseXAccumulator + prod;
-                   }
-                   break;
-               case NIL:
-                   //union of NIL means we have nothing to add
-                   //sub-sum 3: union of elements in permutation is x, and intersection of elements in permutation is not NIL
-                   //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
-                   break;
-               case TRUE:
-                   //sub-sum 3: this is always zero for TRUE and FALSE, since 1-a(y_i|y_j)=0 in binary domains, where the relative base rate is either 1 if the union is x
+                    }
+					else {
+						// sub-sum 4: union of elements in permutation is x, and intersection of
+						// elements in permutation is NIL
+						double prod = 1;
+						for (int j = 0; j < permutation.size(); j++) {
+							switch (permutation.get(j)) {
+							case NIL:
+							case DOMAIN:
+								prod = 0; // because residue belief over NIL/DOMAIN is zero here
+								break;
+							case TRUE:
+								prod = prod * residueBeliefs.get(j);
+								break;
+							case FALSE:
+								prod = prod * residueDisbeliefs.get(j);
+								break;
+							}
+						}
+						compromiseXAccumulator = compromiseXAccumulator + prod;
+					}
+					break;
+				case NIL:
+					// union of NIL means we have nothing to add
+					// sub-sum 3: union of elements in permutation is x, and intersection of
+					// elements in permutation is not NIL
+					// sub-sum 4: union of elements in permutation is x, and intersection of
+					// elements in permutation is NIL
+					break;
+				case TRUE:
+					// sub-sum 3: this is always zero for TRUE and FALSE, since 1-a(y_i|y_j)=0 in
+					// binary domains, where the relative base rate is either 1 if the union is x
 
-                   //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
-                   if(intersection.equals(Domain.NIL)){
-                       //union is true, intersection is nil --> compute the product
-                       double prod = 1;
-                       for (int j=0; j<permutation.size(); j++) {
-                           switch (permutation.get(j)) { //other cases will not occur
-                               case TRUE:
-                                   prod = prod * residueBeliefs.get(j);
-                                   break;
-                               case FALSE:
-                                   prod = prod * residueDisbeliefs.get(j);
-                                   break;
-                               case NIL:
-                                   prod = 0;
-                                   break;
-                               default:
-                                   throw new RuntimeException();
-                           }
-                       }
-                       compromiseBeliefAccumulator = compromiseBeliefAccumulator + prod;
-                   }
-                   break;
-               case FALSE:
-                   //sub-sum 3: this is always zero for TRUE and FALSE, since 1-a(y_i|y_j)=0 in binary domains, where the relative base rate is either 1 if the union is x
-                   //sub-sum 4: union of elements in permutation is x, and intersection of elements in permutation is NIL
-                   if(intersection.equals(Domain.NIL)){
-                       //union is true, intersection is nil --> compute the product
-                       double prod = 1;
-                       for (int j=0; j<permutation.size(); j++) {
-                           switch (permutation.get(j)) { //other cases will not occur
-                               case TRUE:
-                                   prod = prod * residueBeliefs.get(j);
-                                   break;
-                               case FALSE:
-                                   prod = prod * residueDisbeliefs.get(j);
-                                   break;
-                               case NIL:
-                                   prod = 0;
-                                   break;
-                               default:
-                                   throw new RuntimeException();
-                           }
-                       }
-                       compromiseDisbeliefAccumulator= compromiseDisbeliefAccumulator + prod;
-                   }
-                   break;
-               default:
-                   break;
+					// sub-sum 4: union of elements in permutation is x, and intersection of
+					// elements in permutation is NIL
+					if (intersection.equals(Domain.NIL)) {
+						// union is true, intersection is nil --> compute the product
+						double prod = 1;
+						for (int j = 0; j < permutation.size(); j++) {
+							switch (permutation.get(j)) { // other cases will not occur
+							case TRUE:
+								prod = prod * residueBeliefs.get(j);
+								break;
+							case FALSE:
+								prod = prod * residueDisbeliefs.get(j);
+								break;
+							case NIL:
+								prod = 0;
+								break;
+							default:
+								throw new RuntimeException();
+							}
+						}
+						compromiseBeliefAccumulator = compromiseBeliefAccumulator + prod;
+					}
+					break;
+				case FALSE:
+					// sub-sum 3: this is always zero for TRUE and FALSE, since 1-a(y_i|y_j)=0 in
+					// binary domains, where the relative base rate is either 1 if the union is x
+					// sub-sum 4: union of elements in permutation is x, and intersection of
+					// elements in permutation is NIL
+					if (intersection.equals(Domain.NIL)) {
+						// union is true, intersection is nil --> compute the product
+						double prod = 1;
+						for (int j = 0; j < permutation.size(); j++) {
+							switch (permutation.get(j)) { // other cases will not occur
+							case TRUE:
+								prod = prod * residueBeliefs.get(j);
+								break;
+							case FALSE:
+								prod = prod * residueDisbeliefs.get(j);
+								break;
+							case NIL:
+								prod = 0;
+								break;
+							default:
+								throw new RuntimeException();
+							}
+						}
+						compromiseDisbeliefAccumulator = compromiseDisbeliefAccumulator + prod;
+					}
+					break;
+				default:
+					break;
 
-           }
-       }
+				}
+			}
 
-       double compromiseBelief = compromiseBeliefAccumulator;
-       double compromiseDisbelief = compromiseDisbeliefAccumulator;
-       double compromiseUncertainty = compromiseXAccumulator;
+			double compromiseBelief = compromiseBeliefAccumulator;
+			double compromiseDisbelief = compromiseDisbeliefAccumulator;
+			double compromiseUncertainty = compromiseXAccumulator;
 
-       double preliminaryUncertainty = productOfUncertainties;
-       double compromiseMass = compromiseBelief + compromiseDisbelief + compromiseUncertainty;
-       
-       //System.out.println("compromiseBelief="+compromiseBelief);
-       //System.out.println("compromiseDisbelief="+compromiseDisbelief);
-       //System.out.println("compromiseUncertainty="+compromiseUncertainty);
-       //System.out.println("compromiseMass="+compromiseMass);
+			double preliminaryUncertainty = productOfUncertainties;
+			double compromiseMass = compromiseBelief + compromiseDisbelief + compromiseUncertainty;
 
-       //Step 3: Normalization phase
-       //double normalizationFactor = (1-consensusMass-preliminaryUncertainty)/(compromiseMass);
-       double normalizationFactor = compromiseMass==0.0?1.0:(1-consensusMass-preliminaryUncertainty)/(compromiseMass);
+			// System.out.println("compromiseBelief="+compromiseBelief);
+			// System.out.println("compromiseDisbelief="+compromiseDisbelief);
+			// System.out.println("compromiseUncertainty="+compromiseUncertainty);
+			// System.out.println("compromiseMass="+compromiseMass);
 
+			// Step 3: Normalization phase
+			// double normalizationFactor =
+			// (1-consensusMass-preliminaryUncertainty)/(compromiseMass);
+			double normalizationFactor = compromiseMass == 0.0 ? 1.0
+					: (1 - consensusMass - preliminaryUncertainty) / (compromiseMass);
 
-       double fusedBelief = consensusBelief + normalizationFactor * compromiseBelief;
-       double fusedDisbelief = consensusDisbelief + normalizationFactor * compromiseDisbelief;
-       
-       //double fusedUncertainty = preliminaryUncertainty + normalizationFactor* compromiseUncertainty;
-       //compromiseUncertainty = 0; --> but this variable is never used again anyway.
-        double fusedUncertainty = 1.0 - fusedBelief - fusedDisbelief;
-       
+			double fusedBelief = consensusBelief + normalizationFactor * compromiseBelief;
+			double fusedDisbelief = consensusDisbelief + normalizationFactor * compromiseDisbelief;
 
-       SBoolean res = new SBoolean(fusedBelief, fusedDisbelief, fusedUncertainty, baseRate);
+			// double fusedUncertainty = preliminaryUncertainty + normalizationFactor*
+			// compromiseUncertainty;
+			// compromiseUncertainty = 0; --> but this variable is never used again anyway.
+			double fusedUncertainty = 1.0 - fusedBelief - fusedDisbelief;
 
-       return res;
+			SBoolean res = new SBoolean(fusedBelief, fusedDisbelief, fusedUncertainty, baseRate);
+
+			return res;
    }
 
-   public enum Domain {
-       NIL, TRUE, FALSE, DOMAIN;
+	@Deprecated
+	public static SBoolean consensusAndCompromiseFusion(Collection<SBoolean> opinions) {
+		return ccFusion(opinions);
+	}
 
-       public Domain intersect(Domain d){
-           switch(this){
-               case NIL:
-                   return NIL;
-               case TRUE:
-                   switch (d){
-                       case NIL:
-                       case FALSE:
-                           return NIL;
-                       case TRUE:
-                       case DOMAIN:
-                           return TRUE;
-                       default:
-                           throw new RuntimeException("unidentified domain");
-                   }
-               case FALSE:
-                   switch (d){
-                       case NIL:
-                       case TRUE:
-                           return NIL;
-                       case FALSE:
-                       case DOMAIN:
-                           return FALSE;
-                       default:
-                           throw new RuntimeException("unidentified domain");
-                   }
-               case DOMAIN:
-                   return d;
-               default:
-                   throw new RuntimeException("unidentified domain");
-           }
-       }
+	public enum Domain {
+		NIL, TRUE, FALSE, DOMAIN;
 
-       public Domain union(Domain d){
-           switch (this) {
-               case DOMAIN:
-                   return DOMAIN;
-               case TRUE:
-                   switch (d){
-                       case TRUE:
-                       case NIL:
-                           return TRUE;
-                       case FALSE:
-                       case DOMAIN:
-                           return DOMAIN;
-                       default:
-                           throw new RuntimeException("unidentified domain");
-                   }
-               case FALSE:
-                   switch (d){
-                       case FALSE:
-                       case NIL:
-                           return FALSE;
-                       case TRUE:
-                       case DOMAIN:
-                           return DOMAIN;
-                       default:
-                           throw new RuntimeException("unidentified domain");
-                   }
-               case NIL:
-                   return d;
-               default:
-                   throw new RuntimeException("unidentified domain");
-           }
-       }
-   }
+		public Domain intersect(Domain d) {
+			switch (this) {
+			case NIL:
+				return NIL;
+			case TRUE:
+				switch (d) {
+				case NIL:
+				case FALSE:
+					return NIL;
+				case TRUE:
+				case DOMAIN:
+					return TRUE;
+				default:
+					throw new RuntimeException("unidentified domain");
+				}
+			case FALSE:
+				switch (d) {
+				case NIL:
+				case TRUE:
+					return NIL;
+				case FALSE:
+				case DOMAIN:
+					return FALSE;
+				default:
+					throw new RuntimeException("unidentified domain");
+				}
+			case DOMAIN:
+				return d;
+			default:
+				throw new RuntimeException("unidentified domain");
+			}
+		}
 
-   private static Set<List<Domain>> tabulateOptions(int size) {
-       if (size == 1) {
-           Set<List<Domain>> result = new HashSet<List<Domain>>();
-           for(Domain item : Domain.values()){
-               List<Domain> l = new ArrayList<Domain>();
-               l.add(item);
-               result.add(l);
-           }
-           return result;
-       }
-       Set<List<Domain>> result = new HashSet();
-       for (List<Domain> tuple : tabulateOptions(size - 1)) {
-           for (Domain d : Domain.values()) {
-               List newList = new ArrayList(tuple);
-               newList.add(d);
-               result.add(newList);
-           }
-       }
-       return result;
-   }
+		public Domain union(Domain d) {
+			switch (this) {
+			case DOMAIN:
+				return DOMAIN;
+			case TRUE:
+				switch (d) {
+				case TRUE:
+				case NIL:
+					return TRUE;
+				case FALSE:
+				case DOMAIN:
+					return DOMAIN;
+				default:
+					throw new RuntimeException("unidentified domain");
+				}
+			case FALSE:
+				switch (d) {
+				case FALSE:
+				case NIL:
+					return FALSE;
+				case TRUE:
+				case DOMAIN:
+					return DOMAIN;
+				default:
+					throw new RuntimeException("unidentified domain");
+				}
+			case NIL:
+				return d;
+			default:
+				throw new RuntimeException("unidentified domain");
+			}
+		}
+	}
 
+	private static Set<List<Domain>> tabulateOptions(int size) {
+		if (size == 1) {
+			Set<List<Domain>> result = new HashSet<List<Domain>>();
+			for (Domain item : Domain.values()) {
+				List<Domain> l = new ArrayList<Domain>();
+				l.add(item);
+				result.add(l);
+			}
+			return result;
+		}
+		Set<List<Domain>> result = new HashSet<>();
+		for (List<Domain> tuple : tabulateOptions(size - 1)) {
+			for (Domain d : Domain.values()) {
+				List<Domain> newList = new ArrayList<>(tuple);
+				newList.add(d);
+				result.add(newList);
+			}
+		}
+		return result;
+	}
 
-	/************************************ 
+	/************************************
 	 * BINARY VERSIONS OF FUSING OPERATIONS
 	 * 
 	 */
-  
-   public final SBoolean bcFusion(SBoolean opinion) { //belief constraint fusion
-	   //implemented using equation 12.2 of Josang's book
-	   double harmony = this.belief()*opinion.uncertainty() + this.uncertainty()*opinion.belief() + this.belief()*opinion.belief();
-	   double conflict = this.belief()*opinion.disbelief()+this.disbelief()*opinion.belief(); //this.degreeOfConflict(opinion);// 0.0D; // binomial opinions; 
-       if (conflict == 1.0D) 
-           throw new IllegalArgumentException("BCF: Cannot fuse totally conflicting opinions");
-       double b = harmony/(1.0D-conflict);
-	   double u = (this.uncertainty()*opinion.uncertainty())/(1.0D-conflict); 
-	   double a = (this.uncertainty()+opinion.uncertainty()==2.0D)? 
-			(this.baseRate()+opinion.baseRate())/2.0D :
-			(this.baseRate()*(1.0D-this.uncertainty()) + opinion.baseRate()*(1.0D-opinion.uncertainty()))/(2-this.uncertainty()-opinion.uncertainty());
-	   return new SBoolean(b,1.0D-b-u,u,a);
-   }
-   
-   public final SBoolean ccFusion(SBoolean opinion) { //consensus and compromise fusion
-       Collection<SBoolean> opinions = new ArrayList<>();
-       opinions.add(this);
-       opinions.add(opinion);
-       return consensusAndCompromiseFusion(opinions);
-   }
 
-   public final SBoolean cumulativeFusion(SBoolean opinion) {
-       Collection<SBoolean> opinions = new ArrayList<>();
-       opinions.add(this);
-       opinions.add(opinion);
-       return cumulativeBeliefFusion(opinions);
-   }
+	public final SBoolean bcFusion(SBoolean opinion) { // belief constraint fusion
+		// implemented using equation 12.2 of Josang's book
+		double harmony = this.belief() * opinion.uncertainty() + this.uncertainty() * opinion.belief()
+				+ this.belief() * opinion.belief();
+		double conflict = this.belief() * opinion.disbelief() + this.disbelief() * opinion.belief(); // this.degreeOfConflict(opinion);//
+																										// 0.0D; //
+																										// binomial
+																										// opinions;
+		if (conflict == 1.0D)
+			throw new IllegalArgumentException("BCF: Cannot fuse totally conflicting opinions");
+		double b = harmony / (1.0D - conflict);
+		double u = (this.uncertainty() * opinion.uncertainty()) / (1.0D - conflict);
+		double a = (this.uncertainty() + opinion.uncertainty() == 2.0D) ? (this.baseRate() + opinion.baseRate()) / 2.0D
+				: (this.baseRate() * (1.0D - this.uncertainty()) + opinion.baseRate() * (1.0D - opinion.uncertainty()))
+						/ (2 - this.uncertainty() - opinion.uncertainty());
+		return new SBoolean(b, 1.0D - b - u, u, a);
+	}
 
-   public final SBoolean epistemicCumulativeFusion(SBoolean opinion) {
-       Collection<SBoolean> opinions = new ArrayList<>();
-       opinions.add(this);
-       opinions.add(opinion);
-       return epistemicCumulativeBeliefFusion(opinions);
-   }
+	public final SBoolean ccFusion(SBoolean opinion) { // consensus and compromise fusion
+		Collection<SBoolean> opinions = new ArrayList<>();
+		opinions.add(this);
+		opinions.add(opinion);
+		return ccFusion(opinions);
+	}
 
-     public final SBoolean weightedFusion(SBoolean opinion) {
-       Collection<SBoolean> opinions = new ArrayList<>();
-       opinions.add(this);
-       opinions.add(opinion);
-       return weightedBeliefFusion(opinions);
-   }
+	public final SBoolean cumulativeFusion(SBoolean opinion) {
+		Collection<SBoolean> opinions = new ArrayList<>();
+		opinions.add(this);
+		opinions.add(opinion);
+		return aleatoryCumulativeFusion(opinions);
+	}
 
-   
-   public final SBoolean minimumFusion(SBoolean opinion) {
-       Collection<SBoolean> opinions = new ArrayList<>();
-       opinions.add(this);
-       opinions.add(opinion);
-       return minimumBeliefFusion(opinions);
-   }
+	public final SBoolean epistemicCumulativeFusion(SBoolean opinion) {
+		Collection<SBoolean> opinions = new ArrayList<>();
+		opinions.add(this);
+		opinions.add(opinion);
+		return epistemicCumulativeFusion(opinions);
+	}
 
-   public final SBoolean majorityFusion(SBoolean opinion) {
-       Collection<SBoolean> opinions = new ArrayList<>();
-       opinions.add(this);
-       opinions.add(opinion);
-       return majorityBeliefFusion(opinions);
-   }
+	public final SBoolean weightedFusion(SBoolean opinion) {
+		Collection<SBoolean> opinions = new ArrayList<>();
+		opinions.add(this);
+		opinions.add(opinion);
+		return weightedFusion(opinions);
+	}
 
-   public final SBoolean averageFusion(SBoolean opinion) {
-  	   Collection<SBoolean> opinions = new ArrayList<>();
-       opinions.add(this);
-       opinions.add(opinion);
-       return averageBeliefFusion(opinions);
-   }
-   
-   /****
-    * DISCOUNTING OPERATIONS
-    */
-   
-   /**
-    * Binary versions
-    */
-   
-   /**
-    * This method implements the "probability-sensitive trust discounting operator", 
-    * which causes the uncertainty in A's derived opinion about X to increase as a 
-    * function of the projected distrust in the source/advisor B. 
-    * 
-    * For more details, refer to Chapter 14 of the Subjective Logic book by Josang, 
-    * specifically Section 14.3.2 that defines Trust Discounting with Two-Edge Paths.
-    * 
-    * we assume that "this" represents the opinion (functional trust) of an agent B 
-    * on statement X, i.e., [B:X]
-    *
-    * @param AtrustOnB The trust referral that Agent A has on B. [A;B]
-    * @return a new SBoolean that represents the opinion of A about X, [A:X]=[A;B]x[B:X]
-    * @throws IllegalArgumentException
-    */
+	public final SBoolean minimumFusion(SBoolean opinion) {
+		Collection<SBoolean> opinions = new ArrayList<>();
+		opinions.add(this);
+		opinions.add(opinion);
+		return minimumFusion(opinions);
+	}
 
-   public final SBoolean discount(SBoolean AtrustOnB) {
-       if (AtrustOnB==null) throw new IllegalArgumentException("Discountion operator parameter cannot be null");
+	public final SBoolean majorityFusion(SBoolean opinion) {
+		Collection<SBoolean> opinions = new ArrayList<>();
+		opinions.add(this);
+		opinions.add(opinion);
+		return majorityFusion(opinions);
+	}
 
-       /* This version is 
-       double b = this.belief()*AtrustOnB.belief();
-       double d = this.disbelief()*AtrustOnB.belief();
-       double u = 1-b-d; // = AtrustOnB.disbelief() + AtrustOnB.uncertainty() + AtrustOnB.belief()*this.uncertainty();
-       double a = this.baseRate();
-		*/
-       // THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK 
-       double p = AtrustOnB.projection();
-       double b = p * this.belief();
-       double d = p * this.disbelief();
-       double u = 1 - p * (this.disbelief() + this.belief());
-       double a = this.baseRate();
-       return new SBoolean(b,d,u,a);
-   }
-   
-   /**
-    * This method implements the discounting operator from the Trustyfeer 2018 
-    * paper bu Kurdi et al., which uses the belief() of the trust of A on B, instead of 
-    * the projection() of the trust of A on B, that was originally used by Josang. 
-    * 
-    * Heba Kurdi, Bushra Alshayban, Lina Altoaimy, and Shada Alsalamah
-    * "TrustyFeer: A Subjective Logic Trust Model for Smart City Peer-to-Peer Federated Clouds"
-    * Wireless Communications and Mobile Computing, Volume 2018, Article ID 1073216, 13 pages
-    * https://doi.org/10.1155/2018/1073216
-    * 
-    * We assume that "this" represents the opinion (functional trust) of an agent B 
-    * on statement X, i.e., [B:X]
-    *
-    * @param AtrustOnB The trust referral that Agent A has on B. [A;B]
-    * @return a new SBoolean that represents the opinion of A about X, [A:X]=[A;B]x[B:X]
-    * @throws IllegalArgumentException
-    */
-   public final SBoolean discountB(SBoolean AtrustOnB) {
-       if (AtrustOnB==null) throw new IllegalArgumentException("Discountion operator parameter cannot be null");
+	public final SBoolean averageFusion(SBoolean opinion) {
+		Collection<SBoolean> opinions = new ArrayList<>();
+		opinions.add(this);
+		opinions.add(opinion);
+		return averagingFusion(opinions);
+	}
 
-       double p = AtrustOnB.belief(); // instead of AtrustOnB.projection();
-       double b = p * this.belief();
-       double d = p * this.disbelief();
-       double u = 1-b-d; // = AtrustOnB.disbelief() + AtrustOnB.uncertainty() + AtrustOnB.belief()*this.uncertainty();
-       double a = this.baseRate();
-       return new SBoolean(b,d,u,a);
-   }
+	/****
+	 * DISCOUNTING OPERATIONS
+	 */
 
-   
-   /**
-    * Multi-edge path versions
-    */
-   
-   /**
-    * This method implements the discounting operator on multi-edge paths, 
-    * using the "probability-sensitive trust discounting operator"
-    * which causes the uncertainty in A�s derived opinion about X to increase as a 
-    * function of the projected distrust in the source/advisor B. 
-    * 
-    * For more details, refer to Chapter 14 of the Subjective Logic book by Josang, 
-    * specifically Section 14.3.4 that defines Trust Discounting with Multi-Edge Paths.
-    * 
-    * we assume that "this" represents the opinion (functional trust) of an agent An 
-    * on statement X, i.e., [An:X]
-    *
-    * @param agentsTrusts A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
-    * @return a new SBoolean that represents the resulting opinion of A1 on X. 
-    * [A1:X]=[A1;A2;...;An]x[An:X]
-    * @throws IllegalArgumentException
-    */
-   	public final SBoolean discount(Collection <SBoolean> agentsTrusts) {
-       if (agentsTrusts==null) throw 
-       		new IllegalArgumentException("Discountion operator parameter cannot be null");
+	/**
+	 * Binary versions
+	 */
 
-       // THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK 
-       double p = agentsTrusts.stream(). // we multiply the projections of all trust opinions
-    		   mapToDouble( o -> o.projection()).
-    		   reduce(1.0,(acc,value) -> acc * value);
-       /* alternative implementation, using imperative programming
-       double p1 = 1.0;
-       for (SBoolean so : agentsTrusts) {
-           p1 *= so.projection();
-       }
-       assert(p==p1);
-       */
+	/**
+	 * This method implements the "probability-sensitive trust discounting
+	 * operator", which causes the uncertainty in A's derived opinion about X to
+	 * increase as a function of the projected distrust in the source/advisor B.
+	 * 
+	 * For more details, refer to Chapter 14 of the Subjective Logic book by Josang,
+	 * specifically Section 14.3.2 that defines Trust Discounting with Two-Edge
+	 * Paths.
+	 * 
+	 * we assume that "this" represents the opinion (functional trust) of an agent B
+	 * on statement X, i.e., [B:X]
+	 *
+	 * @param AtrustOnB The trust referral that Agent A has on B. [A;B]
+	 * @return a new SBoolean that represents the opinion of A about X,
+	 *         [A:X]=[A;B]x[B:X]
+	 * @throws IllegalArgumentException
+	 */
 
-       double b = p * this.belief();
-       double d = p * this.disbelief();
-       double u = 1 - p * (this.disbelief() + this.belief());
-       double a = this.baseRate();
-       return new SBoolean(b,d,u,a);
-   }
+	public final SBoolean discount(SBoolean AtrustOnB) {
+		if (AtrustOnB == null)
+			throw new IllegalArgumentException("Discountion operator parameter cannot be null");
+
+		/*
+		 * This version is double b = this.belief()*AtrustOnB.belief(); double d =
+		 * this.disbelief()*AtrustOnB.belief(); double u = 1-b-d; // =
+		 * AtrustOnB.disbelief() + AtrustOnB.uncertainty() +
+		 * AtrustOnB.belief()*this.uncertainty(); double a = this.baseRate();
+		 */
+		// THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK
+		double p = AtrustOnB.projection();
+		double b = p * this.belief();
+		double d = p * this.disbelief();
+		double u = 1 - p * (this.disbelief() + this.belief());
+		double a = this.baseRate();
+		return new SBoolean(b, d, u, a);
+	}
+
+	/**
+	 * This method implements the discounting operator from the Trustyfeer 2018
+	 * paper bu Kurdi et al., which uses the belief() of the trust of A on B,
+	 * instead of the projection() of the trust of A on B, that was originally used
+	 * by Josang.
+	 * 
+	 * Heba Kurdi, Bushra Alshayban, Lina Altoaimy, and Shada Alsalamah "TrustyFeer:
+	 * A Subjective Logic Trust Model for Smart City Peer-to-Peer Federated Clouds"
+	 * Wireless Communications and Mobile Computing, Volume 2018, Article ID
+	 * 1073216, 13 pages https://doi.org/10.1155/2018/1073216
+	 * 
+	 * We assume that "this" represents the opinion (functional trust) of an agent B
+	 * on statement X, i.e., [B:X]
+	 *
+	 * @param AtrustOnB The trust referral that Agent A has on B. [A;B]
+	 * @return a new SBoolean that represents the opinion of A about X,
+	 *         [A:X]=[A;B]x[B:X]
+	 * @throws IllegalArgumentException
+	 */
+	public final SBoolean discountB(SBoolean AtrustOnB) {
+		if (AtrustOnB == null)
+			throw new IllegalArgumentException("Discountion operator parameter cannot be null");
+
+		double p = AtrustOnB.belief(); // instead of AtrustOnB.projection();
+		double b = p * this.belief();
+		double d = p * this.disbelief();
+		double u = 1 - b - d; // = AtrustOnB.disbelief() + AtrustOnB.uncertainty() +
+								// AtrustOnB.belief()*this.uncertainty();
+		double a = this.baseRate();
+		return new SBoolean(b, d, u, a);
+	}
+
+	/**
+	 * Multi-edge path versions
+	 */
+
+	/**
+	 * This method implements the discounting operator on multi-edge paths, using
+	 * the "probability-sensitive trust discounting operator" which causes the
+	 * uncertainty in A�s derived opinion about X to increase as a function of the
+	 * projected distrust in the source/advisor B.
+	 * 
+	 * For more details, refer to Chapter 14 of the Subjective Logic book by Josang,
+	 * specifically Section 14.3.4 that defines Trust Discounting with Multi-Edge
+	 * Paths.
+	 * 
+	 * we assume that "this" represents the opinion (functional trust) of an agent
+	 * An on statement X, i.e., [An:X]
+	 *
+	 * @param agentsTrusts A collection of trust referrals that Agent (Ai) has on
+	 *                     (Ai+1). [Ai;Ai+1]
+	 * @return a new SBoolean that represents the resulting opinion of A1 on X.
+	 *         [A1:X]=[A1;A2;...;An]x[An:X]
+	 * @throws IllegalArgumentException
+	 */
+	public final SBoolean discount(Collection<SBoolean> agentsTrusts) {
+		if (agentsTrusts == null)
+			throw new IllegalArgumentException("Discountion operator parameter cannot be null");
+
+		// THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK
+		double p = agentsTrusts.stream(). // we multiply the projections of all trust opinions
+				mapToDouble(o -> o.projection()).reduce(1.0, (acc, value) -> acc * value);
+		/*
+		 * alternative implementation, using imperative programming double p1 = 1.0; for
+		 * (SBoolean so : agentsTrusts) { p1 *= so.projection(); } assert(p==p1);
+		 */
+
+		double b = p * this.belief();
+		double d = p * this.disbelief();
+		double u = 1 - p * (this.disbelief() + this.belief());
+		double a = this.baseRate();
+		return new SBoolean(b, d, u, a);
+	}
  
    	
-    /**
-     * This method implements the discounting operator on multi-edge paths, 
-     * using the "discounting operator" discountB() defined by Kurdi et al in 
-     * their 2018 paper 
-     * 
-     * Heba Kurdi, Bushra Alshayban, Lina Altoaimy, and Shada Alsalamah
-     * "TrustyFeer: A Subjective Logic Trust Model for Smart City Peer-to-Peer Federated Clouds"
-     * Wireless Communications and Mobile Computing, Volume 2018, Article ID 1073216, 13 pages
-     * https://doi.org/10.1155/2018/1073216
-     * 
-     * we assume that "this" represents the opinion (functional trust) of an agent An 
-     * on statement X, i.e., [An:X]
-     *
-     * @param agentsTrusts A collection of trust referrals that Agent (Ai) has on (Ai+1). [Ai;Ai+1]
-     * @return a new SBoolean that represents the resulting opinion of A1 on X. 
-     * [A1:X]=[A1;A2;...;An]x[An:X]
-     * @throws IllegalArgumentException
-     */
-    public final SBoolean discountB(Collection <SBoolean> agentsTrusts) {
-        if (agentsTrusts==null) throw 
-        		new IllegalArgumentException("Discountion operator parameter cannot be null");
+	/**
+	 * This method implements the discounting operator on multi-edge paths, using
+	 * the "discounting operator" discountB() defined by Kurdi et al in their 2018
+	 * paper
+	 * 
+	 * Heba Kurdi, Bushra Alshayban, Lina Altoaimy, and Shada Alsalamah "TrustyFeer:
+	 * A Subjective Logic Trust Model for Smart City Peer-to-Peer Federated Clouds"
+	 * Wireless Communications and Mobile Computing, Volume 2018, Article ID
+	 * 1073216, 13 pages https://doi.org/10.1155/2018/1073216
+	 * 
+	 * we assume that "this" represents the opinion (functional trust) of an agent
+	 * An on statement X, i.e., [An:X]
+	 *
+	 * @param agentsTrusts A collection of trust referrals that Agent (Ai) has on
+	 *                     (Ai+1). [Ai;Ai+1]
+	 * @return a new SBoolean that represents the resulting opinion of A1 on X.
+	 *         [A1:X]=[A1;A2;...;An]x[An:X]
+	 * @throws IllegalArgumentException
+	 */
+	public final SBoolean discountB(Collection<SBoolean> agentsTrusts) {
+		if (agentsTrusts == null)
+			throw new IllegalArgumentException("Discountion operator parameter cannot be null");
 
-        // THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK 
-        double p = agentsTrusts.stream(). // we multiply the projections of all trust opinions
-     		   mapToDouble( o -> o.belief()).
-     		   reduce(1.0,(acc,value) -> acc * value);
-        double b = p * this.belief();
-        double d = p * this.disbelief();
-        double u = 1 - p * (this.disbelief() + this.belief());
-        double a = this.baseRate();
-        return new SBoolean(b,d,u,a);
-    }
+		// THIS IS THE DISCOUNT OPERATOR DEFINED IN THE JOSANG 2016 BOOK
+		double p = agentsTrusts.stream(). // we multiply the projections of all trust opinions
+				mapToDouble(o -> o.belief()).reduce(1.0, (acc, value) -> acc * value);
+		double b = p * this.belief();
+		double d = p * this.disbelief();
+		double u = 1 - p * (this.disbelief() + this.belief());
+		double a = this.baseRate();
+		return new SBoolean(b, d, u, a);
+	}
 
-   
 	/***
 	 * comparison operations
 	 */
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 
 		SBoolean sBoolean = (SBoolean) o;
 
-		/*	return  (Double.compare(sBoolean.b, this.b) == 0) && 
-				(Double.compare(sBoolean.d, this.d) == 0) &&
-				(Double.compare(sBoolean.u, this.u) == 0) &&
-				(Double.compare(sBoolean.a, this.a) == 0);
+		/*
+		 * return (Double.compare(sBoolean.b, this.b) == 0) &&
+		 * (Double.compare(sBoolean.d, this.d) == 0) && (Double.compare(sBoolean.u,
+		 * this.u) == 0) && (Double.compare(sBoolean.a, this.a) == 0);
 		 */
-		return 	Math.abs(this.belief()-sBoolean.belief()) < 0.001D && 
-				Math.abs(this.disbelief()-sBoolean.disbelief()) < 0.001D &&
-				Math.abs(this.uncertainty()-sBoolean.uncertainty()) < 0.001D &&
-				Math.abs(this.baseRate()-sBoolean.baseRate()) < 0.001D ;
+		return Math.abs(this.belief() - sBoolean.belief()) < 0.001D
+				&& Math.abs(this.disbelief() - sBoolean.disbelief()) < 0.001D
+				&& Math.abs(this.uncertainty() - sBoolean.uncertainty()) < 0.001D
+				&& Math.abs(this.baseRate() - sBoolean.baseRate()) < 0.001D;
 
 	}
 
 	public boolean distinct(SBoolean b) {
 		return !this.equals(b);
 	}
-	
+
 	public SBoolean min(SBoolean opinion) { // minimum based on projections
-		return this.projection() <= opinion.projection()? this : opinion;
+		return this.projection() <= opinion.projection() ? this : opinion;
 	}
 
 	public SBoolean max(SBoolean opinion) { // maximum based on projections
-		return this.projection() >= opinion.projection()? this : opinion;
+		return this.projection() >= opinion.projection() ? this : opinion;
 	}
-
 
 	@Override
 	public int hashCode() {
 		int result;
-		result = Math.round((float)this.b*100)+10*Math.round((float)this.d*100)+100*Math.round((float)this.u*100)+1000*Math.round((float)this.a*100);
+		result = Math.round((float) this.b * 100) + 10 * Math.round((float) this.d * 100)
+				+ 100 * Math.round((float) this.u * 100) + 1000 * Math.round((float) this.a * 100);
 		return result;
 	}
-
 
 	/******
 	 * Conversions
 	 */
-	
+
 	public String toString() {
 		return String.format("SBoolean(%5.3f, %5.3f, %5.3f, %5.3f)", this.b, this.d, this.u, this.a);
 	}
 
-	public UBoolean toUBoolean(){ // returns the projected probability
-		return new UBoolean(true, this.projection()); 
+	public UBoolean toUBoolean() { // returns the projected probability
+		return new UBoolean(true, this.projection());
 	}
-	
+
 	/**
-	 * Other Methods 
+	 * Other Methods
 	 */
 	@Override
 	public int compareTo(SBoolean other) {
-		double x = Math.abs(this.belief()-other.belief()) + 
-				   Math.abs(this.disbelief()-other.disbelief()) + 
-				   Math.abs(this.uncertainty()-other.uncertainty()) +
-				   Math.abs(this.baseRate()-other.baseRate());
-		if (x<0.001D) return 0;
-		if (this.projection()-other.projection() < 0) return -1;
+		double x = Math.abs(this.belief() - other.belief()) + Math.abs(this.disbelief() - other.disbelief())
+				+ Math.abs(this.uncertainty() - other.uncertainty()) + Math.abs(this.baseRate() - other.baseRate());
+		if (x < 0.001D)
+			return 0;
+		if (this.projection() - other.projection() < 0)
+			return -1;
 		return 1;
 	}
 
- 	public SBoolean clone() {
-		return new SBoolean(this.belief(),this.disbelief(),this.uncertainty(),this.baseRate(),this.relativeWeight);
+	public SBoolean clone() {
+		return new SBoolean(this.belief(), this.disbelief(), this.uncertainty(), this.baseRate(), this.relativeWeight);
 	}
 
 }
