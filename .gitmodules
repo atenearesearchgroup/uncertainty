@@ -1,0 +1,3 @@
+[submodule "python"]
+	path = uDataTypes/Libraries/Python
+	url = https://github.com/atenearesearchgroup/uncertainty-datatypes-python.git
